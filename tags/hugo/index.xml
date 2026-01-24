@@ -1,4 +1,66 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hugo on Homelab Adventures</title><link>https://hai.wxs.ro/tags/hugo/</link><description>Recent content in Hugo on Homelab Adventures</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sat, 24 Jan 2026 10:16:10 +0200</lastBuildDate><atom:link href="https://hai.wxs.ro/tags/hugo/index.xml" rel="self" type="application/rss+xml"/><item><title>Building This Blog: Hugo + Forgejo CI + GitHub Pages</title><link>https://hai.wxs.ro/docs/infrastructure/building-this-blog/</link><pubDate>Sat, 24 Jan 2026 00:00:00 +0000</pubDate><guid>https://hai.wxs.ro/docs/infrastructure/building-this-blog/</guid><description>&lt;h1 id="building-this-blog"&gt;Building This Blog &lt;a href="#building-this-blog" class="anchor" aria-hidden="true"&gt;&lt;i class="material-icons align-middle"&gt;link&lt;/i&gt;&lt;/a&gt;&lt;/h1&gt;&lt;p&gt;When I decided to document my homelab adventures, I wanted something simple. No Kubernetes deployments. No container maintenance. Just write markdown and publish.&lt;/p&gt;
-&lt;h2 id="the-problem-with-self-hosting-everything"&gt;The Problem with Self-Hosting Everything &lt;a href="#the-problem-with-self-hosting-everything" class="anchor" aria-hidden="true"&gt;&lt;i class="material-icons align-middle"&gt;link&lt;/i&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;My homelab runs 90+ ArgoCD-managed applications across a 3-node Proxmox cluster. Adding another service means more maintenance, more updates, more things that can break at 2 AM.&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Homelab Adventures – Hugo</title><link>https://hai.wxs.ro/tags/hugo/</link><description>Recent content in Hugo on Homelab Adventures</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 24 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://hai.wxs.ro/tags/hugo/index.xml" rel="self" type="application/rss+xml"/><item><title>Building This Blog: Hugo + Forgejo CI + GitHub Pages</title><link>https://hai.wxs.ro/infrastructure/building-this-blog/</link><pubDate>Sat, 24 Jan 2026 00:00:00 +0000</pubDate><guid>https://hai.wxs.ro/infrastructure/building-this-blog/</guid><description>
+&lt;h1&gt;Building This Blog&lt;/h1&gt;&lt;p&gt;When I decided to document my homelab adventures, I wanted something simple. No Kubernetes deployments. No container maintenance. Just write markdown and publish.&lt;/p&gt;
+&lt;h2&gt;The Problem with Self-Hosting Everything&lt;span class="hx:absolute hx:-mt-20" id="the-problem-with-self-hosting-everything"&gt;&lt;/span&gt;
+&lt;a href="#the-problem-with-self-hosting-everything" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;My homelab runs 90+ ArgoCD-managed applications across a 3-node Proxmox cluster. Adding another service means more maintenance, more updates, more things that can break at 2 AM.&lt;/p&gt;
 &lt;p&gt;For a simple blog? Overkill.&lt;/p&gt;
-&lt;h2 id="the-solution-static-site--free-hosting"&gt;The Solution: Static Site + Free Hosting &lt;a href="#the-solution-static-site--free-hosting" class="anchor" aria-hidden="true"&gt;&lt;i class="material-icons align-middle"&gt;link&lt;/i&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I landed on this architecture:&lt;/p&gt;</description></item></channel></rss>
+&lt;h2&gt;The Solution: Static Site + Free Hosting&lt;span class="hx:absolute hx:-mt-20" id="the-solution-static-site--free-hosting"&gt;&lt;/span&gt;
+&lt;a href="#the-solution-static-site--free-hosting" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I landed on this architecture:&lt;/p&gt;
+&lt;pre class="mermaid hx:mt-6"&gt;
+graph LR
+A[Forgejo Repo] --&amp;gt;|push to main| B[Forgejo CI]
+B --&amp;gt;|hugo build| C[gh-pages branch]
+C --&amp;gt;|mirror sync| D[GitHub]
+D --&amp;gt;|GitHub Pages| E[hai.wxs.ro]
+&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;Source stays private&lt;/strong&gt; in Forgejo. &lt;strong&gt;Public site&lt;/strong&gt; lives on GitHub Pages with free SSL.&lt;/p&gt;
+&lt;h2&gt;The Stack&lt;span class="hx:absolute hx:-mt-20" id="the-stack"&gt;&lt;/span&gt;
+&lt;a href="#the-stack" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Component&lt;/th&gt;
+&lt;th&gt;Choice&lt;/th&gt;
+&lt;th&gt;Why&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Static generator&lt;/td&gt;
+&lt;td&gt;Hugo&lt;/td&gt;
+&lt;td&gt;Fast builds, Go templating&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Theme&lt;/td&gt;
+&lt;td&gt;Lotus Docs&lt;/td&gt;
+&lt;td&gt;Dark mode, search, diagrams&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Source hosting&lt;/td&gt;
+&lt;td&gt;Forgejo&lt;/td&gt;
+&lt;td&gt;Self-hosted, private&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;CI/CD&lt;/td&gt;
+&lt;td&gt;Forgejo Actions&lt;/td&gt;
+&lt;td&gt;GitHub Actions compatible&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Public hosting&lt;/td&gt;
+&lt;td&gt;GitHub Pages&lt;/td&gt;
+&lt;td&gt;Free, CDN-backed, zero maintenance&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;How It Works&lt;span class="hx:absolute hx:-mt-20" id="how-it-works"&gt;&lt;/span&gt;
+&lt;a href="#how-it-works" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;Push markdown to &lt;code&gt;main&lt;/code&gt; branch in Forgejo&lt;/li&gt;
+&lt;li&gt;Forgejo CI builds the site with Hugo&lt;/li&gt;
+&lt;li&gt;Built files pushed to &lt;code&gt;gh-pages&lt;/code&gt; branch&lt;/li&gt;
+&lt;li&gt;Forgejo mirror syncs to GitHub automatically&lt;/li&gt;
+&lt;li&gt;GitHub Pages serves the content&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The entire pipeline runs in under a minute.&lt;/p&gt;
+&lt;h2&gt;Key Decisions&lt;span class="hx:absolute hx:-mt-20" id="key-decisions"&gt;&lt;/span&gt;
+&lt;a href="#key-decisions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Why not Cloudflare Pages?&lt;/strong&gt; GitHub Pages is simpler for this use case - just push to a branch.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why Forgejo mirror?&lt;/strong&gt; I already use Forgejo mirrors for backup. The gh-pages branch syncs automatically alongside the main branch.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why Lotus Docs?&lt;/strong&gt; Built-in FlexSearch, Mermaid diagrams, and dark mode without configuration.&lt;/p&gt;
+&lt;h2&gt;What&amp;rsquo;s Next&lt;span class="hx:absolute hx:-mt-20" id="whats-next"&gt;&lt;/span&gt;
+&lt;a href="#whats-next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This blog will document the homelab journey - infrastructure patterns, automation workflows, and lessons learned from running self-hosted services at home.&lt;/p&gt;</description></item></channel></rss>
