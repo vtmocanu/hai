@@ -29,8 +29,8 @@ D --&amp;gt;|GitHub Pages| E[hai.wxs.ro]
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Theme&lt;/td&gt;
-&lt;td&gt;Lotus Docs&lt;/td&gt;
-&lt;td&gt;Dark mode, search, diagrams&lt;/td&gt;
+&lt;td&gt;Hextra&lt;/td&gt;
+&lt;td&gt;Modern Tailwind-based, dark mode, search, diagrams&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Source hosting&lt;/td&gt;
@@ -61,6 +61,6 @@ D --&amp;gt;|GitHub Pages| E[hai.wxs.ro]
 &lt;h2&gt;Key Decisions&lt;span class="hx:absolute hx:-mt-20" id="key-decisions"&gt;&lt;/span&gt;
 &lt;a href="#key-decisions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Why not Cloudflare Pages?&lt;/strong&gt; GitHub Pages is simpler for this use case - just push to a branch.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Why Forgejo mirror?&lt;/strong&gt; I already use Forgejo mirrors for backup. The gh-pages branch syncs automatically alongside the main branch.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Why Lotus Docs?&lt;/strong&gt; Built-in FlexSearch, Mermaid diagrams, and dark mode without configuration.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Why Hextra?&lt;/strong&gt; Modern Tailwind-based theme with FlexSearch, Mermaid diagrams, and dark mode out of the box.&lt;/p&gt;
 &lt;h2&gt;What&amp;rsquo;s Next&lt;span class="hx:absolute hx:-mt-20" id="whats-next"&gt;&lt;/span&gt;
 &lt;a href="#whats-next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This blog will document the homelab journey - infrastructure patterns, automation workflows, and lessons learned from running self-hosted services at home.&lt;/p&gt;</description></item></channel></rss>
