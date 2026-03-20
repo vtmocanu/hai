@@ -112,7 +112,7 @@ The talks serve a different purpose at the conference itself. Use the schedule t
   - [Gianluca Mardente](https://www.linkedin.com/in/gianlucamardente/)
   - [Yury Tsarev](https://www.linkedin.com/in/yurytsarev/)
   - [Mark Sagi-Kazar](https://www.linkedin.com/in/sagikazarmark/)
-  - [Lin Sun](https://www.linkedin.com/in/lin-sun-a9b7a81/) - involved in [Kagent](https://kagent.dev/) and [KGateway](https://kgateway.dev/)
+  - [Lin Sun](https://www.linkedin.com/in/lin-sun-a9b7a81/)
 - **Find people**, not content. If a talk interests you, check who's speaking, then find them at their booth or in the hallway afterward
 - **Use talks as rest periods.** After hours of networking, sitting in a dark room listening to someone is genuinely restorative
 - **Attend niche talks in smaller rooms.** The big keynotes are the most likely to be watched online. The 50-person room talks are where the real gems hide, and where you can actually talk to the speaker afterward
