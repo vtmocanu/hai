@@ -36,7 +36,7 @@ All meters are color-coded: green under 50%, gold 50-80%, coral 80%+.
 
 **Session topic** - A `UserPromptSubmit` hook calls Claude Haiku with a snippet of your conversation and writes a "Project: Focus" label to `~/.claude/session-topics/{session_id}.txt`. The statusline reads this file on each render. Rate-limited to prompt 1 and every 10 prompts after that.
 
-**Async API quota** - Usage data is fetched from the Anthropic OAuth API, cached for 60 seconds, and refreshed in the background. If the cache goes stale past 5 minutes, it does a brief synchronous fetch before rendering.
+**Native API quota** - Since [v2.1.80](https://github.com/anthropics/claude-code/releases/tag/v2.1.80), Claude Code passes a `rate_limits` field directly in the statusline JSON input, with `five_hour` and `seven_day` windows containing `used_percentage` (integer) and `resets_at` (Unix epoch). No more manual API calls, token management, or caching needed.
 
 **Thinking effort level** - The effort level isn't exposed in the statusline JSON, so the script detects it by parsing the session transcript for `/model` and `/effort` command outputs. The grep is anchored to the JSON `"content":"<local-command-stdout>` prefix to avoid matching conversation text that discusses effort levels. Falls back to the `effortLevel` setting in `~/.claude/settings.json`, then defaults to `medium`. Inspired by [ccstatusline](https://github.com/sirmalloc/ccstatusline)'s approach.
 
@@ -50,7 +50,7 @@ All meters are color-coded: green under 50%, gold 50-80%, coral 80%+.
 The fastest way to get this running: open Claude Code and paste this page's URL with "implement this statusline for me". It will read the scripts, save them, configure `settings.json`, and set up the hook.
 {{< /callout >}}
 
-**Requirements:** [Nerd Font](https://www.nerdfonts.com/) v3+ (for powerline corners and icons), `jq`, `curl`, `kubectl` (optional).
+**Requirements:** [Nerd Font](https://www.nerdfonts.com/) v3+ (for powerline corners and icons), `jq`, `kubectl` (optional). Claude Code v2.1.80+ for native rate limit data.
 
 1. Save both scripts below and make them executable:
 
@@ -252,12 +252,11 @@ make_bar() {
     printf "%b" "$bar"
 }
 
-# ── API rate limit helpers ──────────────────────────────────────────────────
+# ── Rate limit reset formatter (takes Unix epoch) ─────────────────────────
 format_reset() {
-    local ts="$1"
-    [ -z "$ts" ] || [ "$ts" = "null" ] && return
-    local epoch now diff
-    epoch=$(TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "${ts:0:19}" "+%s" 2>/dev/null) || return
+    local epoch="$1"
+    [ -z "$epoch" ] || [ "$epoch" = "null" ] || [ "$epoch" = "0" ] && return
+    local now diff
     now=$(date +%s)
     diff=$((epoch - now))
     [ "$diff" -le 0 ] && { printf "now"; return; }
@@ -268,70 +267,6 @@ format_reset() {
     else printf "%dm" "$m"
     fi
 }
-
-# ── Fetch API rate limits (60s async refresh; sync fallback if >5min stale) ──
-CACHE_FILE="/tmp/claude-usage-cache"
-CACHE_MAX_AGE=60
-CACHE_STALE_AGE=300
-
-_get_token() {
-    local creds token
-    creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null) && \
-        token=$(echo "$creds" | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null) && \
-        [ -n "$token" ] && { echo "$token"; return; }
-    token=$(jq -r '.claudeAiOauth.accessToken // empty' "$HOME/.claude/.credentials.json" 2>/dev/null)
-    [ -n "$token" ] && echo "$token"
-}
-
-_fetch_usage_sync() {
-    local token data
-    token=$(_get_token) || return
-    [ -z "${token:-}" ] && return
-    data=$(curl -s --max-time 4 \
-           -H "Authorization: Bearer $token" \
-           -H "anthropic-beta: oauth-2025-04-20" \
-           -H "Content-Type: application/json" \
-           -H "User-Agent: claude-code/2.1.4" \
-           -H "Accept: application/json" \
-           https://api.anthropic.com/api/oauth/usage 2>/dev/null)
-    if [ -n "$data" ] && echo "$data" | jq -e '.five_hour' >/dev/null 2>&1; then
-        echo "$data" > "${CACHE_FILE}.tmp" && mv "${CACHE_FILE}.tmp" "$CACHE_FILE"
-        echo "$data"
-    fi
-}
-
-get_usage() {
-    local age=9999
-    if [ -f "$CACHE_FILE" ]; then
-        age=$(($(date +%s) - $(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)))
-        if [ "$age" -lt "$CACHE_MAX_AGE" ]; then
-            cat "$CACHE_FILE"; return
-        fi
-    fi
-    local token
-    token=$(_get_token 2>/dev/null) || true
-    if [ -n "${token:-}" ]; then
-        if [ "$age" -gt "$CACHE_STALE_AGE" ]; then
-            _fetch_usage_sync 2>/dev/null || true
-        else
-            ( data=$(curl -s --max-time 15 \
-                   -H "Authorization: Bearer $token" \
-                   -H "anthropic-beta: oauth-2025-04-20" \
-                   -H "Content-Type: application/json" \
-                   -H "User-Agent: claude-code/2.1.4" \
-                   -H "Accept: application/json" \
-                   https://api.anthropic.com/api/oauth/usage 2>/dev/null)
-              if [ -n "$data" ] && echo "$data" | jq -e '.five_hour' >/dev/null 2>&1; then
-                  echo "$data" > "${CACHE_FILE}.tmp" && mv "${CACHE_FILE}.tmp" "$CACHE_FILE"
-              fi
-            ) &
-            disown 2>/dev/null
-        fi
-    fi
-    [ -f "$CACHE_FILE" ] && cat "$CACHE_FILE"
-}
-
-USAGE_DATA=$(get_usage 2>/dev/null) || true
 
 # ── Count visible columns ──────────────────────────────────────────────────
 count_cols() {
@@ -368,25 +303,23 @@ esac
 
 L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
 
-if [ -n "${USAGE_DATA:-}" ]; then
-    FIVE_PCT=$(echo "$USAGE_DATA" | jq -r '.five_hour.utilization // empty' 2>/dev/null | cut -d. -f1) || true
-    SEVEN_PCT=$(echo "$USAGE_DATA" | jq -r '.seven_day.utilization // empty' 2>/dev/null | cut -d. -f1) || true
-    FIVE_RESET_TS=$(echo "$USAGE_DATA" | jq -r '.five_hour.resets_at // empty' 2>/dev/null) || true
-    SEVEN_RESET_TS=$(echo "$USAGE_DATA" | jq -r '.seven_day.resets_at // empty' 2>/dev/null) || true
+FIVE_PCT=$(echo "$DATA" | jq -r '.rate_limits.five_hour.used_percentage // empty' 2>/dev/null) || true
+SEVEN_PCT=$(echo "$DATA" | jq -r '.rate_limits.seven_day.used_percentage // empty' 2>/dev/null) || true
+FIVE_RESET_TS=$(echo "$DATA" | jq -r '.rate_limits.five_hour.resets_at // empty' 2>/dev/null) || true
+SEVEN_RESET_TS=$(echo "$DATA" | jq -r '.rate_limits.seven_day.resets_at // empty' 2>/dev/null) || true
 
-    if [ -n "${FIVE_PCT:-}" ] && [ -n "${SEVEN_PCT:-}" ]; then
-        FIVE_CLR=$(pct_txt_color "$FIVE_PCT")
-        FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
-        FIVE_TIME=$(format_reset "$FIVE_RESET_TS")
-        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_BAR} ${FIVE_CLR}${FIVE_PCT}%${B2}"
-        [ -n "${FIVE_TIME:-}" ] && L2C+=" ${L2_DIM}${FIVE_TIME}${B2}"
+if [ -n "${FIVE_PCT:-}" ] && [ -n "${SEVEN_PCT:-}" ]; then
+    FIVE_CLR=$(pct_txt_color "$FIVE_PCT")
+    FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
+    FIVE_TIME=$(format_reset "$FIVE_RESET_TS")
+    L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_BAR} ${FIVE_CLR}${FIVE_PCT}%${B2}"
+    [ -n "${FIVE_TIME:-}" ] && L2C+=" ${L2_DIM}${FIVE_TIME}${B2}"
 
-        SEVEN_CLR=$(pct_txt_color "$SEVEN_PCT")
-        SEVEN_BAR=$(make_bar "$SEVEN_PCT" 5 "$SEVEN_CLR" "$L2_DIM")
-        SEVEN_TIME=$(format_reset "$SEVEN_RESET_TS")
-        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
-        [ -n "${SEVEN_TIME:-}" ] && L2C+=" ${L2_DIM}${SEVEN_TIME}${B2}"
-    fi
+    SEVEN_CLR=$(pct_txt_color "$SEVEN_PCT")
+    SEVEN_BAR=$(make_bar "$SEVEN_PCT" 5 "$SEVEN_CLR" "$L2_DIM")
+    SEVEN_TIME=$(format_reset "$SEVEN_RESET_TS")
+    L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
+    [ -n "${SEVEN_TIME:-}" ] && L2C+=" ${L2_DIM}${SEVEN_TIME}${B2}"
 fi
 
 # ── Claude service status (auto-refresh every 60s in background) ────────────
