@@ -23,7 +23,7 @@ What follows is my complementary perspective, shaped by attending every European
 - **Download the venue maps beforehand.** The venues are huge and you'll waste time wandering around looking for rooms. Have the maps on your phone so you can navigate quickly between sessions and booths
 - **Take notes. Constantly.** I create a dedicated page for each KubeCon where I dump everything: tool names, interesting conversations, booth demos, ideas, follow-ups. There is no way you'll remember everything you see and discuss across four intense days. During the rest of the year I go back to those notes regularly, and they're always more valuable than I expected
 - **Make a list of speakers you want to meet in person.** Not just to attend their talks, but to actually find them and have a conversation. Speakers are usually around at booths, hallways, or parties. A quick "I loved your talk on X" or "I've been using your project for Y" goes a long way
-- **Bring an external battery.** Your phone will die from all the networking, photos, maps, and schedule checking. A power bank is essential
+- **Bring an external battery and maximize your charge.** Your phone will die from all the networking, photos, maps, and schedule checking. A power bank is essential. Also: if you normally limit charging to 80% for battery health (on your phone and laptop), disable that for KubeCon week. Charge everything to 100% and enable battery saver/low power mode
 - **Eat when food is available**, not when you're hungry. The lunch rush is real, and you'll waste 30 minutes in line if you time it wrong
 
 ---
