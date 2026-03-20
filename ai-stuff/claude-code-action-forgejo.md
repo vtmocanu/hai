@@ -135,5 +135,23 @@ Is it battle-tested across every edge case? No. But it handles my daily workflow
 
 The [Forgejo setup guide](https://codeberg.org/vtmocanu/claude-code-action/src/branch/main/docs/forgejo.md) on the Codeberg mirror covers prerequisites, workflow templates, bot user setup, known limitations, and troubleshooting.
 
-<span class="kubecon-egg" title="✈ Filed at 30,000ft · en route to KubeCon 2026 · Amsterdam · via Tailscale · with Claude">✈</span>
+<span class="kubecon-egg" data-tooltip="✈ Filed at 30,000ft · en route to KubeCon 2026 · Amsterdam · via Tailscale · with Claude" title="✈ Filed at 30,000ft · en route to KubeCon 2026 · Amsterdam · via Tailscale · with Claude">✈</span>
+
+<script>
+(function () {
+  var egg = document.querySelector('.kubecon-egg');
+  if (!egg) return;
+  var timer;
+  egg.addEventListener('click', function (e) {
+    e.stopPropagation();
+    clearTimeout(timer);
+    egg.classList.add('active');
+    timer = setTimeout(function () { egg.classList.remove('active'); }, 3000);
+  });
+  document.addEventListener('click', function () {
+    clearTimeout(timer);
+    egg.classList.remove('active');
+  });
+})();
+</script>
 
