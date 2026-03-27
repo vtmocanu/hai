@@ -1,50 +1,21 @@
 # Custom Claude Code Status Line
 
-Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've gone through two versions so far.
+Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. The current version is **v2.0.0** (see the v1 Powerline style in the tabs below).
 
-## v2: Per-Session Colors + Session Topics
-
-The current version uses a two-line layout with diagonal corner cuts. Each session gets a unique color from a 12-color palette (hashed from the session ID), so when I have multiple sessions open, I can tell them apart at a glance.
+The v2 layout uses two lines with diagonal corner cuts and width-synchronized lines. Each session gets a unique color from a 12-color palette (hashed from the session ID), so when I have multiple sessions open, I can tell them apart at a glance.
 
 ![Claude Code statusline v2](/images/claude-statusline-v2.png)
 
-**Line 1** (project-colored background):
+**Line 1** (project-colored background): session topic, folder, git branch + status, Kubernetes context
 
-- **Session topic** (prompts: Session parsing) - LLM-generated "Project: Focus" label, updated every 10 prompts by calling Claude Haiku in the background
-- **Folder** (wxs/prompts) - current repo as parent/folder
-- **Git branch** (main) - with staged/modified/untracked counts
-- **Kubernetes context** (k8s-blue-cc) - active cluster
-
-**Line 2** (black background):
-
-- **Model + effort** (Opus 4.6 max) - active Claude model with current [thinking effort level](https://llmx.tech/blog/how-to-change-claude-code-effort-level-best-settings-per-subscription-tier/), color-coded (sage for max/high, gray for medium, coral for low)
-- **Elapsed time** (3h45m) - color-coded green/gold/red as a proxy for context degradation
-- **Context window** (6% of 1000k) - visual bar + percentage
-- **5h usage** (3%, resets in 4h31m) - rolling 5-hour API quota bar
-- **7d usage** (5%, resets in 5d17h) - rolling 7-day API quota bar
-- **Claude service status** - live indicator from [status.claude.com](https://status.claude.com), auto-refreshed every 60 seconds in the background. Shows `✓ ok` (green) when operational, `⚠ incident title` (coral) during incidents, `✗` (red) for major outages
+**Line 2** (black background): model + effort level, elapsed time, context window bar, 5h/7d API quota bars with reset times, Claude service status icon
 
 All meters are color-coded: green under 50%, gold 50-80%, coral 80%+.
 
-### Key Features
+{{< tabs >}}
+{{< tab name="Installation" icon="lightning-bolt" >}}
 
-**Per-session color** - The session ID is hashed to one of 12 colors (blue, green, pink, amber, teal, purple, sky, olive, coral, steel, khaki, violet). You can pin a specific color to a project via `~/.claude/statusline-color-overrides.json`:
-
-```json
-{ "/path/to/your/project": 4 }
-```
-
-**Session topic** - A `UserPromptSubmit` hook calls Claude Haiku with a snippet of your conversation and writes a "Project: Focus" label to `~/.claude/session-topics/{session_id}.txt`. The statusline reads this file on each render. Rate-limited to prompt 1 and every 10 prompts after that.
-
-**Native API quota** - Since [v2.1.80](https://github.com/anthropics/claude-code/releases/tag/v2.1.80), Claude Code passes a `rate_limits` field directly in the statusline JSON input, with `five_hour` and `seven_day` windows containing `used_percentage` (integer) and `resets_at` (Unix epoch). No more manual API calls, token management, or caching needed.
-
-**Thinking effort level** - The effort level isn't exposed in the statusline JSON, so the script detects it by parsing the session transcript for `/model` and `/effort` command outputs. The grep is anchored to the JSON `"content":"<local-command-stdout>` prefix to avoid matching conversation text that discusses effort levels. Falls back to the `effortLevel` setting in `~/.claude/settings.json`, then defaults to `medium`. Inspired by [ccstatusline](https://github.com/sirmalloc/ccstatusline)'s approach.
-
-**Claude service status** - A separate fetch script (`~/.claude/claude-status-fetch.sh`) calls the [status.claude.com](https://status.claude.com) Statuspage JSON API and writes a one-line cache to `/tmp/claude-service-status`. The statusline checks the cache age on each render and spawns a background refresh if it's older than 60 seconds, so it never blocks rendering. No external scheduler (launchd/cron) needed.
-
-**Terminal tab title** - The tab title is set to the session topic (or folder name if no topic exists yet).
-
-### Installation
+## Quick Start
 
 {{< callout type="info" >}}
 The fastest way to get this running: open Claude Code and paste this page's URL with "implement this statusline for me". It will read the scripts, save them, configure `settings.json`, and set up the hook.
@@ -52,15 +23,20 @@ The fastest way to get this running: open Claude Code and paste this page's URL 
 
 **Requirements:** [Nerd Font](https://www.nerdfonts.com/) v3+ (for powerline corners and icons), `jq`, `kubectl` (optional). Claude Code v2.1.80+ for native rate limit data.
 
-1. Save both scripts below and make them executable:
+### 1. Save the scripts
+
+Save the three scripts from the "Scripts" section below and make them executable:
 
 ```bash
 chmod +x ~/.claude/statusline.sh
+chmod +x ~/.claude/claude-status-fetch.sh
 chmod +x ~/.claude/hooks/session-topic-capture.sh
 mkdir -p ~/.claude/session-topics
 ```
 
-2. Add to `~/.claude/settings.json`:
+### 2. Configure Claude Code
+
+Add to `~/.claude/settings.json`:
 
 ```json
 {
@@ -84,18 +60,20 @@ mkdir -p ~/.claude/session-topics
 }
 ```
 
-3. Restart Claude Code. The topic will appear after your first prompt (it runs async, so it shows on the second render).
+### 3. Restart Claude Code
 
-### Full Scripts
+The topic will appear after your first prompt (it runs async, so it shows on the second render).
 
-{{% details title="statusline.sh (v2)" closed="true" %}}
+### Scripts
+
+{{% details title="statusline.sh" closed="true" %}}
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
+[ "${STATUSLINE_DEBUG:-}" = "1" ] && exec 2>/tmp/statusline-debug.log
 
 DATA=$(cat)
-
 # ── Extract fields ──────────────────────────────────────────────────────────
 IFS=$'\t' read -r MODEL MODEL_ID DIR PCT CTX_SIZE DURATION_MS AGENT MODE < <(
     echo "$DATA" | jq -r '[
@@ -119,16 +97,16 @@ IFS=$'\t' read -r MODEL MODEL_ID DIR PCT CTX_SIZE DURATION_MS AGENT MODE < <(
     ] | @tsv'
 )
 TRANSCRIPT_PATH=$(echo "$DATA" | jq -r '.transcript_path // ""' 2>/dev/null)
+PCT=${PCT%%.*}  # truncate jq float rounding (e.g. 14.000000000000002 → 14)
 CTX_SIZE_K=$((CTX_SIZE / 1000))
-COLS=$(tput cols 2>/dev/null || echo 120)
+# Max line width before Claude Code's cli-truncate drops line 2
+SAFE_WIDTH=${STATUSLINE_WIDTH:-110}
 
 TOPIC=""  # populated after SESSION_ID is extracted below
 
 # ── Effort level detection (transcript → settings → default) ──────────────
 EFFORT=""
 if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
-    # Match both "/model" and "/effort" outputs, anchored to JSON content field
-    # to avoid matching conversation text that mentions these patterns
     EFFORT=$(grep -E '"content":"<local-command-stdout>(Set model to.*effort|Set effort level to)' "$TRANSCRIPT_PATH" 2>/dev/null \
         | tail -1 | grep -oE '\b(low|medium|high|max)\b' | tail -1 || true)
 fi
@@ -153,7 +131,7 @@ RST="\033[0m"
 CWD_FULL=$(echo "$DATA" | jq -r '.cwd // "~"')
 PROJECT_ROOT=$(git -C "$CWD_FULL" rev-parse --show-toplevel 2>/dev/null || echo "$CWD_FULL")
 SESSION_ID=$(echo "$DATA" | jq -r '.session_id // empty' 2>/dev/null)
-PHASH=$(printf '%s' "${SESSION_ID:-$CWD_FULL}" | cksum | cut -d' ' -f1)
+PHASH=$(printf '%s' "${SESSION_ID:-$CWD_FULL}" | cksum | cut -d' ' -f1 || echo "0")
 
 # ── Session topic ─────────────────────────────────────────────────────────
 if [ -n "${SESSION_ID:-}" ]; then
@@ -195,17 +173,17 @@ TXT_FG="\033[38;2;${TXT_R};${TXT_G};${TXT_B}m"
 TXT_BOLD="\033[38;2;${TXT_R};${TXT_G};${TXT_B};1m"
 PROJ_FG="\033[38;2;${BG_R};${BG_G};${BG_B}m"
 
-# ── Line 2 colors (black fill, light gray text, colored % numbers) ──────────
+# ── Line 2 colors ──────────────────────────────────────────────────────────
 BG2="\033[48;2;0;0;0m"
 B2="${RST}${BG2}"
-L2_TXT="\033[38;2;170;170;170m"   # light gray
-L2_DIM="\033[38;2;80;80;80m"      # dim gray for separators + resets
+L2_TXT="\033[38;2;170;170;170m"
+L2_DIM="\033[38;2;80;80;80m"
 
 pct_txt_color() {
     local p=$1
-    if   [ "$p" -gt 80 ]; then printf "\033[38;2;225;150;150m"   # coral
-    elif [ "$p" -gt 50 ]; then printf "\033[38;2;215;195;125m"   # gold
-    else                        printf "\033[38;2;150;210;150m"   # sage
+    if   [ "$p" -gt 80 ]; then printf "\033[38;2;225;150;150m"
+    elif [ "$p" -gt 50 ]; then printf "\033[38;2;215;195;125m"
+    else                        printf "\033[38;2;150;210;150m"
     fi
 }
 
@@ -233,11 +211,9 @@ if   [ "$H" -gt 0 ]; then TIME="${H}h${M}m"
 elif [ "$M" -gt 0 ]; then TIME="${M}m${S}s"
 else TIME="${S}s"
 fi
-
-# Color-code elapsed time
-if   [ "$H" -gt 2 ]; then TIME_CLR="\033[38;2;225;150;150m"   # coral: 3h+
-elif [ "$H" -gt 0 ]; then TIME_CLR="\033[38;2;215;195;125m"   # gold: 1-3h
-else                      TIME_CLR="\033[38;2;150;210;150m"   # sage: <1h
+if   [ "$H" -gt 2 ]; then TIME_CLR="\033[38;2;225;150;150m"
+elif [ "$H" -gt 0 ]; then TIME_CLR="\033[38;2;215;195;125m"
+else                      TIME_CLR="\033[38;2;150;210;150m"
 fi
 
 # ── Bar builder ─────────────────────────────────────────────────────────────
@@ -252,7 +228,7 @@ make_bar() {
     printf "%b" "$bar"
 }
 
-# ── Rate limit reset formatter (takes Unix epoch) ─────────────────────────
+# ── Rate limit reset formatter ─────────────────────────────────────────────
 format_reset() {
     local epoch="$1"
     [ -z "$epoch" ] || [ "$epoch" = "null" ] || [ "$epoch" = "0" ] && return
@@ -268,10 +244,9 @@ format_reset() {
     fi
 }
 
-# ── Count visible columns ──────────────────────────────────────────────────
+# ── Count visible columns (ANSI-aware) ────────────────────────────────────
 count_cols() {
-    local ESC=$'\033'
-    printf "%b" "$1" | sed "s/${ESC}\[[0-9;]*m//g" | tr -d '\n' | LC_ALL=en_US.UTF-8 wc -m | tr -d ' '
+    printf "%b" "$1" | perl -pe 's/\e\[[0-9;]*m//g' | tr -d '\n' | LC_ALL=en_US.UTF-8 wc -m | tr -d ' '
 }
 
 # ── Line 1 content ─────────────────────────────────────────────────────────
@@ -283,22 +258,20 @@ if [ -n "$BRANCH" ]; then
     [ -n "$GIT_STATUS" ] && L1C+=" ${TXT_FG}${GIT_STATUS}${B}"
 fi
 [ -n "$AGENT" ] && L1C+=" ${TXT_FG}${AGENT}${B}"
-[ -n "$MODE" ]  && L1C+=" ${SEP}${B} \033[38;2;150;100;0;1m${MODE}${B}"
+[ -n "$MODE" ]  && L1C+=" ${SEP}${B} \033[1;38;2;150;100;0m${MODE}${B}"
 if [ -n "$K8S_CTX" ]; then
     L1C+=" ${SEP}${B} ${TXT_FG}${NF_K8S} ${K8S_CTX}${B}"
 fi
 L1C+=" "
 
-# ── Line 2 content ──────────────────────────────────────────────────────────
+# ── Line 2 content (adaptive width) ────────────────────────────────────────
 CTX_CLR=$(pct_txt_color "$PCT")
-CTX_BAR=$(make_bar "$PCT" 10 "$CTX_CLR" "$L2_DIM")
-
-# Effort level color
+CTX_BAR=$(make_bar "$PCT" 7 "$CTX_CLR" "$L2_DIM")
 case $EFFORT in
-    max)    EFFORT_CLR="\033[38;2;150;210;150m" ;;  # sage
-    high)   EFFORT_CLR="\033[38;2;150;210;150m" ;;  # sage
-    medium) EFFORT_CLR="\033[38;2;170;170;170m" ;;  # gray (blends in)
-    low)    EFFORT_CLR="\033[38;2;225;150;150m" ;;  # coral (warning)
+    max)    EFFORT_CLR="\033[38;2;150;210;150m" ;;
+    high)   EFFORT_CLR="\033[38;2;150;210;150m" ;;
+    medium) EFFORT_CLR="\033[38;2;170;170;170m" ;;
+    low)    EFFORT_CLR="\033[38;2;225;150;150m" ;;
 esac
 
 L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
@@ -308,83 +281,85 @@ SEVEN_PCT=$(echo "$DATA" | jq -r '.rate_limits.seven_day.used_percentage // empt
 FIVE_RESET_TS=$(echo "$DATA" | jq -r '.rate_limits.five_hour.resets_at // empty' 2>/dev/null) || true
 SEVEN_RESET_TS=$(echo "$DATA" | jq -r '.rate_limits.seven_day.resets_at // empty' 2>/dev/null) || true
 
+# Adaptive rate limits: full/compact/minimal based on available width
+L2_BASE_W=$(count_cols "$L2C" 2>/dev/null) || L2_BASE_W=50
+RATE_AVAIL=$((SAFE_WIDTH - L2_BASE_W - 5))
+
 if [ -n "${FIVE_PCT:-}" ] && [ -n "${SEVEN_PCT:-}" ]; then
     FIVE_CLR=$(pct_txt_color "$FIVE_PCT")
-    FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
-    FIVE_TIME=$(format_reset "$FIVE_RESET_TS")
-    L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_BAR} ${FIVE_CLR}${FIVE_PCT}%${B2}"
-    [ -n "${FIVE_TIME:-}" ] && L2C+=" ${L2_DIM}${FIVE_TIME}${B2}"
-
     SEVEN_CLR=$(pct_txt_color "$SEVEN_PCT")
-    SEVEN_BAR=$(make_bar "$SEVEN_PCT" 5 "$SEVEN_CLR" "$L2_DIM")
-    SEVEN_TIME=$(format_reset "$SEVEN_RESET_TS")
-    L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
-    [ -n "${SEVEN_TIME:-}" ] && L2C+=" ${L2_DIM}${SEVEN_TIME}${B2}"
+
+    if [ "$RATE_AVAIL" -gt 40 ]; then
+        # Full: bars + pct + reset times
+        FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
+        FIVE_TIME=$(format_reset "$FIVE_RESET_TS")
+        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_BAR} ${FIVE_CLR}${FIVE_PCT}%${B2}"
+        [ -n "${FIVE_TIME:-}" ] && L2C+=" ${L2_DIM}${FIVE_TIME}${B2}"
+        SEVEN_BAR=$(make_bar "$SEVEN_PCT" 5 "$SEVEN_CLR" "$L2_DIM")
+        SEVEN_TIME=$(format_reset "$SEVEN_RESET_TS")
+        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
+        [ -n "${SEVEN_TIME:-}" ] && L2C+=" ${L2_DIM}${SEVEN_TIME}${B2}"
+    elif [ "$RATE_AVAIL" -gt 25 ]; then
+        # Compact: bars + pct, no reset times
+        FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
+        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_BAR} ${FIVE_CLR}${FIVE_PCT}%${B2}"
+        SEVEN_BAR=$(make_bar "$SEVEN_PCT" 5 "$SEVEN_CLR" "$L2_DIM")
+        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
+    elif [ "$RATE_AVAIL" -gt 15 ]; then
+        # Minimal: just percentages
+        L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_CLR}${FIVE_PCT}%${B2} ${L2_TXT}7d ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
+    fi
 fi
 
-# ── Claude service status (auto-refresh every 60s in background) ────────────
+# ── Claude service status (icon-only, auto-refresh every 60s) ────────────
 SVC_CACHE="/tmp/claude-service-status"
 SVC_FETCH="$HOME/.claude/claude-status-fetch.sh"
 if [ -x "$SVC_FETCH" ]; then
     SVC_AGE=9999
     [ -f "$SVC_CACHE" ] && SVC_AGE=$(($(date +%s) - $(stat -f %m "$SVC_CACHE" 2>/dev/null || echo 0)))
     if [ "$SVC_AGE" -ge 60 ]; then
-        ("$SVC_FETCH" &) 2>/dev/null
+        ("$SVC_FETCH" >/dev/null 2>/dev/null &)
     fi
 fi
 if [ -f "$SVC_CACHE" ]; then
     SVC_RAW=$(head -1 "$SVC_CACHE" 2>/dev/null)
     case "$SVC_RAW" in
         operational)
-            SVC_CLR="\033[38;2;100;200;120m"   # sage green
-            SVC_ICON="✓"
-            SVC_LABEL="ok"
-            L2C+=" ${L2_DIM}│${B2} ${SVC_CLR}${SVC_ICON} ${SVC_LABEL}${B2}"
-            ;;
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;100;200;120m✓${B2}" ;;
         incident:*)
-            INCIDENT_TITLE="${SVC_RAW#incident:}"
-            SVC_CLR="\033[38;2;225;150;100m"   # coral/amber
-            SVC_ICON="⚠"
-            L2C+=" ${L2_DIM}│${B2} ${SVC_CLR}${SVC_ICON} ${INCIDENT_TITLE}${B2}"
-            ;;
-        degraded_performance:*|partial_outage:*|major_outage:*)
-            SVC_IND="${SVC_RAW%%:*}"
-            SVC_DESC="${SVC_RAW#*:}"
-            SVC_DESC="${SVC_DESC%%:*}"
-            case "$SVC_IND" in
-                major_outage)         SVC_CLR="\033[38;2;225;100;100m" ; SVC_ICON="✗" ;;
-                partial_outage)       SVC_CLR="\033[38;2;225;150;100m" ; SVC_ICON="⚠" ;;
-                degraded_performance) SVC_CLR="\033[38;2;215;195;125m" ; SVC_ICON="~" ;;
-                *)                    SVC_CLR="\033[38;2;170;170;170m" ; SVC_ICON="?" ;;
-            esac
-            SVC_LABEL=$(echo "$SVC_DESC" | cut -c1-40)
-            L2C+=" ${L2_DIM}│${B2} ${SVC_CLR}${SVC_ICON} ${SVC_LABEL}${B2}"
-            ;;
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;225;150;100m⚠${B2}" ;;
+        degraded_performance:*)
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;215;195;125m~${B2}" ;;
+        partial_outage:*|major_outage:*)
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;225;100;100m✗${B2}" ;;
     esac
 fi
 
 L2C+=" "
 
-# ── Match line lengths: pad shorter line ──────────────────────────────────
-L1_COLS=$(count_cols "$L1C")
-L2_COLS=$(count_cols "$L2C")
-if [ "${L1_COLS:-0}" -gt 0 ] && [ "${L2_COLS:-0}" -gt 0 ]; then
-    DIFF=$((L2_COLS - L1_COLS))
-    if [ "$DIFF" -gt 0 ] && [ "$DIFF" -le 120 ]; then
-        L1C+="${BG1}$(printf '%*s' "$DIFF" '')"
-    elif [ "$DIFF" -lt 0 ] && [ "$DIFF" -ge -120 ]; then
-        L2C+="${BG2}$(printf '%*s' "$((-DIFF))" '')"
-    fi
-fi
-
 # ── Set terminal tab title ───────────────────────────────────────────────────
 _TAB_TITLE="${TOPIC:-${DIR:-Claude}}"
 printf '\033]1;%s\007' "$_TAB_TITLE" > /dev/tty 2>/dev/null || true
 
-# ── Fill to terminal edge + diagonal corner cuts ──────────────────────────────
+# ── Pad shorter line to match longer (capped at SAFE_WIDTH) ──────────────────
+{
+    L1_COLS=$(count_cols "$L1C")
+    L2_COLS=$(count_cols "$L2C")
+    SYNC_W=$L2_COLS
+    [ "$L1_COLS" -gt "$SYNC_W" ] && SYNC_W=$L1_COLS
+    [ "$SYNC_W" -gt "$SAFE_WIDTH" ] && SYNC_W=$SAFE_WIDTH
+    if [ "$L1_COLS" -gt 10 ] && [ "$L1_COLS" -lt "$SYNC_W" ]; then
+        L1C+="${BG1}$(printf '%*s' "$((SYNC_W - L1_COLS))" '')"
+    fi
+    if [ "$L2_COLS" -gt 10 ] && [ "$L2_COLS" -lt "$SYNC_W" ]; then
+        L2C+="${BG2}$(printf '%*s' "$((SYNC_W - L2_COLS))" '')"
+    fi
+} 2>/dev/null || true
+
+# ── Output ───────────────────────────────────────────────────────────────────
 L2_END_FG="\033[38;2;0;0;0m"
-echo -e "${L1C}\033[K\033[?7l\033[${COLS}G${RST}${PROJ_FG}${NF_CORNER_TR}\033[?7h"
-echo -e "${L2C}\033[K\033[?7l\033[${COLS}G${RST}${L2_END_FG}${NF_CORNER_BR}\033[?7h"
+printf '\033[0m%b\n' "${L1C}${RST}${PROJ_FG}${NF_CORNER_TR}${RST}"
+printf '\033[0m%b\n' "${L2C}${RST}${L2_END_FG}${NF_CORNER_BR}${RST}"
 ```
 
 {{% /details %}}
@@ -567,11 +542,50 @@ exit 0
 
 {{% /details %}}
 
-### Credits
+{{< /tab >}}
+{{< tab name="Technical Deep Dive" icon="code" >}}
+
+## How It Works
+
+Claude Code calls your script after each assistant message, piping a JSON blob to stdin with session metadata (`model`, `cwd`, `context_window` with token breakdown, `cost`, `session_id`, `rate_limits`, etc.). Your script reads it and prints ANSI-colored output to stdout.
+
+## Key Features
+
+**Per-session color** - The session ID is hashed to one of 12 colors (blue, green, pink, amber, teal, purple, sky, olive, coral, steel, khaki, violet). You can pin a specific color to a project via `~/.claude/statusline-color-overrides.json`:
+
+```json
+{ "/path/to/your/project": 4 }
+```
+
+**Session topic** - A `UserPromptSubmit` hook calls Claude Haiku with a snippet of your conversation and writes a "Project: Focus" label to `~/.claude/session-topics/{session_id}.txt`. The statusline reads this file on each render. Rate-limited to prompt 1 and every 10 prompts after that.
+
+**Native API quota** - Since [v2.1.80](https://github.com/anthropics/claude-code/releases/tag/v2.1.80), Claude Code passes a `rate_limits` field directly in the statusline JSON input, with `five_hour` and `seven_day` windows containing `used_percentage` (integer) and `resets_at` (Unix epoch). No more manual API calls, token management, or caching needed.
+
+**Thinking effort level** - The effort level isn't exposed in the statusline JSON, so the script detects it by parsing the session transcript for `/model` and `/effort` command outputs. The grep is anchored to the JSON `"content":"<local-command-stdout>` prefix to avoid matching conversation text that discusses effort levels. Falls back to the `effortLevel` setting in `~/.claude/settings.json`, then defaults to `medium`. Inspired by [ccstatusline](https://github.com/sirmalloc/ccstatusline)'s approach.
+
+**Claude service status** - A separate fetch script (`~/.claude/claude-status-fetch.sh`) calls the [status.claude.com](https://status.claude.com) Statuspage JSON API and writes a one-line cache to `/tmp/claude-service-status`. The statusline checks the cache age on each render and spawns a background refresh if it's older than 60 seconds. The status is displayed as a single icon (`✓`/`⚠`/`~`/`✗`) to save horizontal space for rate limit detail.
+
+**Terminal tab title** - The tab title is set to the session topic (or folder name if no topic exists yet).
+
+**Adaptive line width** - Both lines are padded to the same width (capped at `SAFE_WIDTH`, default 110). Rate limit detail adapts progressively: full bars + reset times when space allows, compact bars without times at medium width, percentages only when tight. Override with `STATUSLINE_WIDTH` env var.
+
+## Rendering Gotchas
+
+Claude Code's statusline renderer has some undocumented behaviors I discovered through trial and error:
+
+- **`cli-truncate` drops lines** - Claude Code uses Ink's `Text wrap="truncate"` internally, which calls `cli-truncate` on the entire multi-line output. If line 1 exceeds the container's available width, all subsequent lines are silently dropped. This is why both lines must stay under a safe width limit.
+- **No terminal control sequences** - `\033[K` (erase to end of line), `\033[?7l/h` (wrap control), and `\033[${COLS}G` (cursor positioning) cause rendering glitches. Stick to standard ANSI SGR color codes only (`\033[...m`).
+- **`tput cols` returns 80 in pipes** - Claude Code pipes JSON to the script's stdin, so `tput cols` returns the pipe default (80), not the actual terminal width. The `COLUMNS` env var is also unset. Use a fixed safe width instead of detecting terminal size.
+- **Process group cleanup** - Claude Code kills the entire process group when the statusline process exits. Background subshells (`(cmd) &`) don't survive, making async cache updates impossible.
+- **Use `printf '%b'` over `echo -e`** - More reliable escape handling, recommended by the official docs. Prepend `\033[0m` to each line to override Claude Code's default dim styling.
+- **jq float rounding** - `jq`'s `floor` can return values like `14.000000000000002`. Truncate with `${PCT%%.*}` before using in bash arithmetic.
+
+## Credits
 
 The v2 design is based on [lee-fuhr's statusline gist](https://gist.github.com/lee-fuhr/68141b3ad716a96950cd111c749442b6), adapted with my own icon preferences and added Kubernetes context.
 
----
+{{< /tab >}}
+{{< tab name="v1: Powerline" icon="eye" >}}
 
 ## v1: Powerline Style
 
@@ -590,6 +604,10 @@ Left to right:
 - **7d usage** (53%, resets Thu 11:00) - rolling 7-day API quota
 
 Each meter is color-coded: green under 50%, yellow 50-79%, red 80%+.
+
+{{< callout type="info" >}}
+The API usage part reads the OAuth token from macOS Keychain via `security find-generic-password`. On Linux, you'd need a different approach to read the token.
+{{< /callout >}}
 
 {{% details title="statusline.sh (v1)" closed="true" %}}
 
@@ -887,13 +905,8 @@ printf "${RST}${FG_7D_SEP}${SEP}${RST}"
 
 {{% /details %}}
 
-## How It Works
-
-Claude Code calls your script after each assistant message, piping a JSON blob to stdin with session metadata (`model`, `cwd`, `context_window` with token breakdown, `cost`, `session_id`, etc.). Your script reads it and prints ANSI-colored output to stdout.
-
-{{< callout type="info" >}}
-The API usage part reads the OAuth token from macOS Keychain via `security find-generic-password`. On Linux, you'd need a different approach to read the token.
-{{< /callout >}}
+{{< /tab >}}
+{{< /tabs >}}
 
 ## Adapting It
 
