@@ -194,7 +194,7 @@ params:
       scriptName: script.js  # Umami Cloud uses script.js, not umami.js
 ```
 
-Curious what the data looks like? [Browse the live analytics dashboard](https://cloud.umami.is/analytics/eu/share/3SLxXJ2pjNkmGdlP) - page views, referrers, devices, all without a single cookie.
+Curious what the data looks like? [Browse the live analytics dashboard](https://cloud.umami.is/analytics/eu/share/3SLxXJ2pjNkmGdlP?date=0year&page=1) - page views, referrers, devices, all without a single cookie.
 
 {{< /tab >}}
 
