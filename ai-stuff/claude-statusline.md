@@ -341,13 +341,14 @@ L2C+=" "
 _TAB_TITLE="${TOPIC:-${DIR:-Claude}}"
 printf '\033]1;%s\007' "$_TAB_TITLE" > /dev/tty 2>/dev/null || true
 
-# ── Pad shorter line to match longer (capped at SAFE_WIDTH) ──────────────────
+# ── Pad shorter line to match longer ─────────────────────────────────────────
 {
     L1_COLS=$(count_cols "$L1C")
     L2_COLS=$(count_cols "$L2C")
     SYNC_W=$L2_COLS
     [ "$L1_COLS" -gt "$SYNC_W" ] && SYNC_W=$L1_COLS
-    [ "$SYNC_W" -gt "$SAFE_WIDTH" ] && SYNC_W=$SAFE_WIDTH
+    # No SAFE_WIDTH cap here: if L1 renders at this width, L2 padding to match is safe.
+    # SAFE_WIDTH only limits L2 *content* generation (rate limit adaptive display).
     if [ "$L1_COLS" -gt 10 ] && [ "$L1_COLS" -lt "$SYNC_W" ]; then
         L1C+="${BG1}$(printf '%*s' "$((SYNC_W - L1_COLS))" '')"
     fi
@@ -567,7 +568,7 @@ Claude Code calls your script after each assistant message, piping a JSON blob t
 
 **Terminal tab title** - The tab title is set to the session topic (or folder name if no topic exists yet).
 
-**Adaptive line width** - Both lines are padded to the same width (capped at `SAFE_WIDTH`, default 110). Rate limit detail adapts progressively: full bars + reset times when space allows, compact bars without times at medium width, percentages only when tight. Override with `STATUSLINE_WIDTH` env var.
+**Adaptive line width** - Both lines are padded to match the wider one. `SAFE_WIDTH` (default 110, override with `STATUSLINE_WIDTH` env var) controls how much rate limit detail is generated on line 2 (full bars + reset times, compact bars, or percentages only), but does not cap the sync padding. If line 1 is organically wider than `SAFE_WIDTH` (e.g., long branch name + topic), line 2 pads to match, since the terminal clearly supports that width.
 
 ## Rendering Gotchas
 
