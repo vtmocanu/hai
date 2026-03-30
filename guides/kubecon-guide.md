@@ -125,7 +125,7 @@ The day before KubeCon proper, there are co-located events. These are focused, s
 
 - **Platform Engineering Day** is worth checking out if that's your area
 - **Agentics Day** - MCP and AI agents are a hot topic right now, and this is a great place to see where the cloud native ecosystem is heading with them
-- **[Cloud Native Rejekts](https://cloud-native.rejekts.io/)** (the Saturday before) is the "b-side conference," a platform for talks that were submitted to KubeCon but didn't make the main schedule. Free to attend, more intimate, and by all accounts one of the best community-driven events of the week. Marcus Noble calls it one of his all-time favorite conferences. I haven't attended yet, but this year will be my first, and I'm looking forward to it
+- **[Cloud Native Rejekts](https://cloud-native.rejekts.io/)** (the Saturday before) is the "b-side conference," a platform for talks that were submitted to KubeCon but didn't make the main schedule. Free to attend, more intimate, and by all accounts one of the best community-driven events of the week. Marcus Noble calls it one of his all-time favorite conferences. 2026 was my first time attending, and it was amazing. Had very interesting chats and met new people. It felt more like a cozy, warm meetup than a conference
 - Pick based on your current work, not what sounds cool. You'll get more value from a day focused on something you're actively dealing with
 
 ---
