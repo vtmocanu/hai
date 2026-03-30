@@ -13,10 +13,10 @@ What follows is my complementary perspective, shaped by attending every European
 ## My Top Tips
 
 - **Don't overschedule the talks.** Pick a handful of must-see sessions and leave the rest open. **The real magic happens at the booths and in the hallways**
-- **Get the Sched app** and build your schedule ahead of time. It helps you organize what you want to attend and keep track of sessions across multiple rooms and days
+- **Get the Sched app** and build your schedule ahead of time. It helps you organize what you want to attend and keep track of sessions across multiple rooms and days. **If you're attending co-located events, switch the event in Sched to "CNCF-hosted Co-located Events" so you see their agenda.** On the next day, switch it back to KubeCon
 - **Don't be shy.** This is the hardest part for first-timers, but after the first couple of conversations you'll realize that everyone is incredibly friendly and eager to share. The cloud native community is genuinely welcoming
 - **Talk to vendors and maintainers.** The people behind the tools you use are right there. More on this in [The Booths](#the-booths) section below
-- **Be prepared to walk. A lot.** I'm talking 30,000+ steps per day. Wear comfortable shoes and comfortable clothes. Your feet will thank you by day three
+- **Be prepared to walk. A lot.** I'm talking 30,000+ steps per day. Wear comfortable shoes and comfortable clothes. Your feet will thank you by day three. **Pro tip: pack good blister band-aids, they will be life savers**
 - **Pack light.** You will come home with a lot of swag. T-shirts (you'll get a free one from KubeCon plus more from booths), stickers, socks, water bottles, you name it. I genuinely love swag from companies and projects I actually use; it's the kind of stuff I'd pay for but you can only get it here. Make sure you have plenty of room in your luggage
 - **Set a calendar reminder in November.** KubeCon early bird tickets typically go on sale mid-October and close mid-November, saving you roughly 50% off the standard price. Even if something comes up later, you can request a refund up to two weeks before the event (small 6% processing fee). [Cloud Native Rejekts](https://cloud-native.rejekts.io/) tickets are free but limited, so grab those as soon as registration opens
 - **Keep a list of questions throughout the year.** When you hit a weird edge case, have a feature request, or wonder about a project's roadmap, write it down. KubeCon is your chance to ask those questions face-to-face with the people who can actually answer them
