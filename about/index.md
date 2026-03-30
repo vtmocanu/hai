@@ -30,6 +30,16 @@ What started as "I should learn Kubernetes" turned into a 3-node Proxmox cluster
 
 **Honorable mention: Internal Developer Platforms** — Always believed DevOps engineers (I know it is a philosophy and not a job title) shouldn't become the bottleneck that sysadmins once were for developers. When IDPs became a thing ([BACK Stack](https://backstack.dev/intro/)), it clicked. I think of them as custom-tailored cloud consoles — just like AWS/GCP abstracts infrastructure, IDPs offer golden paths and self-service for devs without drowning in operational complexity or waiting on Ops team.
 
+## Projects I've Open-Sourced
+
+- [Claude Code Action for Forgejo](https://codeberg.org/vtmocanu/claude-code-action) -- Fork of Anthropic's Claude Code GitHub Action, adapted to work on Forgejo ([blog post](/ai-stuff/claude-code-action-forgejo/))
+
+## Projects I Contribute To
+
+- [Renovate Operator](https://github.com/mogenius/renovate-operator) -- Kubernetes operator for running Renovate as a native cluster workload
+- [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner) -- Custom Lua-based policies to find and clean up orphaned resources in Kubernetes
+- [dot-ai](https://github.com/vfarcic/dot-ai) -- AI-powered Kubernetes operations via MCP
+
 ## Connect
 
 Always happy to geek out about Kubernetes, homelab/self-hosting, or cloud native tech—feel free to reach out.
