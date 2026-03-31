@@ -1,6 +1,10 @@
 # AI Tips
 
-Practical tips for getting real value from AI coding assistants. Takes months to build a useful setup — here's what I've learned.
+Practical tips for getting real value from AI coding assistants. Takes months to build a useful setup, here's what I've learned.
+
+{{< callout type="info" >}}
+**Quick reference:** The [Claude Code Cheat Sheet](https://cc.storyfox.cz/) is a great printable quick-reference for keyboard shortcuts, slash commands, and CLI flags.
+{{< /callout >}}
 
 {{< callout type="info" >}}
 **Romanian speakers:** If you're just getting started with Claude Code, check out [this introductory video in Romanian](https://www.youtube.com/watch?v=U-OxWYRqFC8).
@@ -266,6 +270,31 @@ Auto memory is stored at `~/.claude/projects/<project>/memory/` and contains a `
 ```
 
 You can also ask Claude directly to remember something: "remember that we always use pnpm in this project" and it saves it to auto memory. Or just edit `CLAUDE.md` yourself for things you want to enforce as rules rather than suggestions.
+
+{{< callout type="info" >}}
+**Deep dive:** [Anatomy of the .claude/ folder](https://blog.dailydoseofds.com/p/anatomy-of-the-claude-folder) covers the full directory structure, from `CLAUDE.md` to custom commands, skills, agents, and permission settings.
+{{< /callout >}}
+
+## Split Instructions with `.claude/rules/`
+
+Once your `CLAUDE.md` gets big enough, maintaining one giant file becomes painful. The `.claude/rules/` folder lets you split instructions into separate files by concern. Every `.md` file in there gets loaded automatically alongside `CLAUDE.md`.
+
+**The real power is path-scoped rules.** Add YAML frontmatter to a rule file and it only activates when Claude is working on matching paths:
+
+```yaml
+---
+paths:
+  - "src/api/**/*.ts"
+  - "src/handlers/**/*.ts"
+---
+
+All handlers must return the `{ data, error }` shape.
+Use zod for request body validation.
+```
+
+Claude won't load this file when editing a React component. It only kicks in when working inside `src/api/` or `src/handlers/`.
+
+This scales well for teams too. Each team maintains their own domain's rules independently, no merge conflicts in a shared `CLAUDE.md`.
 
 ## Take a Break
 
