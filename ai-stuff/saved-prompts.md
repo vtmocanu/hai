@@ -144,6 +144,7 @@ content/
 ├── crossplane/
 ├── guides/
 ├── custom-tools/
+├── failures/
 ├── ai-tooling/
 ├── decisions/
 ├── recommended/
@@ -157,6 +158,7 @@ content/
 | crossplane | 150 | Crossplane compositions and IaC |
 | guides | 200 | Step-by-step guides and how-tos |
 | custom-tools | 250 | Tools I've built (s3bkp, kcl-ci, etc.) |
+| failures | 300 | Failure stories, outages, lessons learned |
 | ai-stuff | 350 | Claude Code, MCP integrations |
 | decisions | 400 | ADRs - architectural decision records |
 | recommended | 475 | Curated links, tools, resources |
