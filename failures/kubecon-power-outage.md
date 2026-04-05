@@ -27,7 +27,7 @@ That single event revealed just how many single points of failure I actually had
 
 My wife called. No WiFi, no water. She tried to help but:
 
-- She didn't know which device was the UPS, which was the charger, and which was the mini PC. Nothing was labeled
+- She didn't know which device was the UPS, which was the charger, and which was the mini PC. Nothing was labeled. Trying to guide her over the phone felt like we were speaking different languages
 - The mobile hotspot wasn't working either (ISP issue on their end, not something I could've prevented)
 - Without internet she couldn't work remotely, so she had to leave for the office
 
