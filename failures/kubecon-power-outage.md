@@ -38,6 +38,7 @@ Looking at this honestly, the failures weren't random. They were predictable:
 | Root Cause | Impact |
 |-----------|--------|
 | Relay switches without physical buttons | No manual override when HA is down |
+| Zigbee coordinator not on UPS | HA can't control smart devices during outages |
 | Single effective DNS (Proxmox AdGuard) | Synology backup was unreliable under load |
 | Existing UPS runtime too short | Nodes went down before power returned, and didn't recover on their own |
 | APs not on UPS | WiFi died immediately with power |
@@ -56,19 +57,23 @@ Replaced the old relays with [Nous D2Z](https://www.amazon.de/-/en/Intelligent-M
 
 Every device in the tech room and around the house now has a label: UPS, mini PC, router, switch, NAS. If I'm not home, anyone should be able to identify what's what.
 
-### 3. Proper UPS for the Proxmox Nodes
+### 3. Zigbee Coordinator on UPS
+
+The [Sonoff Dongle Max](https://sonoff.tech/en-eu/products/sonoff-dongle-max-zigbee-thread-poe-dongle-dongle-m) (Zigbee coordinator) was plugged into a regular power strip. With the bigger UPS now keeping Proxmox and Home Assistant alive during outages, the Zigbee coordinator needs to stay alive too, otherwise HA has no way to talk to the smart devices. Moved it to the UPS.
+
+### 4. Bigger UPS for the Proxmox Nodes
 
 The existing UPS simply didn't have enough runtime. The outage outlasted it, the nodes went down hard, and they didn't recover. Added a larger UPS (similar to the [Anker SOLIX F2000](https://www.ankersolix.com/ca/f2000)) in front of the existing UPS to extend the total runtime. This serves two purposes:
 - Enough runway for longer outages so the nodes never go down at all
 - Graceful shutdown during extended outages (via NUT integration) if even the combined UPS capacity isn't enough
 
-### 4. Dedicated DNS on Raspberry Pi
+### 5. Dedicated DNS on Raspberry Pi
 
 I already had two AdGuard Home instances for redundancy: one on a Proxmox VM, one on the Synology NAS. The problem was that the Synology instance kept crashing under I/O load, making it unreliable as a backup.
 
 Replaced the Synology instance with a dedicated Raspberry Pi running AdGuard Home. It's lightweight, stable, and independent of both Proxmox and the NAS. True DNS redundancy now. Hopefully.
 
-### 5. ISP Fallback WiFi
+### 6. ISP Fallback WiFi
 
 Configured the ISP router's built-in WiFi with a known SSID and password. The WiFi access points aren't on the UPS (and probably won't be, to keep the UPS runtime longer for critical gear), so when internal infrastructure goes down, there's no WiFi through the APs. But since the ISP router *is* on the UPS, this fallback SSID works even during a power outage. It bypasses all internal DNS and routing, but at least you get internet access.
 
