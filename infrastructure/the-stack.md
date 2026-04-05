@@ -8,6 +8,11 @@
 
 ![Proxmox Resources](/images/proxmox-resources.png)
 
+**Raspberry Pi 4 Model B** - 8GB RAM
+
+- Backup DNS server ([AdGuard Home](https://adguard.com/en/adguard-home/overview.html))
+- [Tailscale](https://tailscale.com/) exit node
+
 ### Storage
 
 **Synology DS920+** - 4x Seagate IronWolf Pro 8TB (RAID5)
@@ -63,7 +68,7 @@ Deployed via [Spectro Cloud](https://www.spectrocloud.com/) (migrated from [Kube
 
 | Service | Solution | Notes |
 |---------|----------|-------|
-| DNS (Private) | [AdGuard Home](https://adguard.com/en/adguard-home/overview.html) | 2 instances, OpenTofu provisioned |
+| DNS (Private) | [AdGuard Home](https://adguard.com/en/adguard-home/overview.html) | 2 instances (VM + RPi), OpenTofu provisioned |
 | DNS (Public) | [DNSControl](https://dnscontrol.org/) → [Gcore](https://gcore.com/dns) + [deSEC](https://desec.io/) | CI-managed, redundant |
 | Dynamic DNS | [ddns-updater](https://github.com/qdm12/ddns-updater) | Keeps public DNS records in sync |
 | VPN | [Tailscale](https://tailscale.com/) | Mesh VPN connecting all sites |
