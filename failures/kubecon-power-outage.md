@@ -6,7 +6,9 @@
 
 March 2026. I'm packing my bags for KubeCon Amsterdam with a knot in my stomach. The homelab had been through power outages before, and getting everything back up was never quick or clean. Three Proxmox nodes, 90+ apps in Kubernetes, smart home controlling a lot of stuff around the house, including the water system. A power outage while I'm away would be a nightmare. I keep telling myself it won't happen this time. I've got redundancy in place now. It'll be fine... right? Fingers crossed.
 
-It happened again. With great automation comes great... headache.
+It happened again.
+
+With great automation comes great... headache. 🤦🏻
 
 ## The Incident
 
