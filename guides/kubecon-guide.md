@@ -110,6 +110,7 @@ The talks serve a different purpose at the conference itself. Use the schedule t
   - [Diana Todea](https://www.linkedin.com/in/diana-todea-b2a79968/)
   - [Marcus Noble](https://www.linkedin.com/in/marcusnoble/)
   - [Gianluca Mardente](https://www.linkedin.com/in/gianlucamardente/)
+  - [Eleni Grosdouli](https://www.linkedin.com/in/eleni-grosdouli-85a1a5116/)
   - [Yury Tsarev](https://www.linkedin.com/in/yurytsarev/)
   - [Mark Sagi-Kazar](https://www.linkedin.com/in/sagikazarmark/)
   - [Lin Sun](https://www.linkedin.com/in/lin-sun-a9b7a81/)
