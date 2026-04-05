@@ -81,7 +81,7 @@ DATA=$(timeout 2 cat 2>/dev/null) || DATA=""
 # Uses jq @sh to produce shell-safe quoted assignments. No IFS tricks needed;
 # empty fields become VAR='' instead of being silently swallowed.
 eval "$(echo "$DATA" | jq -r '
-    @sh "MODEL=\(.model.display_name // "Claude")",
+    @sh "MODEL=\(.model.display_name // "Claude" | gsub(" \\(.*\\)"; ""))",
     @sh "MODEL_ID=\(try (.model.id // "unknown") catch "unknown")",
     @sh "DIR=\(.cwd // "~" | split("/") | .[-2:] | join("/"))",
     @sh "PCT=\(try (
@@ -378,7 +378,7 @@ case $EFFORT in
     *)      EFFORT_CLR="\033[38;2;170;170;170m" ;;  # fallback: gray
 esac
 
-L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
+L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${L2_DIM}·${B2} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
 
 # Estimate L2 base width with bash (same approach as L1: count visible chars)
 # Model + effort + separator + clock + time + separator + bar(7) + pct + "of Xk"
@@ -740,7 +740,7 @@ DATA=$(timeout 2 cat 2>/dev/null) || DATA=""
 # Uses jq @sh to produce shell-safe quoted assignments. No IFS tricks needed;
 # empty fields become VAR='' instead of being silently swallowed.
 eval "$(echo "$DATA" | jq -r '
-    @sh "MODEL=\(.model.display_name // "Claude")",
+    @sh "MODEL=\(.model.display_name // "Claude" | gsub(" \\(.*\\)"; ""))",
     @sh "MODEL_ID=\(try (.model.id // "unknown") catch "unknown")",
     @sh "DIR=\(.cwd // "~" | split("/") | .[-2:] | join("/"))",
     @sh "PCT=\(try (
@@ -1037,7 +1037,7 @@ case $EFFORT in
     *)      EFFORT_CLR="\033[38;2;170;170;170m" ;;  # fallback: gray
 esac
 
-L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
+L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${L2_DIM}·${B2} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
 
 # Estimate L2 base width with bash (same approach as L1: count visible chars)
 # Model + effort + separator + clock + time + separator + bar(7) + pct + "of Xk"
