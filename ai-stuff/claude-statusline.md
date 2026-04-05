@@ -1,6 +1,6 @@
 # Custom Claude Code Status Line
 
-Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. The current version is **v2.0.0** (see the v1 Powerline style in the tabs below).
+Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. The current version is **v2.1.0** (see the v1 Powerline style in the tabs below).
 
 The v2 layout uses two lines with diagonal corner cuts and width-synchronized lines. Each session gets a unique color from a 12-color palette (hashed from the session ID), so when I have multiple sessions open, I can tell them apart at a glance.
 
@@ -66,49 +66,74 @@ The topic will appear after your first prompt (it runs async, so it shows on the
 
 ### Scripts
 
-{{% details title="statusline.sh" closed="true" %}}
+{{% details title="statusline.sh (v2.1.0)" closed="true" %}}
 
 ```bash
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail  # no -e: external commands (git, kubectl, jq) can fail; silent crash = no statusline
+trap 'printf "\n"' EXIT  # ensure at least empty output on crash
 [ "${STATUSLINE_DEBUG:-}" = "1" ] && exec 2>/tmp/statusline-debug.log
 
-DATA=$(cat)
-# ── Extract fields ──────────────────────────────────────────────────────────
-IFS=$'\t' read -r MODEL MODEL_ID DIR PCT CTX_SIZE DURATION_MS AGENT MODE < <(
-    echo "$DATA" | jq -r '[
-        (.model.display_name // "Claude"),
-        (try (.model.id // "unknown") catch "unknown"),
-        (.cwd // "~" | split("/") | .[-2:] | join("/")),
-        (try (
-            if (.context_window.remaining_percentage // null) != null then
-                100 - (.context_window.remaining_percentage | floor)
-            elif (.context_window.context_window_size // 0) > 0 then
-                (((.context_window.current_usage.input_tokens // 0) +
-                  (.context_window.current_usage.cache_creation_input_tokens // 0) +
-                  (.context_window.current_usage.cache_read_input_tokens // 0)) * 100 /
-                 .context_window.context_window_size) | floor
-            else 0 end
-        ) catch 0),
-        (.context_window.context_window_size // 200000),
-        (.cost.total_duration_ms // 0),
-        (.agent.name // ""),
-        (.mode // "")
-    ] | @tsv'
-)
-TRANSCRIPT_PATH=$(echo "$DATA" | jq -r '.transcript_path // ""' 2>/dev/null)
-PCT=${PCT%%.*}  # truncate jq float rounding (e.g. 14.000000000000002 → 14)
+DATA=$(timeout 2 cat 2>/dev/null) || DATA=""
+[ -z "$DATA" ] && exit 0
+
+# ── Extract ALL fields in a single jq call ──────────────────────────────────
+# CRITICAL: use SOH (\x01) delimiter, NOT @tsv. Bash IFS treats tab as whitespace
+# and collapses consecutive tabs, silently swallowing empty fields (agent, mode).
+IFS=$'\x01' read -r MODEL MODEL_ID DIR PCT CTX_SIZE DURATION_MS AGENT MODE \
+    TRANSCRIPT_PATH CWD_FULL SESSION_ID \
+    FIVE_PCT SEVEN_PCT FIVE_RESET_TS SEVEN_RESET_TS < <(
+echo "$DATA" | jq -r '[
+    (.model.display_name // "Claude"),
+    (try (.model.id // "unknown") catch "unknown"),
+    (.cwd // "~" | split("/") | .[-2:] | join("/")),
+    (try (
+        if (.context_window.remaining_percentage // null) != null then
+            100 - (.context_window.remaining_percentage | floor)
+        elif (.context_window.context_window_size // 0) > 0 then
+            (((.context_window.current_usage.input_tokens // 0) +
+              (.context_window.current_usage.cache_creation_input_tokens // 0) +
+              (.context_window.current_usage.cache_read_input_tokens // 0)) * 100 /
+             .context_window.context_window_size) | floor
+        else 0 end
+    ) catch 0),
+    (.context_window.context_window_size // 200000),
+    (.cost.total_duration_ms // 0),
+    (.agent.name // ""),
+    (.mode // ""),
+    (.transcript_path // ""),
+    (.cwd // "~"),
+    (.session_id // ""),
+    (.rate_limits.five_hour.used_percentage // ""),
+    (.rate_limits.seven_day.used_percentage // ""),
+    (.rate_limits.five_hour.resets_at // ""),
+    (.rate_limits.seven_day.resets_at // "")
+] | join("\u0001")' 2>/dev/null)
+
+# Guard: if jq failed completely, use safe defaults
+MODEL=${MODEL:-Claude}; MODEL_ID=${MODEL_ID:-unknown}; DIR=${DIR:-~}
+PCT=${PCT:-0}; CTX_SIZE=${CTX_SIZE:-200000}; DURATION_MS=${DURATION_MS:-0}
+AGENT=${AGENT:-}; MODE=${MODE:-}; TRANSCRIPT_PATH=${TRANSCRIPT_PATH:-}
+CWD_FULL=${CWD_FULL:-~}; SESSION_ID=${SESSION_ID:-}
+FIVE_PCT=${FIVE_PCT:-}; SEVEN_PCT=${SEVEN_PCT:-}
+FIVE_RESET_TS=${FIVE_RESET_TS:-}; SEVEN_RESET_TS=${SEVEN_RESET_TS:-}
+
+PCT=${PCT%%.*}  # truncate jq float rounding (e.g. 14.000000000000002 -> 14)
+FIVE_PCT=${FIVE_PCT%%.*}   # also truncate rate limit floats
+SEVEN_PCT=${SEVEN_PCT%%.*}
 CTX_SIZE_K=$((CTX_SIZE / 1000))
 # Max line width before Claude Code's cli-truncate drops line 2
 SAFE_WIDTH=${STATUSLINE_WIDTH:-110}
 
 TOPIC=""  # populated after SESSION_ID is extracted below
 
-# ── Effort level detection (transcript → settings → default) ──────────────
+# ── Effort level detection (transcript -> settings -> default) ──────────────
 EFFORT=""
 if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
-    EFFORT=$(grep -E '"content":"<local-command-stdout>(Set model to.*effort|Set effort level to)' "$TRANSCRIPT_PATH" 2>/dev/null \
-        | tail -1 | grep -oE '\b(low|medium|high|max)\b' | tail -1 || true)
+    # Read from end of file for speed on large transcripts
+    EFFORT=$(tail -r "$TRANSCRIPT_PATH" 2>/dev/null \
+        | grep -m1 -E '"content":"<local-command-stdout>(Set model to.*effort|Set effort level to)' \
+        | grep -oE '\b(low|medium|high|max)\b' | tail -1 || true)
 fi
 if [ -z "$EFFORT" ]; then
     EFFORT=$(jq -r '.effortLevel // empty' "$HOME/.claude/settings.json" 2>/dev/null || true)
@@ -117,32 +142,33 @@ EFFORT=${EFFORT:-medium}
 
 # ── Nerd Font icons ───────────────────────────────────────────────────────
 NF_GIT=$'\xee\x82\xa0'       # U+E0A0 powerline branch
-NF_FOLDER="󰉋"               # nf-md-folder
-NF_MODEL="󰚩"                # nf-md-robot
-NF_K8S="󱃾"                  # nf-md-kubernetes
+NF_FOLDER="󰉋"               # nf-md-folder (kept from v1)
+NF_MODEL="󰚩"                # nf-md-robot (kept from v1)
+NF_K8S="󱃾"                  # nf-md-kubernetes (kept from v1)
 NF_CLOCK=$'\xef\x80\x97'     # U+F017 clock
-NF_CORNER_TL=$'\xee\x82\xba'    # U+E0BA top-left corner cut
-NF_CORNER_BL=$'\xee\x82\xbe'    # U+E0BE bottom-left corner cut
-NF_CORNER_TR=$'\xee\x82\xb8'    # U+E0B8 top-right corner cut
-NF_CORNER_BR=$'\xee\x82\xbc'    # U+E0BC bottom-right corner cut
+NF_CORNER_TL=$'\xee\x82\xba'    # U+E0BA lower-right fill (top-left corner)
+NF_CORNER_BL=$'\xee\x82\xbe'    # U+E0BE upper-right fill (bottom-left corner)
+NF_CORNER_TR=$'\xee\x82\xb8'    # U+E0B8 lower-left fill -> top-right corner cut
+NF_CORNER_BR=$'\xee\x82\xbc'    # U+E0BC upper-left fill -> bottom-right corner cut
 
 # ── Project-colored background (hash session ID -> unique hue) ────────────
 RST="\033[0m"
-CWD_FULL=$(echo "$DATA" | jq -r '.cwd // "~"')
 PROJECT_ROOT=$(git -C "$CWD_FULL" rev-parse --show-toplevel 2>/dev/null || echo "$CWD_FULL")
-SESSION_ID=$(echo "$DATA" | jq -r '.session_id // empty' 2>/dev/null)
 PHASH=$(printf '%s' "${SESSION_ID:-$CWD_FULL}" | cksum | cut -d' ' -f1 || echo "0")
 
 # ── Session topic ─────────────────────────────────────────────────────────
 if [ -n "${SESSION_ID:-}" ]; then
     TOPIC_FILE="$HOME/.claude/session-topics/${SESSION_ID}.txt"
-    [ -f "$TOPIC_FILE" ] && TOPIC=$(cat "$TOPIC_FILE" 2>/dev/null | tr -d '\n' | cut -c1-40)
+    if [ -f "$TOPIC_FILE" ]; then
+        # Strip ANSI escape sequences and limit to 40 chars
+        TOPIC=$(cat "$TOPIC_FILE" 2>/dev/null | tr -d '\n' | gsed 's/\x1b\[[0-9;]*m//g' 2>/dev/null | cut -c1-40)
+    fi
 fi
 
 # Check for manual color override
 COLOR_OVERRIDES="$HOME/.claude/statusline-color-overrides.json"
 if [ -f "$COLOR_OVERRIDES" ]; then
-    COLOR_IDX=$(jq -r --arg p "$PROJECT_ROOT" '.[$p] // empty' "$COLOR_OVERRIDES" 2>/dev/null)
+    COLOR_IDX=$(jq -r --arg p "$PROJECT_ROOT" '.[$p] // empty' "$COLOR_OVERRIDES" 2>/dev/null || true)
 fi
 COLOR_IDX=${COLOR_IDX:-$((PHASH % 12))}
 
@@ -173,17 +199,18 @@ TXT_FG="\033[38;2;${TXT_R};${TXT_G};${TXT_B}m"
 TXT_BOLD="\033[38;2;${TXT_R};${TXT_G};${TXT_B};1m"
 PROJ_FG="\033[38;2;${BG_R};${BG_G};${BG_B}m"
 
-# ── Line 2 colors ──────────────────────────────────────────────────────────
+# ── Line 2 colors (black fill, light gray text, colored % numbers) ──────────
 BG2="\033[48;2;0;0;0m"
 B2="${RST}${BG2}"
-L2_TXT="\033[38;2;170;170;170m"
-L2_DIM="\033[38;2;80;80;80m"
+L2_TXT="\033[38;2;170;170;170m"   # light gray
+L2_DIM="\033[38;2;80;80;80m"      # dim gray for separators + resets
 
 pct_txt_color() {
-    local p=$1
-    if   [ "$p" -gt 80 ]; then printf "\033[38;2;225;150;150m"
-    elif [ "$p" -gt 50 ]; then printf "\033[38;2;215;195;125m"
-    else                        printf "\033[38;2;150;210;150m"
+    local p=${1:-0}
+    p=${p%%.*}  # safety: strip decimal if any
+    if   [ "${p:-0}" -gt 80 ] 2>/dev/null; then printf "\033[38;2;225;150;150m"   # coral
+    elif [ "${p:-0}" -gt 50 ] 2>/dev/null; then printf "\033[38;2;215;195;125m"   # gold
+    else                                         printf "\033[38;2;150;210;150m"   # sage
     fi
 }
 
@@ -194,13 +221,13 @@ if [ -n "$BRANCH" ]; then
   STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d " ")
   MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d " ")
   UNTRACKED=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d " ")
-  [ "$STAGED" -gt 0 ]    && GIT_STATUS="+${STAGED}"
-  [ "$MODIFIED" -gt 0 ]  && GIT_STATUS="${GIT_STATUS:+$GIT_STATUS }!${MODIFIED}"
-  [ "$UNTRACKED" -gt 0 ] && GIT_STATUS="${GIT_STATUS:+$GIT_STATUS }?${UNTRACKED}"
+  [ "${STAGED:-0}" -gt 0 ]    && GIT_STATUS="+${STAGED}"
+  [ "${MODIFIED:-0}" -gt 0 ]  && GIT_STATUS="${GIT_STATUS:+$GIT_STATUS }!${MODIFIED}"
+  [ "${UNTRACKED:-0}" -gt 0 ] && GIT_STATUS="${GIT_STATUS:+$GIT_STATUS }?${UNTRACKED}"
 fi
 
-# ── Kubernetes context ──────────────────────────────────────────────────────
-K8S_CTX=$(kubectl config current-context 2>/dev/null || echo "")
+# ── Kubernetes context (with timeout to avoid exec-auth hangs) ──────────────
+K8S_CTX=$(timeout 2 kubectl config current-context 2>/dev/null || echo "")
 
 # ── Session duration ────────────────────────────────────────────────────────
 TOTAL_SEC=$((DURATION_MS / 1000))
@@ -211,24 +238,29 @@ if   [ "$H" -gt 0 ]; then TIME="${H}h${M}m"
 elif [ "$M" -gt 0 ]; then TIME="${M}m${S}s"
 else TIME="${S}s"
 fi
-if   [ "$H" -gt 2 ]; then TIME_CLR="\033[38;2;225;150;150m"
-elif [ "$H" -gt 0 ]; then TIME_CLR="\033[38;2;215;195;125m"
-else                      TIME_CLR="\033[38;2;150;210;150m"
+
+# Color-code elapsed time
+if   [ "$H" -gt 2 ]; then TIME_CLR="\033[38;2;225;150;150m"   # coral: 3h+
+elif [ "$H" -gt 0 ]; then TIME_CLR="\033[38;2;215;195;125m"   # gold: 1-3h
+else                      TIME_CLR="\033[38;2;150;210;150m"   # sage: <1h
 fi
 
 # ── Bar builder ─────────────────────────────────────────────────────────────
 make_bar() {
-    local pct=$1 width=$2 fill_clr="$3" empty_clr="$4" bar=""
+    local pct=${1:-0} width=${2:-5} fill_clr="$3" empty_clr="$4" bar=""
+    pct=${pct%%.*}  # safety: strip decimal
+    [ -z "$pct" ] && pct=0
     local filled=$((pct * width / 100))
-    [ "$pct" -gt 0 ] && [ "$filled" -eq 0 ] && filled=1
+    [ "$pct" -gt 0 ] 2>/dev/null && [ "$filled" -eq 0 ] && filled=1
     [ "$filled" -gt "$width" ] && filled=$width
+    [ "$filled" -lt 0 ] && filled=0
     local empty=$((width - filled))
     for ((i=0; i<filled; i++)); do bar+="${fill_clr}▰"; done
     for ((i=0; i<empty; i++));  do bar+="${empty_clr}▱"; done
     printf "%b" "$bar"
 }
 
-# ── Rate limit reset formatter ─────────────────────────────────────────────
+# ── Rate limit reset formatter (takes Unix epoch) ─────────────────────────
 format_reset() {
     local epoch="$1"
     [ -z "$epoch" ] || [ "$epoch" = "null" ] || [ "$epoch" = "0" ] && return
@@ -244,13 +276,88 @@ format_reset() {
     fi
 }
 
-# ── Count visible columns (ANSI-aware) ────────────────────────────────────
-count_cols() {
-    printf "%b" "$1" | perl -pe 's/\e\[[0-9;]*m//g' | tr -d '\n' | LC_ALL=en_US.UTF-8 wc -m | tr -d ' '
+# ── Count visible columns (ANSI-aware, multi-string in one perl call) ──────
+# Usage: measure_cols "str1" "str2" ... -> outputs one number per line
+measure_cols() {
+    local args=()
+    for s in "$@"; do args+=("$(printf '%b' "$s")"); done
+    printf '%s\n' "${args[@]}" | perl -ne '
+        s/\e\[[0-9;]*m//g;
+        chomp;
+        use Encode qw(decode);
+        my $decoded = decode("UTF-8", $_, Encode::FB_DEFAULT);
+        print length($decoded), "\n";
+    ' 2>/dev/null
 }
 
-# ── Line 1 content ─────────────────────────────────────────────────────────
-L1C="${RST}${PROJ_FG}${NF_CORNER_TL}${BG1}"
+# ── Line 1: build with bash-based width tracking (no perl) ─────────────────
+# Estimate visible width per component from known text lengths.
+# Each component's ANSI overhead cancels out; we just count visible chars.
+# Corner char = 1, each separator "│" = 1, icon = 1-2, spaces counted explicitly.
+# Add 3-char safety margin for Nerd Font icons that render wider than 1 codepoint.
+L1_EST=5  # corner char(1) + trailing space(1) + icon safety margin(3)
+
+[ -n "$TOPIC" ] && L1_EST=$((L1_EST + 1 + ${#TOPIC} + 3))   # " TOPIC │"
+L1_EST=$((L1_EST + 1 + 2 + ${#DIR} + 1))                     # " icon DIR "
+if [ -n "$BRANCH" ]; then
+    L1_EST=$((L1_EST + 1 + 1 + 2 + ${#BRANCH}))              # "│ icon BRANCH"
+    [ -n "$GIT_STATUS" ] && L1_EST=$((L1_EST + 1 + ${#GIT_STATUS}))
+fi
+[ -n "$AGENT" ] && L1_EST=$((L1_EST + 1 + ${#AGENT}))
+[ -n "$MODE" ]  && L1_EST=$((L1_EST + 3 + ${#MODE}))         # " │ MODE"
+[ -n "$K8S_CTX" ] && L1_EST=$((L1_EST + 1 + 1 + 2 + ${#K8S_CTX}))  # " │ icon K8S"
+
+# Truncate if over SAFE_WIDTH (order: K8S > BRANCH > TOPIC)
+if [ "$L1_EST" -gt "$SAFE_WIDTH" ] && [ -n "$K8S_CTX" ]; then
+    OVER=$((L1_EST - SAFE_WIDTH))
+    K8S_MAX=$((${#K8S_CTX} - OVER - 2))
+    if [ "$K8S_MAX" -gt 5 ]; then
+        K8S_CTX="${K8S_CTX:0:$K8S_MAX}.."
+    else
+        K8S_CTX=""
+    fi
+    # Recalculate
+    L1_EST=2; [ -n "$TOPIC" ] && L1_EST=$((L1_EST + 1 + ${#TOPIC} + 3))
+    L1_EST=$((L1_EST + 1 + 2 + ${#DIR} + 1))
+    [ -n "$BRANCH" ] && { L1_EST=$((L1_EST + 1 + 1 + 2 + ${#BRANCH})); [ -n "$GIT_STATUS" ] && L1_EST=$((L1_EST + 1 + ${#GIT_STATUS})); }
+    [ -n "$AGENT" ] && L1_EST=$((L1_EST + 1 + ${#AGENT}))
+    [ -n "$MODE" ]  && L1_EST=$((L1_EST + 3 + ${#MODE}))
+    [ -n "$K8S_CTX" ] && L1_EST=$((L1_EST + 1 + 1 + 2 + ${#K8S_CTX}))
+fi
+
+if [ "$L1_EST" -gt "$SAFE_WIDTH" ] && [ -n "$BRANCH" ]; then
+    OVER=$((L1_EST - SAFE_WIDTH))
+    BR_MAX=$((${#BRANCH} - OVER - 2))
+    if [ "$BR_MAX" -gt 5 ]; then
+        BRANCH="${BRANCH:0:$BR_MAX}.."
+    else
+        BRANCH="${BRANCH:0:8}.."
+    fi
+    # No need to recalculate again; next truncation target (TOPIC) is rare
+fi
+
+if [ "$L1_EST" -gt "$SAFE_WIDTH" ] && [ -n "$TOPIC" ]; then
+    # Recalculate after branch truncation
+    L1_EST=2; [ -n "$TOPIC" ] && L1_EST=$((L1_EST + 1 + ${#TOPIC} + 3))
+    L1_EST=$((L1_EST + 1 + 2 + ${#DIR} + 1))
+    [ -n "$BRANCH" ] && { L1_EST=$((L1_EST + 1 + 1 + 2 + ${#BRANCH})); [ -n "$GIT_STATUS" ] && L1_EST=$((L1_EST + 1 + ${#GIT_STATUS})); }
+    [ -n "$AGENT" ] && L1_EST=$((L1_EST + 1 + ${#AGENT}))
+    [ -n "$MODE" ]  && L1_EST=$((L1_EST + 3 + ${#MODE}))
+    [ -n "$K8S_CTX" ] && L1_EST=$((L1_EST + 1 + 1 + 2 + ${#K8S_CTX}))
+    if [ "$L1_EST" -gt "$SAFE_WIDTH" ]; then
+        OVER=$((L1_EST - SAFE_WIDTH))
+        T_MAX=$((${#TOPIC} - OVER - 2))
+        if [ "$T_MAX" -gt 5 ]; then
+            TOPIC="${TOPIC:0:$T_MAX}.."
+        else
+            TOPIC=""
+        fi
+    fi
+fi
+
+# Assemble Line 1 from (possibly truncated) components
+L1_PREFIX="${RST}${PROJ_FG}${NF_CORNER_TL}${BG1}"
+L1C="${L1_PREFIX}"
 [ -n "$TOPIC" ] && L1C+=" ${TXT_BOLD}${TOPIC}${B} ${SEP}${B}"
 L1C+=" ${TXT_FG}${NF_FOLDER} ${DIR} ${B}"
 if [ -n "$BRANCH" ]; then
@@ -259,37 +366,34 @@ if [ -n "$BRANCH" ]; then
 fi
 [ -n "$AGENT" ] && L1C+=" ${TXT_FG}${AGENT}${B}"
 [ -n "$MODE" ]  && L1C+=" ${SEP}${B} \033[1;38;2;150;100;0m${MODE}${B}"
-if [ -n "$K8S_CTX" ]; then
-    L1C+=" ${SEP}${B} ${TXT_FG}${NF_K8S} ${K8S_CTX}${B}"
-fi
+[ -n "$K8S_CTX" ] && L1C+=" ${SEP}${B} ${TXT_FG}${NF_K8S} ${K8S_CTX}${B}"
 L1C+=" "
 
-# ── Line 2 content (adaptive width) ────────────────────────────────────────
+# ── Line 2 content ──────────────────────────────────────────────────────────
 CTX_CLR=$(pct_txt_color "$PCT")
 CTX_BAR=$(make_bar "$PCT" 7 "$CTX_CLR" "$L2_DIM")
+# Effort level color
 case $EFFORT in
-    max)    EFFORT_CLR="\033[38;2;150;210;150m" ;;
-    high)   EFFORT_CLR="\033[38;2;150;210;150m" ;;
-    medium) EFFORT_CLR="\033[38;2;170;170;170m" ;;
-    low)    EFFORT_CLR="\033[38;2;225;150;150m" ;;
+    max)    EFFORT_CLR="\033[38;2;150;210;150m" ;;  # sage
+    high)   EFFORT_CLR="\033[38;2;150;210;150m" ;;  # sage
+    medium) EFFORT_CLR="\033[38;2;170;170;170m" ;;  # gray (blends in)
+    low)    EFFORT_CLR="\033[38;2;225;150;150m" ;;  # coral (warning)
+    *)      EFFORT_CLR="\033[38;2;170;170;170m" ;;  # fallback: gray
 esac
 
 L2C="${RST}\033[38;2;0;0;0m${NF_CORNER_BL}${BG2} ${L2_TXT}${NF_MODEL} ${MODEL} ${EFFORT_CLR}${EFFORT}${B2} ${L2_DIM}│${B2} ${L2_TXT}${NF_CLOCK} ${TIME_CLR}${TIME}${B2} ${L2_DIM}│${B2} ${CTX_BAR} ${CTX_CLR}${PCT}%${B2} ${L2_TXT}of ${CTX_SIZE_K}k"
 
-FIVE_PCT=$(echo "$DATA" | jq -r '.rate_limits.five_hour.used_percentage // empty' 2>/dev/null) || true
-SEVEN_PCT=$(echo "$DATA" | jq -r '.rate_limits.seven_day.used_percentage // empty' 2>/dev/null) || true
-FIVE_RESET_TS=$(echo "$DATA" | jq -r '.rate_limits.five_hour.resets_at // empty' 2>/dev/null) || true
-SEVEN_RESET_TS=$(echo "$DATA" | jq -r '.rate_limits.seven_day.resets_at // empty' 2>/dev/null) || true
-
-# Adaptive rate limits: full/compact/minimal based on available width
-L2_BASE_W=$(count_cols "$L2C" 2>/dev/null) || L2_BASE_W=50
-RATE_AVAIL=$((SAFE_WIDTH - L2_BASE_W - 5))
+# Estimate L2 base width with bash (same approach as L1: count visible chars)
+# Model + effort + separator + clock + time + separator + bar(7) + pct + "of Xk"
+L2_BASE_W=$((2 + 2 + ${#MODEL} + 1 + ${#EFFORT} + 3 + 2 + ${#TIME} + 3 + 7 + 1 + ${#PCT} + 1 + 4 + ${#CTX_SIZE_K} + 1))
+L2_BASE_W=${L2_BASE_W:-50}
+RATE_AVAIL=$((SAFE_WIDTH - L2_BASE_W - 5))   # reserve 5 for incident icon
 
 if [ -n "${FIVE_PCT:-}" ] && [ -n "${SEVEN_PCT:-}" ]; then
     FIVE_CLR=$(pct_txt_color "$FIVE_PCT")
     SEVEN_CLR=$(pct_txt_color "$SEVEN_PCT")
 
-    if [ "$RATE_AVAIL" -gt 40 ]; then
+    if [ "$RATE_AVAIL" -gt 40 ] 2>/dev/null; then
         # Full: bars + pct + reset times
         FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
         FIVE_TIME=$(format_reset "$FIVE_RESET_TS")
@@ -299,19 +403,19 @@ if [ -n "${FIVE_PCT:-}" ] && [ -n "${SEVEN_PCT:-}" ]; then
         SEVEN_TIME=$(format_reset "$SEVEN_RESET_TS")
         L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
         [ -n "${SEVEN_TIME:-}" ] && L2C+=" ${L2_DIM}${SEVEN_TIME}${B2}"
-    elif [ "$RATE_AVAIL" -gt 25 ]; then
+    elif [ "$RATE_AVAIL" -gt 25 ] 2>/dev/null; then
         # Compact: bars + pct, no reset times
         FIVE_BAR=$(make_bar "$FIVE_PCT" 5 "$FIVE_CLR" "$L2_DIM")
         L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_BAR} ${FIVE_CLR}${FIVE_PCT}%${B2}"
         SEVEN_BAR=$(make_bar "$SEVEN_PCT" 5 "$SEVEN_CLR" "$L2_DIM")
         L2C+=" ${L2_DIM}│${B2} ${L2_TXT}7d ${SEVEN_BAR} ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
-    elif [ "$RATE_AVAIL" -gt 15 ]; then
+    elif [ "$RATE_AVAIL" -gt 15 ] 2>/dev/null; then
         # Minimal: just percentages
         L2C+=" ${L2_DIM}│${B2} ${L2_TXT}5h ${FIVE_CLR}${FIVE_PCT}%${B2} ${L2_TXT}7d ${SEVEN_CLR}${SEVEN_PCT}%${B2}"
     fi
 fi
 
-# ── Claude service status (icon-only, auto-refresh every 60s) ────────────
+# ── Claude service status (auto-refresh every 60s in background) ────────────
 SVC_CACHE="/tmp/claude-service-status"
 SVC_FETCH="$HOME/.claude/claude-status-fetch.sh"
 if [ -x "$SVC_FETCH" ]; then
@@ -323,15 +427,19 @@ if [ -x "$SVC_FETCH" ]; then
 fi
 if [ -f "$SVC_CACHE" ]; then
     SVC_RAW=$(head -1 "$SVC_CACHE" 2>/dev/null)
-    case "$SVC_RAW" in
+    case "${SVC_RAW:-}" in
         operational)
-            L2C+=" ${L2_DIM}│${B2} \033[38;2;100;200;120m✓${B2}" ;;
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;100;200;120m✓${B2}"
+            ;;
         incident:*)
-            L2C+=" ${L2_DIM}│${B2} \033[38;2;225;150;100m⚠${B2}" ;;
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;225;150;100m⚠${B2}"
+            ;;
         degraded_performance:*)
-            L2C+=" ${L2_DIM}│${B2} \033[38;2;215;195;125m~${B2}" ;;
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;215;195;125m~${B2}"
+            ;;
         partial_outage:*|major_outage:*)
-            L2C+=" ${L2_DIM}│${B2} \033[38;2;225;100;100m✗${B2}" ;;
+            L2C+=" ${L2_DIM}│${B2} \033[38;2;225;100;100m✗${B2}"
+            ;;
     esac
 fi
 
@@ -341,24 +449,26 @@ L2C+=" "
 _TAB_TITLE="${TOPIC:-${DIR:-Claude}}"
 printf '\033]1;%s\007' "$_TAB_TITLE" > /dev/tty 2>/dev/null || true
 
-# ── Pad shorter line to match longer ─────────────────────────────────────────
+# ── Pad shorter line to match longer ────────────────────────────────────────
 {
-    L1_COLS=$(count_cols "$L1C")
-    L2_COLS=$(count_cols "$L2C")
+    # Single perl invocation for both line measurements
+    read -r L1_COLS L2_COLS < <(
+        measure_cols "$L1C" "$L2C" | tr '\n' ' '
+    )
+    L1_COLS=${L1_COLS:-0}; L2_COLS=${L2_COLS:-0}
     SYNC_W=$L2_COLS
-    [ "$L1_COLS" -gt "$SYNC_W" ] && SYNC_W=$L1_COLS
-    # No SAFE_WIDTH cap here: if L1 renders at this width, L2 padding to match is safe.
-    # SAFE_WIDTH only limits L2 *content* generation (rate limit adaptive display).
-    if [ "$L1_COLS" -gt 10 ] && [ "$L1_COLS" -lt "$SYNC_W" ]; then
+    [ "$L1_COLS" -gt "$SYNC_W" ] 2>/dev/null && SYNC_W=$L1_COLS
+    if [ "$L1_COLS" -gt 10 ] 2>/dev/null && [ "$L1_COLS" -lt "$SYNC_W" ] 2>/dev/null; then
         L1C+="${BG1}$(printf '%*s' "$((SYNC_W - L1_COLS))" '')"
     fi
-    if [ "$L2_COLS" -gt 10 ] && [ "$L2_COLS" -lt "$SYNC_W" ]; then
+    if [ "$L2_COLS" -gt 10 ] 2>/dev/null && [ "$L2_COLS" -lt "$SYNC_W" ] 2>/dev/null; then
         L2C+="${BG2}$(printf '%*s' "$((SYNC_W - L2_COLS))" '')"
     fi
 } 2>/dev/null || true
 
 # ── Output ───────────────────────────────────────────────────────────────────
 L2_END_FG="\033[38;2;0;0;0m"
+trap - EXIT  # disarm crash trap before normal output
 printf '\033[0m%b\n' "${L1C}${RST}${PROJ_FG}${NF_CORNER_TR}${RST}"
 printf '\033[0m%b\n' "${L2C}${RST}${L2_END_FG}${NF_CORNER_BR}${RST}"
 ```
@@ -380,10 +490,13 @@ printf '\033[0m%b\n' "${L2C}${RST}${L2_END_FG}${NF_CORNER_BR}${RST}"
 #   incident:<incident_title>
 #   unknown
 
-set -euo pipefail
+set -uo pipefail  # no -e: jq failures shouldn't leave orphan tmp files
 
 CACHE_FILE="/tmp/claude-service-status"
 TMP_FILE="${CACHE_FILE}.tmp"
+
+# Clean up tmp file on any exit (crash, signal, normal)
+trap 'rm -f "$TMP_FILE"' EXIT
 
 data=$(curl -s --max-time 8 \
     -H "Accept: application/json" \
@@ -395,27 +508,23 @@ data=$(curl -s --max-time 8 \
 
 [ -z "$data" ] && exit 0
 
-# Validate it's actually JSON with expected fields
-echo "$data" | jq -e '.status.indicator' >/dev/null 2>&1 || exit 0
+# Extract all fields in a single jq call
+eval "$(echo "$data" | jq -r '
+    @sh "indicator=\(.status.indicator // "unknown")",
+    @sh "description=\(.status.description // "")",
+    @sh "incident_count=\(.incidents | length)",
+    @sh "incident_name=\(.incidents[0].name // "Incident")"
+' 2>/dev/null)" || exit 0
 
-indicator=$(echo "$data" | jq -r '.status.indicator // "unknown"')
-description=$(echo "$data" | jq -r '.status.description // ""')
-
-# Check for active incidents
-incident_count=$(echo "$data" | jq -r '.incidents | length' 2>/dev/null || echo "0")
-
-if [ "$indicator" = "none" ] && [ "$incident_count" -eq 0 ]; then
+if [ "${indicator:-unknown}" = "none" ] && [ "${incident_count:-0}" -eq 0 ] 2>/dev/null; then
     echo "operational" > "$TMP_FILE"
 else
-    if [ "$incident_count" -gt 0 ]; then
-        # Get the first (most recent) incident name
-        incident_name=$(echo "$data" | jq -r '.incidents[0].name // "Incident"')
+    if [ "${incident_count:-0}" -gt 0 ] 2>/dev/null; then
         # Truncate long names
-        incident_name=$(echo "$incident_name" | cut -c1-50)
+        incident_name=$(echo "${incident_name:-Incident}" | cut -c1-50)
         echo "incident:${incident_name}" > "$TMP_FILE"
     else
         # Degraded or outage without a named incident
-        # Collect affected component names
         affected=$(echo "$data" | jq -r '
             [.components[]
              | select(.status != "operational")
@@ -427,6 +536,7 @@ else
 fi
 
 mv "$TMP_FILE" "$CACHE_FILE"
+trap - EXIT  # disarm cleanup since mv succeeded
 ```
 
 {{% /details %}}
@@ -438,7 +548,7 @@ mv "$TMP_FILE" "$CACHE_FILE"
 # Session topic capture hook for Claude Code statusline v2
 # Fires on UserPromptSubmit - calls Claude Haiku to generate a "Project: Focus" label
 # Writes to ~/.claude/session-topics/{session_id}.txt
-set -euo pipefail
+set -uo pipefail  # no -e: jq/security failures shouldn't crash silently
 
 HOOK_DATA=$(cat)
 
@@ -455,7 +565,11 @@ TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | jq -r '.transcript_path // empty' 2>/dev/n
 # Rate limit: only regenerate every 10 prompts or if no topic exists yet
 COUNTER_FILE="/tmp/session-topic-counter-${SESSION_ID}"
 COUNT=0
-[ -f "$COUNTER_FILE" ] && COUNT=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
+if [ -f "$COUNTER_FILE" ]; then
+    _raw=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
+    # Validate numeric to avoid arithmetic crash on corrupted file
+    [[ "$_raw" =~ ^[0-9]+$ ]] && COUNT=$_raw || COUNT=0
+fi
 COUNT=$((COUNT + 1))
 echo "$COUNT" > "$COUNTER_FILE"
 
@@ -568,7 +682,9 @@ Claude Code calls your script after each assistant message, piping a JSON blob t
 
 **Terminal tab title** - The tab title is set to the session topic (or folder name if no topic exists yet).
 
-**Adaptive line width** - Both lines are padded to match the wider one. `SAFE_WIDTH` (default 110, override with `STATUSLINE_WIDTH` env var) controls how much rate limit detail is generated on line 2 (full bars + reset times, compact bars, or percentages only), but does not cap the sync padding. If line 1 is organically wider than `SAFE_WIDTH` (e.g., long branch name + topic), line 2 pads to match, since the terminal clearly supports that width.
+**Adaptive line width** - Both lines are padded to match the wider one. `SAFE_WIDTH` (default 110, override with `STATUSLINE_WIDTH` env var) controls how much rate limit detail is generated on line 2 (full bars + reset times, compact bars, or percentages only). Line 1 is also width-enforced: if it exceeds `SAFE_WIDTH`, components are progressively truncated (K8S context first, then branch name, then topic) to prevent `cli-truncate` from silently dropping line 2.
+
+**Crash safety** - The script uses `set -uo pipefail` (no `-e`) and a `trap 'printf "\n"' EXIT` to guarantee at least empty output on crash. This prevents the statusline from silently disappearing when external commands (`git`, `kubectl`, `jq`) return non-zero. Stdin is read with `timeout 2` to avoid blocking forever if Claude Code fails to pipe JSON.
 
 ## Rendering Gotchas
 
@@ -580,6 +696,8 @@ Claude Code's statusline renderer has some undocumented behaviors I discovered t
 - **Process group cleanup** - Claude Code kills the entire process group when the statusline process exits. Background subshells (`(cmd) &`) don't survive, making async cache updates impossible.
 - **Use `printf '%b'` over `echo -e`** - More reliable escape handling, recommended by the official docs. Prepend `\033[0m` to each line to override Claude Code's default dim styling.
 - **jq float rounding** - `jq`'s `floor` can return values like `14.000000000000002`. Truncate with `${PCT%%.*}` before using in bash arithmetic.
+- **`set -e` kills silently** - With `set -e`, any external command returning non-zero (git in a non-repo dir, kubectl with no context, jq on malformed JSON) terminates the script with zero output. Claude Code sees nothing and the statusline disappears. Use `set -uo pipefail` without `-e` instead.
+- **Bash IFS tab collapsing** - Do NOT use `@tsv` with `IFS=$'\t' read`. Bash treats tab as "IFS whitespace," meaning consecutive tabs (from empty fields like `agent.name=""`) are collapsed into a single delimiter. This silently shifts all subsequent variables. Use a non-whitespace delimiter like SOH (`\x01`) with `join("\u0001")` instead.
 
 ## Credits
 
