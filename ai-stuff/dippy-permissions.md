@@ -26,6 +26,7 @@ What makes it better than `settings.json`:
 2. **Last match wins** - rules are ordered and the last match takes precedence, in any direction. In settings.json, deny always wins over allow regardless of order, so you can't do "deny git push, but allow git push origin main". Dippy's ordering gives you full control
 3. **Plain text config** - much easier to organize, read, and maintain than a JSON array. Comments, categories, blank lines for grouping
 4. **File redirect controls** - `deny-redirect **/.env* "Never write secrets"` blocks output redirection to sensitive files, even if the command itself is allowed
+5. **Command delegation** - Dippy can trace into nested commands. For example, `kubectl exec pod -- cat /etc/config` is evaluated as two decisions: the outer `kubectl exec` and the inner `cat /etc/config` (with `remote=True` so local path checks are skipped). Native permissions only see the full command string and can't match rules against just the inner command after `--`
 
 ## The Config
 
