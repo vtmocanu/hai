@@ -1,4 +1,0 @@
-# Build Info
-
-{{< build-info >}}
-
