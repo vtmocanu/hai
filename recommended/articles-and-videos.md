@@ -1,5 +1,9 @@
 # Articles & Videos
 
+### [I Built Custom AI Agents for My Team: Here's the Complete Blueprint](https://www.youtube.com/watch?v=98yYcWwD95I)
+
+Argues that generic AI coding assistants like Claude Code and Cursor only know public information, leaving engineers to repeatedly reinvent the same internal solutions. Lays out a production blueprint for custom agents: system context with company policies and conventions, custom tools for internal APIs, vector-database retrieval for runbooks and docs, multi-agent orchestration with narrow specialists rather than one monolith, security guardrails with human-in-the-loop for critical operations, and OpenTelemetry observability for continuous improvement. End-to-end and practical, not theoretical.
+
 ### [Stop Using CPU Limits](https://home.robusta.dev/blog/stop-using-cpu-limits)
 
 Makes the case that CPU limits are an antipattern in Kubernetes. CPU is compressible—pods get throttled but keep running—so limits just prevent pods from using available resources. Memory is different: it's incompressible and needs limits to prevent OOM chaos. The takeaway: use CPU requests (not limits) and always set memory limits.
