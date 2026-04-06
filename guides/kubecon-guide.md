@@ -68,13 +68,15 @@ Most people see the sponsor booths as a swag collection opportunity. They're mis
 - **[Upbound](https://www.upbound.io/) / [Crossplane](https://www.crossplane.io/)** - I love Crossplane and use it extensively for infrastructure as code
 - **[The New Stack](https://thenewstack.io/)** - I read their articles all the time. Always good to stop by and chat about what's trending in cloud native
 - **[Tailscale](https://tailscale.com/)** - I really like Tailscale and use it daily for accessing my homelab remotely
-- **[Syntasso](https://www.syntasso.io/)** - Because that's where I track down [Abby Bangser](https://www.linkedin.com/in/abbybangser/)
+- **[Syntasso](https://www.syntasso.io/)** - Because that's where I track down [Abby Bangser](https://www.linkedin.com/in/abbybangser/) and [Daniel Bryant](https://www.linkedin.com/in/danielbryantuk/)
 - **[Spotify](https://www.spotify.com/) / [Backstage](https://backstage.io/) / [Roadie](https://roadie.io/)** - I like the Backstage project and what it's doing for developer portals
 - **[Spectro Cloud](https://www.spectrocloud.com/)** - I really like Spectro Cloud. They power my homelab Kubernetes cluster and their approach to cluster management is excellent
 - **[Hetzner](https://www.hetzner.com/)** - If they're present. I use a Hetzner VM in my homelab and I always bug them about managed Kubernetes on Hetzner
 - **[vCluster](https://www.vcluster.com/)** - I like the project and have done implementations with it. Virtual clusters are a clever approach to multi-tenancy
 
 - **[Sidero Labs](https://www.siderolabs.com/) / [Talos](https://www.talos.dev/)** - Used Talos in the past. Interesting implementation of an immutable Kubernetes OS. Always checking in to see how they've evolved
+- **[Okteto](https://www.okteto.com/)** - Haven't had the chance to meet [Ramiro Berrelleza](https://www.linkedin.com/in/ramiroberrelleza/) in person yet, but he's on my todo list for next time
+- **[Edera](https://edera.dev/)** - They sponsor [Cloud Native Rejekts](https://cloud-native.rejekts.io/) and had amazing "f*ck luck" t-shirts. Instant win
 
 Notable mentions: I somehow always end up stopping by [Teleport](https://goteleport.com/) and [Pulumi](https://www.pulumi.com/) as well.
 
@@ -102,7 +104,7 @@ This sounds controversial, but hear me out:
 
 The talks serve a different purpose at the conference itself. Use the schedule to:
 
-- **Start with speakers, not topics.** I first go through the schedule and pick talks from speakers I follow. Build your own list of speakers whose perspective you trust, and lock those in first. My never-miss list:
+- **Start with speakers, not topics.** I first go through the schedule and pick talks from speakers I follow. Build your own list of speakers whose perspective you trust, and lock those in first. I try to keep this list updated throughout the year, so I know not just which talks to attend but also who to track down in the hallways for a chat. My never-miss list:
   - [Viktor Farcic](https://www.linkedin.com/in/viktorfarcic/)
   - [Whitney Lee](https://www.linkedin.com/in/whitneylee/)
   - [Abby Bangser](https://www.linkedin.com/in/abbybangser/)
@@ -115,6 +117,7 @@ The talks serve a different purpose at the conference itself. Use the schedule t
   - [Yury Tsarev](https://www.linkedin.com/in/yurytsarev/)
   - [Mark Sagi-Kazar](https://www.linkedin.com/in/sagikazarmark/)
   - [Lin Sun](https://www.linkedin.com/in/lin-sun-a9b7a81/)
+  - [Vadim Bauer](https://www.linkedin.com/in/vadim-bauer/)
 - **Find people**, not content. If a talk interests you, check who's speaking, then find them at their booth or in the hallway afterward
 - **Use talks as rest periods.** After hours of networking, sitting in a dark room listening to someone is genuinely restorative
 - **Attend niche talks in smaller rooms.** The big keynotes are the most likely to be watched online. The 50-person room talks are where the real gems hide, and where you can actually talk to the speaker afterward
