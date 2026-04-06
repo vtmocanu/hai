@@ -25,6 +25,7 @@ What follows is my complementary perspective, shaped by attending every European
 - **Make a list of speakers you want to meet in person.** Not just to attend their talks, but to actually find them and have a conversation. Speakers are usually around at booths, hallways, or parties. A quick "I loved your talk on X" or "I've been using your project for Y" goes a long way
 - **Bring an external battery and maximize your charge.** Your phone will die from all the networking, photos, maps, and schedule checking. A power bank is essential. Also: if you normally limit charging to 80% for battery health (on your phone and laptop), disable that for KubeCon week. Charge everything to 100% and enable battery saver/low power mode
 - **Eat when food is available**, not when you're hungry. The lunch rush is real, and you'll waste 30 minutes in line if you time it wrong
+- **Stop by the professional photobooth.** KubeCon usually has one with pro photographers doing free headshots. It's a great opportunity to refresh your LinkedIn photo while you're already there. The quality is excellent, highly recommend
 
 ---
 
@@ -151,6 +152,8 @@ The day before KubeCon proper, there are co-located events. These are focused, s
 
 KubeCon isn't just a conference, it's a week-long community gathering. The evening events are where some of the best connections happen, in a more relaxed setting.
 
+**The parties surprised me.** I'd skipped them for years, assuming loud music and awkward small talk. 2026 I finally went, and here's what actually happens: the music is quiet enough to hear each other, the drinks are everywhere, and a few hundred engineers with nothing else to do end up talking about exactly what you'd expect a few hundred engineers to talk about. Turns out my idea of a great night out is nerding out about agentic AI with strangers. Who knew.
+
 **Finding events:** Two great resources for tracking all the parties (official and unofficial):
 
 - [conf.party](https://conf.party/kubecon-eu-2026.html) - curated list of KubeCon parties
@@ -159,6 +162,7 @@ KubeCon isn't just a conference, it's a week-long community gathering. The eveni
 **Tips for evening events:**
 
 - Register early. Popular events fill up fast
+- **Register for multiple parties on the same night.** You don't have to commit to one, decide on the day which one you're feeling. And some evenings you'll want to hop between two or three, catching different crowds at each
 - You don't have to stay late. Show up, make some connections, and leave when you want
 - Pace yourself. The conference is a marathon, not a sprint. Going hard every night will catch up with you by Thursday
 
