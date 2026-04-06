@@ -33,6 +33,7 @@ What started as "I should learn Kubernetes" turned into a 3-node Proxmox cluster
 ## Projects I've Open-Sourced
 
 - [Claude Code Action for Forgejo](https://codeberg.org/vtmocanu/claude-code-action) -- Fork of Anthropic's Claude Code GitHub Action, adapted to work on Forgejo ([blog post](/ai-stuff/claude-code-action-forgejo/))
+- [cc-statusline](https://codeberg.org/vtmocanu/cc-statusline) -- Two-line ANSI statusline for Claude Code with project-aware colors, git/k8s context, rate-limit bars, and AI-generated session topics ([blog post](/ai-stuff/claude-statusline/))
 
 ## Projects I Contribute To
 
