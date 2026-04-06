@@ -1,5 +1,7 @@
 # The Stack
 
+<img src="/images/the-stack.png" alt="A friendly robot arranging floating glass slabs representing the layers of the homelab stack" style="max-width: 700px; width: 100%; height: auto;" />
+
 ## Main Site
 
 ### Compute
@@ -54,7 +56,7 @@ Deployed via [Spectro Cloud](https://www.spectrocloud.com/) (migrated from [Kube
 
 - Migrated from GitLab (self-hosted)
 
-![Forgejo Repos](/images/forgejo-repos.png)
+![Forgejo dashboard showing 231 repositories and 18,805 contributions in the last 12 months](/images/forgejo-dashboard.png)
 
 **[Forgejo Actions](https://forgejo.org/docs/latest/user/actions/)** - 67 workflows (GitHub Actions compatible)
 
