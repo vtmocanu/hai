@@ -41,6 +41,8 @@ What started as "I should learn Kubernetes" turned into a 3-node Proxmox cluster
 - [k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner) -- Custom Lua-based policies to find and clean up orphaned resources in Kubernetes
 - [dot-ai](https://github.com/vfarcic/dot-ai) -- AI-powered Kubernetes operations via MCP
 
+Full running log of upstream contributions (with Claude Code's help) on [Co-Authored with AI]({{< ref "ai-stuff/co-authored-with-ai" >}}).
+
 ## Connect
 
 Always happy to geek out about Kubernetes, homelab/self-hosting, or cloud native tech—feel free to reach out.

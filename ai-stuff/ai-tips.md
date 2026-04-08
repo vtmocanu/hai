@@ -318,11 +318,11 @@ When AI claims there's a bug in an open source project, don't just take its word
 
 I've used this pattern on three real bug reports to date:
 
-- **Flux Operator RBAC bug** — AI traced the missing "Run Job" button through frontend → API → RBAC → tests and found `resource.go` checking workload actions against the wrong API group, with mock data masking it in the test suite. ([issue #677](https://github.com/controlplaneio-fluxcd/flux-operator/issues/677))
-- **Renovate Operator onboarding detection** — AI found a naive `strings.Contains("onboarding")` log parser that matched debug messages present in every run, falsely reporting all repos as un-onboarded. ([issue #114](https://github.com/mogenius/renovate-operator/issues/114), shipped in v2.4.1)
-- **The bug behind the bug fix** — when the v2.4.1 fix didn't actually solve the problem, AI traced it deeper and found Renovate emits a 190KB+ log line that exceeds `bufio.Scanner`'s 64KB default. ([issue #117](https://github.com/mogenius/renovate-operator/issues/117))
+- **Flux Operator RBAC bug**: AI traced the missing "Run Job" button through frontend → API → RBAC → tests and found `resource.go` checking workload actions against the wrong API group, with mock data masking it in the test suite. ([issue #677](https://github.com/controlplaneio-fluxcd/flux-operator/issues/677))
+- **Renovate Operator onboarding detection**: AI found a naive `strings.Contains("onboarding")` log parser that matched debug messages present in every run, falsely reporting all repos as un-onboarded. ([issue #114](https://github.com/mogenius/renovate-operator/issues/114), shipped in v2.4.1)
+- **The bug behind the bug fix**: when the v2.4.1 fix didn't actually solve the problem, AI traced it deeper and found Renovate emits a 190KB+ log line that exceeds `bufio.Scanner`'s 64KB default. ([issue #117](https://github.com/mogenius/renovate-operator/issues/117))
 
-Full entries with status and project links on the [Co-Authored with AI]({{< ref "oss-contributions" >}}) page.
+Full entries with status and project links on the [Co-Authored with AI]({{< ref "co-authored-with-ai" >}}) page.
 
 **The pattern:**
 ```
