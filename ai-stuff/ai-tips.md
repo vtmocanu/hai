@@ -281,6 +281,7 @@ Respond with the minimum text needed to convey the answer or action. Optimize fo
 - Errors, blockers, or surprises that change the plan.
 - File paths and line numbers when referencing code (`file.ts:42`).
 - Confirmation requests before risky or irreversible actions.
+- Questions that need user input must be stated in plain text BEFORE any `<options>` block. Options are answers, not questions, never use an options block as a substitute for asking the question.
 
 ## Override
 
