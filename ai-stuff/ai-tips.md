@@ -220,6 +220,94 @@ By default, AI lists options neutrally. Tell it to be opinionated — highlight 
 
 You want a senior engineer's recommendation, not a menu.
 
+## Cut the Fluff with Output Styles
+
+Claude Code is chatty by default. You ask for a one-line fix and get a preamble, the fix, a summary of what just happened, and a closing offer to help further. It burns tokens, hides the actual answer, and adds up over a session.
+
+The best fix isn't a `CLAUDE.md` rule (those get appended as a user message and don't replace the verbose default). It's a custom **output style**, an official Claude Code feature that directly modifies the system prompt and persists across sessions.
+
+**Create `~/.claude/output-styles/terse.md`:**
+
+```markdown
+---
+name: Terse
+description: Minimal, direct responses. No preamble, no summaries, no fluff.
+keep-coding-instructions: true
+---
+
+# Terse Mode
+
+- Lead with the answer or action. No preamble, no restating the question.
+- No trailing summaries of what you just did. The diff speaks for itself.
+- No sycophantic openers ("Great question!", "Sure!", "Absolutely!").
+- One sentence beats three. Skip filler words and hedges.
+- For investigations: report findings as a bulleted list, not prose.
+- Skip "Let me..." / "I'll now..." narration before tool calls.
+- No closing offers ("Let me know if you need anything else!").
+- User instructions always win. If asked for detail, provide it.
+```
+
+<details>
+<summary><strong>Full version (what I actually use)</strong></summary>
+
+```markdown
+---
+name: Terse
+description: Minimal, direct responses. No preamble, no summaries, no fluff.
+keep-coding-instructions: true
+---
+
+# Terse Mode
+
+Respond with the minimum text needed to convey the answer or action. Optimize for the user's reading time, not for thoroughness or politeness.
+
+## Rules
+
+- Lead with the answer or action. No preamble, no restating the question.
+- No trailing summaries of what you just did. The diff and tool calls speak for themselves.
+- No sycophantic openers ("Great question!", "Sure!", "Absolutely!", "You're right!").
+- One sentence beats three. Skip filler words, hedges, and transitional phrases.
+- For code changes: show the change, then at most one line of context if non-obvious. Do not narrate the edit.
+- For investigations: report findings as a short bulleted list, not prose paragraphs.
+- For multi-step work: report milestones, not every intermediate step.
+- Only explain reasoning when the user asks "why" or the decision is non-obvious and load-bearing.
+- Skip "Let me..." / "I'll now..." narration before tool calls. Just call the tool.
+- No closing offers ("Let me know if you need anything else!", "Happy to help with...").
+- When asked a yes/no question, the first word should be Yes or No.
+
+## What to keep
+
+- Decisions that need user input.
+- Errors, blockers, or surprises that change the plan.
+- File paths and line numbers when referencing code (`file.ts:42`).
+- Confirmation requests before risky or irreversible actions.
+
+## Override
+
+User instructions always win. If the user explicitly asks for a detailed explanation, walkthrough, or verbose output, provide it.
+```
+
+</details>
+
+Activate it with `/config` → Output style → Terse, or set it globally in `~/.claude/settings.json`:
+
+```json
+{
+  "outputStyle": "Terse"
+}
+```
+
+You'll need to start a new session for it to take effect (output styles are loaded once at session start so prompt caching stays stable).
+
+**Why output styles beat a `CLAUDE.md` rule:**
+
+- They **replace** parts of the default system prompt instead of being appended after it, so they actually counter the verbose defaults rather than fighting them.
+- No per-message input token tax beyond the first cached request.
+- Set once globally, applies to every project.
+- It's a first-class feature with built-in alternatives (`Default`, `Explanatory`, `Learning`) you can switch between via `/config`.
+
+For the full feature reference, see the [official output styles docs](https://code.claude.com/docs/en/output-styles).
+
 ## Question Everything
 
 AI confidently states things. Some are true, some aren't. Get in the habit of asking "wait, is that right?" — worst case you confirm it, best case you learn something or catch a mistake.
@@ -228,11 +316,13 @@ AI confidently states things. Some are true, some aren't. Get in the habit of as
 
 When AI claims there's a bug in an open source project, don't just take its word for it. Make it **clone the repo and investigate the source code** to confirm. AI can misread docs, hallucinate behavior, or confuse versions. But when you have it trace the actual code path — reading the handler, the frontend component, the RBAC check, the test cases — you get a real answer, not a guess.
 
-**Example 1 — Flux Operator RBAC bug:** AI told me the Flux Operator web UI's "Run Job" button wasn't showing due to a bug. Instead of just filing an issue based on speculation, I had it clone the repo and trace the full flow: frontend component → API response → RBAC check → test coverage. It found that `resource.go` checks workload actions (`restart`) against the wrong API group, and that mock data was hiding the bug in tests. That level of evidence turned a "maybe this is broken" into a [confirmed, well-documented bug report](https://github.com/controlplaneio-fluxcd/flux-operator/issues/677).
+I've used this pattern on three real bug reports to date:
 
-**Example 2 — Renovate Operator onboarding detection:** The Renovate Operator UI showed "No Config (renovate not onboarded)" for all repositories despite them being fully onboarded. AI traced the log parser code path, found it used a naive `strings.Contains("onboarding")` check that matched debug messages like `"checkOnboarding()"` present in every run, and [filed a detailed bug report](https://github.com/mogenius/renovate-operator/issues/114) with the exact code location and suggested fix. The maintainers shipped a fix in the next release (v2.4.1).
+- **Flux Operator RBAC bug** — AI traced the missing "Run Job" button through frontend → API → RBAC → tests and found `resource.go` checking workload actions against the wrong API group, with mock data masking it in the test suite. ([issue #677](https://github.com/controlplaneio-fluxcd/flux-operator/issues/677))
+- **Renovate Operator onboarding detection** — AI found a naive `strings.Contains("onboarding")` log parser that matched debug messages present in every run, falsely reporting all repos as un-onboarded. ([issue #114](https://github.com/mogenius/renovate-operator/issues/114), shipped in v2.4.1)
+- **The bug behind the bug fix** — when the v2.4.1 fix didn't actually solve the problem, AI traced it deeper and found Renovate emits a 190KB+ log line that exceeds `bufio.Scanner`'s 64KB default. ([issue #117](https://github.com/mogenius/renovate-operator/issues/117))
 
-**Example 3 — The bug behind the bug fix:** After the v2.4.1 fix landed, onboarding detection *still* didn't work. Instead of assuming the fix was wrong, AI cloned the repo, read the new parser code, and verified the logic was correct. Then it measured the actual Renovate log output — found that Renovate emits a `"packageFiles with updates"` line that can be 190KB+, while Go's `bufio.Scanner` silently stops at 64KB. The parser never reaches the `"Repository finished"` line at the end of the logs. A [Go reproducer script confirmed the hypothesis](https://github.com/mogenius/renovate-operator/issues/117), and a smaller repo (with logs under 64KB) worked perfectly — proving the diagnosis. One-line fix: `scanner.Buffer(make([]byte, 0), 1024*1024)`.
+Full entries with status and project links on the [Co-Authored with AI]({{< ref "oss-contributions" >}}) page.
 
 **The pattern:**
 ```
