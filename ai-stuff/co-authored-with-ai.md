@@ -57,7 +57,7 @@ Extended the Renovate log parser to detect 7 message types and extract per-PR ac
 - **Project**: [pocket-id/pocket-id](https://github.com/pocket-id/pocket-id) (self-hosted OIDC provider)
 - **PR**: [pocket-id/pocket-id#1413](https://github.com/pocket-id/pocket-id/pull/1413)
 - **Issue**: [pocket-id/pocket-id#1407](https://github.com/pocket-id/pocket-id/issues/1407)
-- **Status**: open, waiting for upstream review
+- **Status**: merged 2026-04-08
 - **Language**: Go
 
 Pocket-ID's S3 backend returned full prefixed keys from List instead of relative paths, double-prefixing every subsequent Open and silently 404'ing, which made every custom logo and favicon vanish from my homelab after every pod restart. Fixed by stripping the prefix in List with a small `pathFromKey` helper plus round-trip unit tests.
