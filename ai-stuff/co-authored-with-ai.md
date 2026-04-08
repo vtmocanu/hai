@@ -1,5 +1,7 @@
 # Co-Authored with AI
 
+<img src="/images/coauth.png" alt="A robot and engineer repairing quirky open-source project machines at a workshop bench, under a CO-AUTHORED WITH AI sign" style="max-width: 700px; width: 100%; height: auto;" />
+
 I am not a programmer. I have spent years operating Linux and Kubernetes infrastructure, but I cannot write production code on my own to a quality I'd feel comfortable shipping to a maintainer. What changed in the last year is that I can ship code anyway: Claude Code writes what I cannot, I keep ownership of the judgment calls, and we end up with contributions real maintainers actually act on.
 
 This page is a running log of upstream OSS contributions (bug fixes, new features, and bug reports too detailed to ignore) where, **without Claude Code, I would not have filed it at all**. Either I would not have found the bug, traced it to the right code path, designed the feature, written the code, written the tests, read the upstream's lint config, or some combination of those.
