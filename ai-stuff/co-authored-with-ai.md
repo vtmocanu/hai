@@ -6,6 +6,8 @@ I am not a programmer. I have spent years operating Linux and Kubernetes infrast
 
 This page is a running log of upstream OSS contributions (bug fixes, new features, and bug reports too detailed to ignore) where, **without Claude Code, I would not have filed it at all**. Either I would not have found the bug, traced it to the right code path, designed the feature, written the code, written the tests, read the upstream's lint config, or some combination of those.
 
+Somewhere out there, people I'll never meet are running code I wrote, and that's a feeling I didn't know I was chasing until I had it.
+
 ## The human side
 
 The code is the visible part of this, but what's actually stayed with me are the conversations. Every contribution has ended up being a doorway to the human behind the project, and I've made real friends along the way: [Stefan Prodan](https://www.linkedin.com/in/stefanprodan/) ([Flux](https://fluxcd.io/)), [Gianluca Mardente](https://www.linkedin.com/in/gianlucamardente/) ([k8s-cleaner](https://github.com/gianlucam76/k8s-cleaner)), [Lukas Hankeln](https://www.linkedin.com/in/lukas-hankeln/) ([renovate-operator](https://github.com/mogenius/renovate-operator)), and others who've been generous with their time and always up for the next idea. I'd been following [Viktor Farcic](https://www.linkedin.com/in/viktorfarcic/) ([dot-ai](https://github.com/vfarcic/dot-ai)) for years; these PRs finally gave me a reason to reach out on Slack and actually talk. In a world that's starting to feel fully automated, these conversations are the part I want to hold onto.
