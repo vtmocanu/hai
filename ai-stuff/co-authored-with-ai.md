@@ -124,6 +124,15 @@ When S3 clients send `PutObject` with the `x-amz-acl: private` header, VersityGW
 
 The `/metrics` endpoint becomes completely unresponsive after running for a while; even `/` times out and Prometheus scrapes fail at the 60s mark with zero samples. Traced to `collectQueryLogStats()` in `worker.go` creating unique time series per unique combination of 7 labels (server, user, reason, status, upstream, client_name, protocol) without ever resetting them. The metric registry grows unbounded until the exporter grinds to a halt.
 
+#### rustfs #2457: Signed-URL GetObject returns 502 after the alpha.91 upgrade
+
+- **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
+- **Issue**: [rustfs/rustfs#2457](https://github.com/rustfs/rustfs/issues/2457)
+- **Status**: confirmed existing upstream report; rollback to alpha.90 fixes it
+- **Language**: Rust
+
+Upgraded RustFS from alpha.90 to alpha.91 on the Synology NAS and Harbor immediately started 500ing on every chart manifest pull, which broke Flux OCIRepository reconciles cluster-wide. Admin API, HEAD, and LIST all worked fine; it was only signed GetObject against the harbor bucket that returned 502 BadGateway after ~5 seconds. Added my Harbor + Traefik data points to the existing upstream report and rolled back.
+
 #### rustfs #1838: x86_64 image SIGILLs on CPUs without AVX (Celeron, Atom)
 
 - **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
