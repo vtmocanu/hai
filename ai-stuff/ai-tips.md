@@ -1,5 +1,7 @@
 # AI Tips
 
+<img src="/images/ai-tips.png" alt="AI Tips" style="max-width: 700px; width: 100%; height: auto;" />
+
 Practical tips for getting real value from AI coding assistants. Takes months to build a useful setup, here's what I've learned.
 
 {{< callout type="info" >}}
