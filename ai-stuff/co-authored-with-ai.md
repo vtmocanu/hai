@@ -57,10 +57,10 @@ Extended the Renovate log parser to detect 7 message types and extract per-PR ac
 - **Project**: [mogenius/renovate-operator](https://github.com/mogenius/renovate-operator) (Kubernetes operator for Renovate)
 - **PR**: [mogenius/renovate-operator#276](https://github.com/mogenius/renovate-operator/pull/276)
 - **Issue**: [mogenius/renovate-operator#275](https://github.com/mogenius/renovate-operator/issues/275)
-- **Status**: open (CI green, waiting for maintainer review)
+- **Status**: closed in favor of [#277](https://github.com/mogenius/renovate-operator/pull/277) (merged 2026-04-11)
 - **Language**: React + JSX
 
-Made the "Open PRs" header badge in the operator dashboard clickable so it acts as a toggle filter: click once to show only projects with currently-open PRs, click again to clear. Entire RenovateJob cards with zero matching projects are hidden from view (not just rendered with empty tables), with a small inline hint when nothing matches. The active state uses a background fill plus colored border so it doesn't clash with the browser's focus ring, and it's clearly distinguishable in both light and dark mode. Extended the existing `StatBadge` component with optional `onClick` / `active` / `title` props while keeping the other 5 non-clickable callers visually identical (fully backward compatible). Filter state persists to localStorage and the predicate matches the header's `stats.openPRs` formula exactly for UI consistency.
+Made the "Open PRs" header badge in the operator dashboard clickable so it acts as a toggle filter: click once to show only projects with currently-open PRs, click again to clear. Entire RenovateJob cards with zero matching projects are hidden from view (not just rendered with empty tables), with a small inline hint when nothing matches. The maintainers liked the interaction model and pointed to a [concurrent PR by RonaldPhilipsen](https://github.com/mogenius/renovate-operator/pull/277) that extended the same idea to all 6 header badges with a cleaner implementation (native `<button>`, centralized predicates, filter info banner). I deployed both PRs to my cluster, validated #277 end-to-end, agreed it was the better solution, and closed mine in favor of it. #277 merged 2026-04-11.
 
 ### Bugs
 
