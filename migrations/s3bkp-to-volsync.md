@@ -288,13 +288,10 @@ With 10+ apps backing up every 6 hours, hitting S3 simultaneously causes spikes.
 | Minute | App |
 |--------|-----|
 | 0 | pulse |
-| 2 | (internal app) |
 | 3 | certmate-data |
 | 4 | forgejo |
 | 5 | freshrss-data |
 | 6 | nextcloud |
-| 7 | (internal app) |
-| 8 | slskd |
 | 11 | unifi |
 | 12 | vaultwarden |
 
