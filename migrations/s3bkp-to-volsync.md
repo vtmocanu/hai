@@ -10,8 +10,6 @@
 
 When I first built [s3bkp](/custom-tools/s3bkp/), I was aware VolSync existed. I looked at it briefly, decided it wasn't mature enough for what I needed, and moved on. My custom tool worked, backed up PVCs to S3, restored them during blue/green cluster migrations, and I had full control over every aspect. Why fix what isn't broken?
 
-That reasoning held for over a year.
-
 ## The Video That Changed My Mind
 
 Then I watched Mircea Anton's video: [How I Backup My Kubernetes Cluster the GitOps way (Volsync)](https://www.youtube.com/watch?v=wM8skoa6W4c).
