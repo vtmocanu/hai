@@ -79,7 +79,7 @@ The migration wasn't entirely smooth. A few things I learned:
 
 ## Current Status
 
-Most apps are migrated. The remaining few are being worked through. Once complete, s3bkp's Kyverno policies will be archived and the repository decommissioned.
+All 11 apps are migrated. s3bkp's Kyverno policies have been archived and the repository decommissioned.
 
 I don't regret building s3bkp. It taught me the real complexity behind backup tooling and served reliably for several months. But maintaining a custom solution when a community-supported one exists is a cost I no longer need to pay. Sometimes the best code you write is the code you eventually delete.
 
@@ -288,10 +288,14 @@ With 10+ apps backing up every 6 hours, hitting S3 simultaneously causes spikes.
 | Minute | App |
 |--------|-----|
 | 0 | pulse |
+| 2 | (internal app) |
 | 3 | certmate-data |
 | 4 | forgejo |
 | 5 | freshrss-data |
 | 6 | nextcloud |
+| 7 | (internal app) |
+| 8 | slskd |
+| 11 | unifi |
 | 12 | vaultwarden |
 
 A Taskfile command (`task volsync:schedules`) lists all schedules and detects conflicts.
