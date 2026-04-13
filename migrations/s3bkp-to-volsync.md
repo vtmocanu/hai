@@ -11,7 +11,7 @@ When I first built [s3bkp](/custom-tools/s3bkp/), I was aware VolSync existed. I
 
 ## The Video That Changed My Mind
 
-Then I watched Mircea Anton's video: [How I Backup My Kubernetes Cluster the GitOps way (Volsync)](https://www.youtube.com/watch?v=wM8skoa6W4c).
+Then I watched [Mircea Anton](https://www.linkedin.com/in/mirceanton/)'s video: [How I Backup My Kubernetes Cluster the GitOps way (Volsync)](https://www.youtube.com/watch?v=wM8skoa6W4c).
 
 Mircea's setup looked familiar. Too familiar. He was using VolSync with Flux Kustomize Components, per-app `postBuild` variables, S3 storage with restic, automatic restore on first PVC provision via `dataSourceRef`. It was essentially the same architecture I had built with s3bkp: declarative, GitOps-native, restore-as-code. But without the 2,400 lines of bash. Without the Kyverno injection policies. Without the custom container image I had to maintain, test, and update.
 
