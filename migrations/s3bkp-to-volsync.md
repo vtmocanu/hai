@@ -283,7 +283,9 @@ The `dataSourceRef` populator runs before the PVC is mountable. The app cannot s
 
 ### Schedule Staggering
 
-With 10+ apps backing up every 6 hours, hitting S3 simultaneously causes spikes. Each app uses a unique minute offset:
+With 10+ apps backing up every 6 hours, hitting S3 simultaneously causes spikes. Mircea's setup solves this with a Kyverno ClusterPolicy that injects a random-sleep init container (1-5 minutes) into every mover pod. I tried this approach first, and it works, but I ended up reverting it. The problem is that VolSync's `volsync_sync_duration_seconds` metric measures the full mover pod lifetime, including init containers. A backup that actually takes 15 seconds shows up as 3 minutes and 15 seconds in Grafana because the random sleep is baked into the duration. This made my backup duration panels useless for spotting real performance changes.
+
+Instead, I use per-app cron schedule offsets. Each app gets a unique minute in its `VOLSYNC_SCHEDULE` variable:
 
 | Minute | App |
 |--------|-----|
