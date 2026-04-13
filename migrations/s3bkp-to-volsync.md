@@ -292,9 +292,9 @@ With 10+ apps backing up every 6 hours, hitting S3 simultaneously causes spikes.
 | 4 | forgejo |
 | 5 | freshrss-data |
 | 6 | nextcloud |
-| 7-10 | (4 undisclosed apps) |
 | 11 | unifi |
 | 12 | vaultwarden |
+| ... | (+ 4 undisclosed apps) |
 
 A Taskfile command (`task volsync:schedules`) lists all schedules and detects conflicts.
 
