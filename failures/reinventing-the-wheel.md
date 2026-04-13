@@ -4,7 +4,7 @@
 
 When I needed automated PVC backup and restore for my blue/green cluster migrations, I looked at Velero, decided its imperative restore model didn't fit my "everything-as-code" approach, and jumped straight into building my own tool. I didn't dig much deeper than that. Surely, if Velero couldn't do it, I'd have to build it myself.
 
-So I built [s3bkp](/custom-tools/s3bkp/) - a Kyverno-injected sidecar that backs up PVCs to S3 and restores them automatically on pod startup. It grew to ~2,400 lines of bash, supported four backup engines, exposed 25+ Prometheus metrics, and reliably served through multiple cluster migrations over a year.
+So I built [s3bkp](/custom-tools/s3bkp/) - a Kyverno-injected sidecar that backs up PVCs to S3 and restores them automatically on pod startup. It grew to ~2,400 lines of bash, supported four backup engines, exposed 25+ Prometheus metrics, and reliably served through multiple cluster migrations.
 
 The problem? [VolSync](https://volsync.readthedocs.io/) existed. It's a CNCF-adjacent Kubernetes operator that does the same thing: backs up PVCs to S3 with restic, restores via native volume populators, runs as temporary Jobs instead of permanent sidecars. It even does things better: VolumeSnapshots before backup (consistent point-in-time copies instead of backing up live data), no custom code to maintain, CRD-based state management.
 

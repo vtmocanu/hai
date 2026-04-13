@@ -83,7 +83,7 @@ At its peak, s3bkp consisted of:
 - PrometheusRules with critical and warning alerts
 - A Grafana dashboard for backup health
 
-It worked. For over a year, it reliably backed up and restored PVCs across cluster migrations. Every blue/green transition was smooth.
+It worked. For several months, it reliably backed up and restored PVCs across cluster migrations. Every blue/green transition was smooth.
 
 ## Why I Replaced It
 

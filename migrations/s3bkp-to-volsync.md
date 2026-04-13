@@ -81,7 +81,7 @@ The migration wasn't entirely smooth. A few things I learned:
 
 Most apps are migrated. The remaining few are being worked through. Once complete, s3bkp's Kyverno policies will be archived and the repository decommissioned.
 
-I don't regret building s3bkp. It taught me the real complexity behind backup tooling and served reliably for over a year. But maintaining a custom solution when a community-supported one exists is a cost I no longer need to pay. Sometimes the best code you write is the code you eventually delete.
+I don't regret building s3bkp. It taught me the real complexity behind backup tooling and served reliably for several months. But maintaining a custom solution when a community-supported one exists is a cost I no longer need to pay. Sometimes the best code you write is the code you eventually delete.
 
 {{< callout type="info" >}}
 For the full story of what s3bkp was and how it worked, see [s3bkp: Backup-as-Code for Kubernetes PVCs](/custom-tools/s3bkp/).
