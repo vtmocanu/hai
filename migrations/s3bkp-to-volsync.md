@@ -5,7 +5,6 @@
 {{< tabs >}}
 
 {{< tab name="Overview" icon="book-open" >}}
-
 ## I Knew About VolSync (and Dismissed It)
 
 When I first built [s3bkp](/custom-tools/s3bkp/), I was aware VolSync existed. I looked at it briefly, decided it wasn't mature enough for what I needed, and moved on. My custom tool worked, backed up PVCs to S3, restored them during blue/green cluster migrations, and I had full control over every aspect. Why fix what isn't broken?
@@ -91,7 +90,6 @@ For the full story of what s3bkp was and how it worked, see [s3bkp: Backup-as-Co
 {{< /tab >}}
 
 {{< tab name="Technical Deep Dive" icon="code" >}}
-
 ## How I Use VolSync
 
 The setup follows the pattern from Mircea's video: a shared [Flux Kustomize Component](https://fluxcd.io/flux/components/kustomize/kustomizations/#components) that any app can include. The component is DRY; per-app customization happens via Flux `postBuild.substitute` variables.
