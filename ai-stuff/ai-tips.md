@@ -310,6 +310,8 @@ You'll need to start a new session for it to take effect (output styles are load
 
 For the full feature reference, see the [official output styles docs](https://code.claude.com/docs/en/output-styles).
 
+**Alternative approach:** [Caveman](https://github.com/JuliusBrussee/caveman) takes a more radical approach to the same problem. Instead of tuning the system prompt, it compresses Claude's output using a custom encoding that strips articles, prepositions, and filler words. I haven't tried it yet, but it's worth a look if output styles alone aren't aggressive enough for your taste.
+
 ## Question Everything
 
 AI confidently states things. Some are true, some aren't. Get in the habit of asking "wait, is that right?" — worst case you confirm it, best case you learn something or catch a mistake.
