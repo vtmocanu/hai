@@ -1,5 +1,7 @@
 # s3bkp: Backup-as-Code for Kubernetes PVCs
 
+<img src="/images/s3bkp.png" alt="Over-engineered bash machine labeled s3bkp with Kyverno, rustic, restic, rclone engines and blue/green S3 vaults" style="max-width: 700px; width: 100%; height: auto;" />
+
 I'm a big believer in everything-as-code. I run my Kubernetes clusters in a blue/green pattern. When it's time to upgrade, I don't patch in place. I provision a fresh cluster (the new color), migrate workloads over, verify everything works, and then decommission the old one. It's clean, reproducible, and gives me a rollback path if things go sideways.
 
 But it creates a problem: how do you get your data onto the new cluster?
