@@ -87,7 +87,7 @@ Deployed via [Spectro Cloud](https://www.spectrocloud.com/) (migrated from [Kube
 | Exporters | AdGuard, domain, Hetzner Cloud, NUT, Proxmox VE, MQTT, Tailscale | Fleet of custom metric exporters |
 | Logging | [Loki](https://grafana.com/oss/loki/), [OpenTelemetry Operator](https://opentelemetry.io/docs/kubernetes/operator/) | Logs, instrumentation |
 | Cert Monitoring | [certmon](https://github.com/mhkarimi1383/certmon) | TLS certificate expiry monitoring |
-| Backups (K8s) | [Velero](https://velero.io/) + [Velero UI](https://github.com/otwld/velero-ui), [Kasten K10](https://www.kasten.io/), s3bkp (custom) | PVC snapshots, cross-cluster migration |
+| Backups (K8s) | [Velero](https://velero.io/) + [Velero UI](https://github.com/otwld/velero-ui), [Kasten K10](https://www.kasten.io/), [VolSync](https://volsync.readthedocs.io/) | PVC snapshots, cross-cluster migration |
 | Backups (Postgres) | [Barman](https://pgbarman.org/) (CNPG), [PGBackWeb](https://github.com/eduardolat/pgbackweb) | |
 | Backups (VMs) | [Kopia](https://kopia.io/), [rsnapshot](https://rsnapshot.org/) | |
 | Personal Cloud | [Nextcloud](https://nextcloud.com/) | File sync, photos, calendar, contacts |
