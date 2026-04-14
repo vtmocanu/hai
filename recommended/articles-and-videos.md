@@ -1,5 +1,9 @@
 # Articles & Videos
 
+### [AI Just Killed the Software Engineer (And Created Something Better)](https://www.youtube.com/watch?v=sDy55DIkIJ0)
+
+Viktor Farcic's take on how AI is rewriting the software engineering profession right now, not in some distant future. Starts with hard data on AI's impact on productivity and revenue, then gets into the human side: identity crisis for devs whose craft is shifting under them. Covers new development cycles, spec-first workflows, how much autonomy to give AI agents, and why context engineering is the single biggest factor most teams ignore. The uncomfortable part: org restructuring, pod models, platform teams, which roles expand vs shrink, and what happens to junior developers when nobody is hiring them. Ends with concrete Monday-morning moves.
+
 ### [I Built Custom AI Agents for My Team: Here's the Complete Blueprint](https://www.youtube.com/watch?v=98yYcWwD95I)
 
 Argues that generic AI coding assistants like Claude Code and Cursor only know public information, leaving engineers to repeatedly reinvent the same internal solutions. Lays out a production blueprint for custom agents: system context with company policies and conventions, custom tools for internal APIs, vector-database retrieval for runbooks and docs, multi-agent orchestration with narrow specialists rather than one monolith, security guardrails with human-in-the-loop for critical operations, and OpenTelemetry observability for continuous improvement. End-to-end and practical, not theoretical.
