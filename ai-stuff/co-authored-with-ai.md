@@ -78,6 +78,15 @@ Pocket-ID's S3 backend returned full prefixed keys from List instead of relative
 
 Listed in reverse chronological order (most recent first).
 
+#### rustfs #2497: alpha.93 silently corrupts multipart uploads (`w_size=0`) after ~24h
+
+- **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
+- **Issue**: [rustfs/rustfs#2497](https://github.com/rustfs/rustfs/issues/2497)
+- **Status**: confirmed existing upstream report; rollback to alpha.90 fixes it
+- **Language**: Rust
+
+Renovate bumped RustFS to alpha.93 on the Synology NAS and ~19 hours later every Harbor replication started failing with `s3aws: InternalError: Io error: put_object_part write size < data.size(), w_size=0`. Health endpoint still reported `ok`, HEAD/LIST worked, and the scanner was idle, but every multipart PUT silently wrote zero bytes. 24 replication policies were stuck across CNPG, n8n, dot-ai, and more. Matched an open upstream report of alpha.93 going unresponsive after ~24h. Rolled back to alpha.90 and every replication recovered on the next trigger.
+
 #### Dippy #110: Permit rule with trailing ` *` didn't match bare commands
 
 - **Project**: [ldayton/Dippy](https://github.com/ldayton/Dippy) (Claude Code permission/config manager)
