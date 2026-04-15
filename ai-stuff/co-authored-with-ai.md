@@ -64,6 +64,15 @@ Made the "Open PRs" header badge in the operator dashboard clickable so it acts 
 
 ### Bugs
 
+#### renovate-operator #289: Dashboard stat-badge filter was lost on every reload
+
+- **Project**: [mogenius/renovate-operator](https://github.com/mogenius/renovate-operator) (Kubernetes operator for Renovate)
+- **PR**: [mogenius/renovate-operator#289](https://github.com/mogenius/renovate-operator/pull/289)
+- **Status**: merged 2026-04-15
+- **Language**: HTML + React
+
+The six stat badges at the top of the dashboard (Failed, Scheduled, Running, Completed, Open PRs, With Issues) act as a filter toggle when clicked, but the selection lived in React state only and reset on every refresh. Three other filters in the same component already persist via localStorage per-job; the top-level stat filter was the outlier. Stored the selected filter key in `localStorage.selectedStatFilter` using the same try/catch-wrapped pattern as the existing ones, and validated the stored value against the known filter keys on load so a future rename wouldn't leave users staring at a silently-applied unknown filter.
+
 #### renovate-operator #288: WebUI theme ignored OS flips and couldn't return to system mode
 
 - **Project**: [mogenius/renovate-operator](https://github.com/mogenius/renovate-operator) (Kubernetes operator for Renovate)
