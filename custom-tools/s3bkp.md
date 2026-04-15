@@ -91,7 +91,7 @@ It worked. For several months, it reliably backed up and restored PVCs across cl
 
 But maintaining ~2,400 lines of bash backup tooling was a tax I didn't need to keep paying. Every edge case (multi-volume apps, non-root containers, file ownership during restore, S3 credential rotation) added more complexity to an already dense script.
 
-Then I looked at what [VolSync](https://volsync.readthedocs.io/) had become. It's a CNCF-adjacent operator that does exactly what s3bkp does: backs up PVCs to S3 using restic, restores via Kubernetes-native volume populators, runs as temporary Jobs instead of permanent sidecars. No custom code to maintain. No Kyverno injection needed. CRD-based state instead of sidecar logs.
+Then I watched [Mircea Anton](https://www.linkedin.com/in/mirceanton/)'s video [How I Backup My Kubernetes Cluster the GitOps way (Volsync)](https://www.youtube.com/watch?v=wM8skoa6W4c) and looked at what [VolSync](https://volsync.readthedocs.io/) had become. It's a CNCF-adjacent operator that does exactly what s3bkp does: backs up PVCs to S3 using restic, restores via Kubernetes-native volume populators, runs as temporary Jobs instead of permanent sidecars. No custom code to maintain. No Kyverno injection needed. CRD-based state instead of sidecar logs.
 
 The critical realization: I had [reinvented the wheel](/failures/reinventing-the-wheel/). A well-maintained, community-supported wheel already existed, and it was better at consistency (VolSync takes a VolumeSnapshot before backing up, while s3bkp backs up live data) and resource efficiency (temporary mover jobs vs. permanent sidecars).
 
