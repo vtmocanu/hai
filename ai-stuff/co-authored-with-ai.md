@@ -64,6 +64,15 @@ Made the "Open PRs" header badge in the operator dashboard clickable so it acts 
 
 ### Bugs
 
+#### renovate-operator #288: WebUI theme ignored OS flips and couldn't return to system mode
+
+- **Project**: [mogenius/renovate-operator](https://github.com/mogenius/renovate-operator) (Kubernetes operator for Renovate)
+- **PR**: [mogenius/renovate-operator#288](https://github.com/mogenius/renovate-operator/pull/288)
+- **Status**: merged 2026-04-15
+- **Language**: HTML + React
+
+The operator's dashboard already had a `system` theme that respected `prefers-color-scheme`, but only on initial page load. Flipping macOS between Light and Dark with the dashboard open did nothing until reload, and the toggle button cycled `light ↔ dark` only, so once I clicked it the auto-detect was effectively disabled forever. Added a `matchMedia` change listener that re-applies the theme whenever the stored value is `system`, extended the toggle to cycle `system → light → dark → system` with distinct icons for each state, and extracted the shared `ThemeUtils` and `ThemeToggle` into standalone files so both `/` and `/logs` pick up the fix consistently.
+
 #### pocket-id #1413: Custom logos and favicons disappeared after every pod restart
 
 - **Project**: [pocket-id/pocket-id](https://github.com/pocket-id/pocket-id) (self-hosted OIDC provider)
