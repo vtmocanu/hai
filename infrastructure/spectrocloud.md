@@ -181,5 +181,7 @@ Every layer of my homelab cluster is declarative, pinned, reviewable, and reprod
 
 ## Closing note
 
-Spectro Cloud has quietly become one of those pieces of the stack I stopped worrying about. **Defaults when I want them, full control when I need it.** A real API, a real Terraform provider, a real Crossplane provider. I can operate it from the UI, the CLI, the API, or a Kubernetes CRD, and I pick whichever tool fits the task. That it earned a seat on an otherwise aggressively open-source stack is, in my book, the strongest compliment I have.
+Spectro Cloud has quietly become one of those pieces of the stack I stopped worrying about. **Defaults when I want them, full control when I need it.** A real API, a real Terraform provider, a real Crossplane provider. I can operate it from the UI, the CLI, the API, or a Kubernetes CRD, and I pick whichever tool fits the task.
+
+For the record, the entire list of non-open-source tools I run is three: Spectro Cloud Palette for cluster provisioning, [Kasten K10](https://www.kasten.io/) for backups, and [Tailscale](https://tailscale.com/) as an overlay network and exit node. That Palette earned a seat on an otherwise aggressively open-source stack, alongside two tools I also took years to let in, is, in my book, the strongest compliment I have.
 
