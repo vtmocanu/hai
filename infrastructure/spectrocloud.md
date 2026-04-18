@@ -1,5 +1,7 @@
 # The one vendor platform on my open-source stack: Spectro Cloud Palette
 
+<img src="/images/spectrocloud.png" alt="Dark workshop scene with a middle-aged operator in silver aviator glasses focused on a large blue holographic YAML values editor, a stack of four colored slabs (Addon, CNI, Kubernetes, OS) glowing amber on the left, and a SPECTRO CLOUD PALETTE sign on the wall in the upper right" style="max-width: 700px; width: 100%; height: auto;" />
+
 {{< callout type="info" >}}
 **Not a sponsored post.** I just genuinely like this platform, and this is my honest take on a year of running it.
 {{< /callout >}}
