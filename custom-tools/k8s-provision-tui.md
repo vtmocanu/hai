@@ -10,7 +10,7 @@ I already run my Kubernetes clusters in a blue/green pattern: new color up, data
 
 ## The procedure I kept postponing
 
-The cutover lived in a wiki page. It was long. Really long. Dozens of steps, each one a shell command or a kubectl pipeline or a click in the Spectro Palette UI, with prerequisites that mattered, ordering that mattered, and invariants ("the live color must not be the target color", "CNPG hibernation must happen after Flux is suspended") that were easy to forget at step 17 when you're tired.
+The cutover lived in a wiki page. It was long. Really long. Dozens of steps, each one a shell command or a kubectl pipeline or a click in the [Spectro Palette UI]({{< ref "infrastructure/spectrocloud" >}}), with prerequisites that mattered, ordering that mattered, and invariants ("the live color must not be the target color", "CNPG hibernation must happen after Flux is suspended") that were easy to forget at step 17 when you're tired.
 
 Every step was documented. Every step was correct. It just took hours, demanded the kind of attention where one misstep would blow away live backups, and ate a full afternoon every time. **So the procedure worked the way long procedures always work:** I read it, **dreaded it, and postponed** whatever triggered the need to run it. The longer I postponed, the more drift accumulated in the old cluster, the scarier the switch felt, the longer I postponed. You know the loop.
 

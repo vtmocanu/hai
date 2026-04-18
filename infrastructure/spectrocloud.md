@@ -77,7 +77,7 @@ Blue and green each pin their own pack versions so I can upgrade one without tou
 
 ## The "AI magic" moment
 
-I originally built the profiles in the web UI, which was fine for one cluster and bearable for two. But I wanted them in Terraform so diffs, reviews, and upgrades all flowed through git.
+I originally built the profiles in the web UI, which was fine for one cluster and bearable for two. But I was also building [a cutover TUI](/custom-tools/k8s-provision-tui/) that needed the full profile lifecycle automated, which meant the profiles themselves had to leave the UI and move into Terraform so diffs, reviews, and upgrades all flowed through git.
 
 This is where Claude earned its keep. I already had:
 
@@ -175,7 +175,7 @@ None of this would push me back to Kubespray.
 
 The cluster profiles live in one Terraform repo. The Proxmox VMs underneath them are provisioned by a sibling Terraform repo (separate state, separate lifecycle). The full blue/green cutover, including driving the Palette API through its rate-limits, is orchestrated by a [Textual TUI I built](/custom-tools/k8s-provision-tui/) that I now also treat as my disaster-recovery rehearsal tool.
 
-Funny enough, that same TUI project was what pushed me to finally move the profiles into Terraform. I was building the TUI, I needed the profile lifecycle automated, I realized the profiles themselves were still click-built, and spent an afternoon asking Claude to close that gap. Now every layer of my homelab cluster is declarative, pinned, reviewable, and reproducible per color.
+Every layer of my homelab cluster is declarative, pinned, reviewable, and reproducible per color.
 
 ## Closing note
 
