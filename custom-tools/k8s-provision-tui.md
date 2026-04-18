@@ -54,7 +54,7 @@ The menu mirrors the phases of the wiki runbook. Expanding a phase reveals its a
 
 <img src="/images/k8s-provision-tui-menu-expanded.png" alt="Accordion menu with Setup, Pre-cutover, Backups, Drain, and Cutover phases expanded, each action labeled with a live status glyph and a short summary" style="max-width: 900px; width: 100%; height: auto;" />
 
-Triggering an action never fires the underlying command blindly. Every action first shows a preview modal with the exact plan: which VMs, which clusters, which files, and the command chain that will run. For mutating actions the default button is "No". For destructive actions (bucket wipes, Ceph pool resets), the user has to type the color name or pool name literally to proceed.
+Triggering an action never fires the underlying command blindly. Every action first shows a preview modal with the exact plan: which VMs, which clusters, which files, and the command chain that will run. For mutating actions the default button is "No", so you have to deliberately say yes.
 
 <img src="/images/k8s-provision-tui-run-ansible.png" alt="Preview modal for 'Run Ansible' showing the full command chain that will execute, with Yes/No buttons" style="max-width: 900px; width: 100%; height: auto;" />
 
@@ -62,7 +62,7 @@ Once confirmed, output streams into a dashboard pane in place of the checklist. 
 
 <img src="/images/k8s-provision-tui-ansible-output.png" alt="Ansible playbook output streaming live into the dashboard CommandLog pane while the TUI menu stays visible around it" style="max-width: 900px; width: 100%; height: auto;" />
 
-The same streaming pattern covers API-driven actions too. The destructive bucket-wipe action runs `mcli rm` against four per-color backup buckets; the pane shows each command, each per-bucket result, and a final summary modal:
+The same streaming pattern covers API-driven actions too. The most destructive ones get an extra gate on top of the Yes/No: the bucket-wipe action runs `mcli rm` against four per-color backup buckets, so before it fires the confirm modal makes me type the color name (`blue` or `green`) literally. The same pattern guards the Ceph pool reset, where I have to type the pool name. Once past that, the pane shows each command, each per-bucket result, and a final summary modal:
 
 <img src="/images/k8s-provision-tui-bucket-clean.png" alt="Bucket cleanup action streaming output: per-bucket rm commands, their results, and a summary of objects wiped" style="max-width: 900px; width: 100%; height: auto;" />
 
