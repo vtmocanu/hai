@@ -58,7 +58,7 @@ Triggering an action never fires the underlying command blindly. Every action fi
 
 <img src="/images/k8s-provision-tui-run-ansible.png" alt="Preview modal for 'Run Ansible' showing the full command chain that will execute, with Yes/No buttons" style="max-width: 900px; width: 100%; height: auto;" />
 
-Once confirmed, output streams into a dashboard pane in place of the checklist. This was the single best decision I made while building this: no `app.suspend()` to hand the terminal to ansible, no scrollback to hunt through later. The TUI stays on-screen, the subprocess output streams line by line into a log widget, and a "Press Enter to return" modal closes the action cleanly when it finishes.
+Once confirmed, output streams into a dashboard pane in place of the checklist. Instead of calling `app.suspend()` to hand the terminal over to the subprocess, the TUI stays on-screen and the subprocess output scrolls line by line into a log widget. A "Press Enter to return" modal closes the action when it finishes, and you never have to hunt through scrollback for a failed step.
 
 <img src="/images/k8s-provision-tui-ansible-output.png" alt="Ansible playbook output streaming live into the dashboard CommandLog pane while the TUI menu stays visible around it" style="max-width: 900px; width: 100%; height: auto;" />
 
