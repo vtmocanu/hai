@@ -8,7 +8,7 @@
 
 ## How I heard about Palette
 
-[Scott Rosenberg](https://www.linkedin.com/in/scott-rosenberg/) has been a recurring guest on [Viktor Farcic](https://www.linkedin.com/in/viktorfarcic/)'s live AMAs, and every few sessions he'd drop a Spectro Cloud mention with visible enthusiasm. "This is the platform I actually trust in production," give or take. Viktor, who is not easy to impress, would nod along. I kept filing the name under "look at this eventually" while quietly keeping [Kubespray](https://kubespray.io/) running in [my homelab]({{< ref "infrastructure/the-stack" >}}) because it worked and changing it felt like work.
+[Scott Rosenberg](https://www.linkedin.com/in/scott-rosenberg/) has been a recurring guest on [Viktor Farcic](https://www.linkedin.com/in/viktorfarcic/)'s live AMAs, and every few sessions he'd drop a Spectro Cloud mention with visible enthusiasm. "This is the platform I actually trust in production," give or take. Viktor, who is not easy to impress, would nod along. I kept filing the name under "look at this eventually" while quietly keeping [Kubespray](https://kubespray.io/) running in [my homelab]({{< ref "infrastructure/the-stack" >}}).
 
 That also pushed against a default of mine. I self-host most of the stack and lean open-source wherever a credible alternative exists; vendor platforms, and SaaS especially, don't earn a seat here easily. Spectro Cloud Palette is one of the very short list of exceptions.
 
@@ -18,7 +18,7 @@ So when I spotted the [Spectro Cloud](https://www.spectrocloud.com/) booth at Ku
 
 I ended up stopping by twice and had proper conversations with [Nitasha Dhanjal](https://www.linkedin.com/in/nitasha-dhanjal-2136401a5/), [Anton Smith](https://www.linkedin.com/in/antongsmith/), and [Kevin Reeuwijk](https://www.linkedin.com/in/kreeuwijk/).
 
-Kevin in particular was generous. When he heard I wanted to replace Kubespray in a homelab (not a corporate POC), he offered me a never-expiring trial tenant so I could take my time and actually play with it instead of feeling a clock tick.
+Kevin proposed a never-expiring trial so I could run Palette at home at my own pace. What really sold me was that both he and Anton mentioned they run Spectro on their own homelabs; if the people working on it enjoy running it in their personal setups, I had to try it.
 
 The demo at the booth was the thing that pushed me over. I liked it enough on the spot that I took Kevin up on the trial, and I have been running on it ever since. Over the year that followed, it quietly became one of my favorite non-open-source tools on the stack, which is about the highest compliment I give a vendor product.
 
@@ -26,16 +26,31 @@ The demo at the booth was the thing that pushed me over. I liked it enough on th
 
 For years my homelab clusters were Kubespray installs. Kubespray is a capable Ansible-based installer, and in the beginning it was everything I needed. The problem crept in around the third or fourth upgrade: every customization I'd made (extra kubeadm args, tweaked addon versions, inventory overrides, a couple of patched roles) lived as a personal diff I had to re-port onto every new upstream release. Upgrading meant reading Kubespray's release notes with a highlighter, diffing my fork against upstream, and praying I hadn't forgotten one of my own changes. Miss one, and the next cluster reinstall would silently ship without a customization I'd been relying on for months.
 
-Kubespray is also opinionated at install time and quiet afterwards. It stands a cluster up; it doesn't help with drift, day-2 upgrades, or addon lifecycles. I was papering over that with my own Ansible playbooks and a long wiki runbook, both of which drifted over time. What I wanted, without quite being able to name it, was a declarative blueprint I could version, review, upgrade in place, and share across blue and green. That's exactly what Palette cluster profiles turned out to be.
+Kubespray does support day-2: there are playbooks for cluster upgrades, scaling, and reapplying config. But there's no controller, nothing reconciles until I run a playbook myself, and every upgrade still landed on top of the fork-maintenance pain above: re-port my diffs, re-run, pray. What I wanted was a declarative blueprint reconciled by something other than me remembering to do it, one I could version, upgrade in place, and share across blue and green. Palette cluster profiles are exactly that.
 
 ## What Palette actually is
 
-Before going further, the one-sentence framing that made Palette click for me: **a cluster is a versioned profile, not a one-shot install.** A [Cluster Profile](https://docs.spectrocloud.com/) is a declarative blueprint covering the full stack (OS, Kubernetes, CNI, CSI, add-ons), kept in sync with every cluster that uses it via an hourly reconciliation loop. Upgrade the profile, every cluster follows. That's closer to how GitOps tools treat Kubernetes apps than how Rancher or Kubespray treat clusters, and it's the thing I'd been missing without knowing the shape of it.
+Before going further, the one-sentence framing that made Palette click for me: **a cluster is a versioned profile, not a one-shot install.** A [Cluster Profile](https://docs.spectrocloud.com/) is a declarative blueprint covering the full stack (OS, Kubernetes, CNI, CSI, add-ons), kept in sync with every cluster that uses it via an hourly reconciliation loop. Upgrade the profile, every cluster follows. That's closer to how GitOps tools treat Kubernetes apps, and it's the thing I'd been missing without knowing the shape of it.
 
 Two things follow from that design and matter for a homelab:
 
-- **No lock-in on OS or K8s distro.** You choose the pack. I run edge-native BYOI with my own Ubuntu image and upstream kubeadm, not k3s-on-SUSE. Rancher and its ilk pull you toward their chosen ecosystem; Palette stays neutral.
+- **No lock-in on OS or K8s distro.** You choose the pack. I run edge-native BYOI with my own Debian image and upstream kubeadm, not k3s-on-SUSE.
 - **Local, self-healing clusters.** Palette's architecture is decentralized: each cluster reconciles its own profile locally, so it keeps running if the management plane is unreachable. That's obviously aimed at air-gapped edge deployments, but it's also why I'm happy trusting it in a homelab where my WAN is not always the problem I want to think about.
+
+## What else Palette does
+
+I run Palette through the edge-native flow on Proxmox VMs. That's a narrow corner of what the product covers. For anyone considering it, the breadth matters:
+
+- **Cluster API at the core.** Palette is a [CAPI](https://cluster-api.sigs.k8s.io/)-powered platform: every cluster it provisions, across any environment, is a managed CAPI cluster under the hood. Spectro Cloud [authors and upstreams several CAPI providers](https://www.spectrocloud.com/blog/cluster-api-and-kubernetes-cluster-management), including the Canonical MAAS one.
+- **Cloud providers.** Native provisioning on AWS, Azure, GCP (full-stack *or* managed, so EKS / AKS / GKE are first-class), with profiles the same shape as mine.
+- **Data centers.** VMware vSphere, Nutanix, Apache CloudStack, OpenStack.
+- **Bare metal.** Canonical [MAAS](https://maas.io/) and [metal3](https://metal3.io/). The MAAS integration in particular is deep enough that Palette is probably the reference answer for anyone running MAAS as their provisioning substrate.
+- **Edge.** Kairos-based immutable OS, 2-node HA, zero-downtime OTA updates, low-touch device enrolment. This is the flavour I'm *adjacent* to: I run edge-native BYOI with my own Debian image, not the Kairos variant.
+- **Virtual clusters** via [vcluster](https://www.vcluster.com/) integration, for tenant isolation on shared physical clusters.
+- **Virtual Machine Orchestrator** for running VMs and containers from the same platform (via KubeVirt under the hood).
+- **Import mode** to bring existing clusters under management without rebuild.
+
+You pick the substrate, Palette pins the stack. A design I keep appreciating as I zoom out.
 
 ## Easy to start, deep when you want it
 
@@ -53,7 +68,7 @@ Day two was the other surprise. The same UI that hands you defaults also opens u
 
 That little "Use defaults" button next to the raw YAML is the whole product philosophy compressed into one UI affordance. You don't have to know anything about Cilium's 500-line values file to stand up a cluster. When you *do* want to know, the file is right there, unabridged, with Presets and Variables helpers sitting next to it for the bits you'd otherwise dig for in Helm docs.
 
-This matches how I like to run things. My default posture is **stay as close to vanilla as possible**, on every layer: upstream kubeadm, upstream Cilium, upstream Ubuntu, boring defaults everywhere. Palette's Pack Registry is exactly that, a curated library of community packs with sensible, vanilla-shaped defaults I consume as-is. When I do need to deviate (Cilium with `kubeProxyReplacement: true`, kubeadm with a custom pod subnet, listen-metrics on etcd so Prometheus can scrape it), I don't fork the pack or copy its 500-line values file into my repo. I apply narrow, anchored overrides on top of the registry default. The profile *is* the list of deviations, not the list of everything. That's the design I'd been trying and failing to get out of a Helm umbrella chart for years.
+This matches how I like to run things. My default posture is **stay as close to vanilla as possible**, on every layer: upstream kubeadm, upstream Cilium, upstream Debian, boring defaults everywhere. Palette's Pack Registry is exactly that, a curated library of community packs with sensible, vanilla-shaped defaults I consume as-is. When I do need to deviate (Cilium with `kubeProxyReplacement: true`, kubeadm with a custom pod subnet, listen-metrics on etcd so Prometheus can scrape it), I don't fork the pack or copy its 500-line values file into my repo. I apply narrow, anchored overrides on top of the registry default. The profile *is* the list of deviations, not the list of everything. That's the design I'd been trying and failing to get out of a Helm umbrella chart for years.
 
 Beyond the UI, there are four ways to drive Palette programmatically (same next-next-finish-or-power-user spectrum, just headless):
 
@@ -64,7 +79,7 @@ Beyond the UI, there are four ways to drive Palette programmatically (same next-
 
 I use the Terraform provider and plan to stay there. The Crossplane provider is well-maintained, and I [run Crossplane heavily for workloads]({{< ref "crossplane/why-crossplane" >}}), but cluster provisioning is one place I want a deliberate plan-then-apply boundary rather than a continuous reconciliation loop.
 
-## What I actually built with it
+## My setup: two edge-native clusters, blue and green
 
 Two edge-native clusters, blue and green, so I can reinstall one while the other serves traffic. Each is a cluster profile with four packs:
 
@@ -76,6 +91,16 @@ Two edge-native clusters, blue and green, so I can reinstall one while the other
 | `kube-proxy-remove` | manifest that deletes the kube-proxy DaemonSet |
 
 Blue and green each pin their own pack versions so I can upgrade one without touching the other. Blue sits on k8s 1.33 + Cilium 1.17; green runs newer on purpose (1.35 + 1.19). The upgrade path becomes trivial: bump the version on the inactive color, re-provision, cut over.
+
+Provisioning a cluster end-to-end is three pieces of automation, in order:
+
+1. **Terraform (Proxmox provider)** stands up the VMs. Per color, 3 control-plane and 3 worker VMs, cloned from golden-image templates on each of the 3 Proxmox nodes. Separate repo, separate state, separate lifecycle from the cluster profiles.
+2. **Ansible** runs against the fresh VMs to do OS-level prep and install the Palette edge agent. Disables IPv6, configures containerd, installs the agent, restarts. Once the agent registers, the VMs show up in the Palette tenant as available edge hosts.
+3. **Terraform (spectrocloud provider)** defines the cluster profiles and creates the cluster resource that consumes those edge hosts. `tofu apply` reconciles the profile against the Palette API, and Palette reconciles the cluster against the registered edge hosts.
+
+The full blue/green cutover, including driving the Palette API through its rate-limits, is orchestrated by a [Textual TUI I built](/custom-tools/k8s-provision-tui/) that I now also treat as my disaster-recovery rehearsal tool.
+
+Every layer of my homelab cluster is declarative, pinned, reviewable, and reproducible per color.
 
 ## The "AI magic" moment
 
@@ -90,7 +115,7 @@ I pointed Claude at both: "dump the running profiles via the API, read this wiki
 
 What came back was genuinely uncanny. Every pack, every value override, every per-color subnet swap, accurate on the first pass. The work that would have taken me two careful evenings of diffing UI screens against pack defaults and writing HCL by hand was done in the time it took me to make a coffee. That's the closest I've come in a while to the "this tool is AI magic" feeling, and I've been using Claude Code for a while.
 
-Was the first cut perfect? No. It inlined full pack values as giant heredocs, which pushed the file past 1200 lines and made diffs unreadable. I pushed back. I wanted registry defaults plus targeted `replace()` chains, not full value blobs checked into source. We iterated. I fought it a few times over style. But the final shape is exactly what I'd have written by hand if I'd had infinite patience.
+Was the first cut perfect? No. It inlined full pack values as giant heredocs, which pushed the file past 1200 lines and made diffs unreadable. I pushed back. I wanted registry defaults plus targeted `replace()` chains, not full value blobs checked into source. We iterated. I fought Claude a few times over style. But the final shape is exactly what I'd have written by hand if I'd had infinite patience.
 
 Here's the core of the profile, lifted from the repo (trimmed for clarity):
 
@@ -163,6 +188,18 @@ lifecycle {
 
 So a pack version bump either keeps working or tells me exactly which anchor to re-check. No silent regressions, no midnight surprises. This is the exact inverse of the Kubespray pain I opened the post with: instead of me re-porting my customizations onto every new upstream, upstream ships and `tofu plan` tells me whether my overrides still make sense. Kubespray made me the QA; Palette lets the plan do it.
 
+## The OSS alternative I'd try
+
+If I ever needed to leave Palette, I wouldn't go back to Kubespray. I'd reach for a cluster-lifecycle stack built around Cluster API plus [Sveltos](https://projectsveltos.github.io/sveltos/) for the add-on layer.
+
+Sveltos is the work of [Gianluca Mardente](https://www.linkedin.com/in/gianlucamardente/), and it does for add-ons roughly what CAPI does for clusters: declarative, multi-cluster, templated deployments of Helm charts, kustomize overlays, and raw manifests across a fleet, with solid multi-tenancy. Pair it with a CAPI provider for your substrate (CAPMOX for Proxmox, CAPM3 for metal3, CAPA for AWS, and so on) and a CNI like Cilium, and you end up with roughly the shape of a Palette cluster profile, assembled from open-source parts.
+
+[Eleni Grosdouli](https://www.linkedin.com/in/eleni-grosdouli-85a1a5116/) has written [a walkthrough of that exact stack on Proxmox](https://blog.grosdouli.dev/blog/capmox-managed-k8s-cilium-sveltos): RKE2 as the management cluster, CAPMOX provisioning workload clusters, Cilium for networking, and Sveltos driving add-ons across the fleet via templated manifests. It reads like the OSS-native counterpart to what I do with Palette.
+
+I want to be honest: I haven't shipped this stack. This is the "if I had to" plan, not a validated path I can recommend from scar tissue. But the primitives are all pieces I respect, and I met both Gianluca and Eleni at Cloud Native Rejekts / KubeCon Amsterdam 2026; they are the kind of deeply passionate, deeply technical people whose work I tend to bet on sight unseen.
+
+The reason I'm not making the switch today is exactly the point this post opened with: Palette lets me stay vanilla-with-overrides without writing the control loop myself, and I haven't hit anything that pushes me off it. If that changed, Sveltos + CAPI would be where I'd go.
+
 ## Where it rubs
 
 In the spirit of not writing a product pitch: Palette is not all roses.
@@ -171,17 +208,13 @@ The pack values YAML editor is powerful but raw. You are editing 500-line Helm-s
 
 The learning curve for advanced features is real too. Profile versioning, append-vs-replace semantics on values, how manifests interact with pack ordering, the difference between `tenant` and `project` scope, none of that is hard once you've hit it twice, but the first time you'll read docs. G2 reviewers say the same thing. It's honest product feedback, not a deal-breaker.
 
+On the commercial side: Palette's enterprise flow is paid SaaS that scales with cluster and node counts, and most homelab readers won't qualify for a permanent free tier. My own tenant is a never-expiring trial Kevin set me up with at the booth, not a general-public offer. Worth knowing before you build a whole setup on top of it.
+
 None of this would push me back to Kubespray.
-
-## How it fits the rest of the stack
-
-The cluster profiles live in one Terraform repo. The Proxmox VMs underneath them are provisioned by a sibling Terraform repo (separate state, separate lifecycle). The full blue/green cutover, including driving the Palette API through its rate-limits, is orchestrated by a [Textual TUI I built](/custom-tools/k8s-provision-tui/) that I now also treat as my disaster-recovery rehearsal tool.
-
-Every layer of my homelab cluster is declarative, pinned, reviewable, and reproducible per color.
 
 ## Closing note
 
 Spectro Cloud has quietly become one of those pieces of the stack I stopped worrying about. **Defaults when I want them, full control when I need it.** A real API, a real Terraform provider, a real Crossplane provider. I can operate it from the UI, the CLI, the API, or a Kubernetes CRD, and I pick whichever tool fits the task.
 
-For the record, the entire list of non-open-source tools I run is three: Spectro Cloud Palette for cluster provisioning, [Kasten K10](https://www.kasten.io/) for backups, and [Tailscale](https://tailscale.com/) as an overlay network and exit node. That Palette earned a seat on an otherwise aggressively open-source stack, alongside two tools I also took years to let in, is, in my book, the strongest compliment I have.
+For the record, the entire list of non-open-source tools I run is three: Spectro Cloud Palette for cluster provisioning, [Kasten K10](https://www.kasten.io/) for backups, and [Tailscale](https://tailscale.com/) as an overlay network and exit node. That Palette earned a seat on an otherwise aggressively open-source stack (alongside two tools I also took years to let in) is, in my book, the strongest compliment I have.
 
