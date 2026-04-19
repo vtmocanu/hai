@@ -49,9 +49,9 @@ And that reframe matters beyond my homelab.
 
 ## The runbook problem
 
-A written runbook (a Confluence page, a wiki, a `RUNBOOK.md`) is a static description of a moving system. You read it top to bottom, you copy-paste the commands, and somewhere around step 14 you skip a line, or you paste a command with the wrong argument, or the step you're on assumes a precondition that silently isn't true anymore. That's how incidents happen during planned work.
+A written runbook (a Confluence page, a wiki, a `RUNBOOK.md`) is a static description of a moving system. You read it top to bottom, you copy-paste the commands, and somewhere around step 14 **you skip a line, or you paste a command with the wrong argument**, or the step you're on assumes a precondition that silently isn't true anymore. That's how **incidents happen during planned work**.
 
-A TUI with a live status dashboard flips that: the current state is always in front of you, the next safe action is the one you can see lit up, and the tool refuses to fire a step whose precondition isn't met. The runbook stops describing the system and becomes part of it.
+A TUI with a live status dashboard flips that: the current state is always in front of you, the next safe action is the one you can see lit up, and the tool refuses to fire a step whose precondition isn't met. **The runbook stops describing the system and becomes part of it.**
 
 ## What the TUI actually does
 
@@ -79,7 +79,7 @@ The same streaming pattern covers API-driven actions too. The most destructive o
 
 ## Where does this leave you?
 
-If any of this resonates, do the thing. Open your DR plan (you have one, right?), point the AI agent of your choice at it, and tell it to build a TUI for it. Start small. Iterate. The first version won't be pretty; mine was hundreds of lines of bash and a nested gum menu. That's fine. The payoff isn't the TUI, it's that every time you use it you're rehearsing a restore you'd otherwise have done zero times.
+If any of this resonates, do the thing. **Open your DR plan** (you have one, right? 😅), **point the AI agent of your choice at it, and tell it to build a TUI for it.** Start small. Iterate. The first version won't be pretty; mine was hundreds of lines of bash and a nested gum menu. That's fine. The payoff isn't the TUI, it's that every time you use it you're rehearsing a restore you'd otherwise have done zero times.
 
 My TUI is ~4,000 lines of Python, intentionally specific to my homelab's blue/green layout, and one of the most satisfying things I've built this year.
 

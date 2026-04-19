@@ -34,7 +34,7 @@ Before going further, the one-sentence framing that made Palette click for me: *
 
 Two things follow from that design and matter for a homelab:
 
-- **No lock-in on OS or K8s distro.** You choose the pack. I run edge-native BYOI with my own Debian image and upstream kubeadm, not k3s-on-SUSE.
+- **No lock-in on OS or K8s distro.** You choose the pack. I run edge-native BYOI with my own Debian image and upstream kubeadm.
 - **Local, self-healing clusters.** Palette's architecture is decentralized: each cluster reconciles its own profile locally, so it keeps running if the management plane is unreachable. That's obviously aimed at air-gapped edge deployments.
 
 ## What else Palette does
@@ -47,7 +47,7 @@ I run Palette through the edge-native flow on Proxmox VMs. That's a narrow corne
 - **Bare metal.** Canonical [MAAS](https://maas.io/) and [metal3](https://metal3.io/). The MAAS integration in particular is deep enough that Palette is probably the reference answer for anyone running MAAS as their provisioning substrate.
 - **Edge.** Kairos-based immutable OS, 2-node HA, zero-downtime OTA updates, low-touch device enrolment. This is the flavour I'm *adjacent* to: I run edge-native BYOI with my own Debian image, not the Kairos variant.
 - **Virtual clusters** via [vcluster](https://www.vcluster.com/) integration, for tenant isolation on shared physical clusters.
-- **Virtual Machine Orchestrator** for running VMs and containers from the same platform (via KubeVirt under the hood).
+- **Virtual Machine Orchestrator** for running VMs and containers from the same platform (via KubeVirt under the hood). This one's on my personal want-list: eventually move my existing VMs into KubeVirt, retire Proxmox, and run everything on bare-metal k3s.
 - **Import mode** to bring existing clusters under management without rebuild.
 
 ## Easy to start, deep when you want it
