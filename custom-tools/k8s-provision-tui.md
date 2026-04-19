@@ -1,6 +1,6 @@
 # k8s-provision-tui: the DR automation I didn't know I was building
 
-<img src="/images/k8s-provision-tui.png" alt="A relaxed operator at a dim command-center console watching a TUI dashboard with coloured status glyphs, a blue cluster rack running steadily on the left, a green cluster rack being rebuilt by a small cartoon robot on the right, and a dusty 'RUNBOOK' book discarded on a side table" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/k8s-provision-tui.png" alt="A relaxed operator at a dim console watching a TUI dashboard, blue cluster steady on the left, green cluster being rebuilt on the right" style="max-width: 700px; width: 100%; height: auto;" />
 
 I already run my Kubernetes clusters in a blue/green pattern: new color up, data migrated, old color torn down, every piece of it reproducible from git. The [data-integrity problem](/migrations/s3bkp-to-volsync/) was solved. What I hadn't solved was the ceremony of actually doing the switch.
 
@@ -16,29 +16,31 @@ Every step was documented. Every step was correct. It just took hours, demanded 
 
 ## From a bash script to a TUI
 
-It started, as these things do, with a bash script. I wrapped the worst offenders first: a function for `tofu apply` in the right directory with the right `TF_COLOR`, another for the Ansible playbook against the fresh VMs, a third that checked backup freshness before the destructive phase. Then a menu using [gum](https://github.com/charmbracelet/gum) so I didn't have to remember flags. Then a second menu. Then state I needed to thread between menus and couldn't, because it was bash.
+It started, as these things do, with a bash script. I wrapped the worst offenders first: `tofu apply` with the right `TF_COLOR`, an Ansible playbook runner, a backup-freshness check. Then a menu with [gum](https://github.com/charmbracelet/gum) so I didn't have to remember flags. Then a second menu. Then state I needed to thread between menus and couldn't, because it was bash.
 
-At that point the script was hundreds of lines of bash, the menus were nested three deep, and I was fighting the language every time I wanted to show a progress indicator or pass structured data between steps. I rewrote it in Python using [Textual](https://textual.textualize.io/) and the difference was immediate: what took 30 lines of `gum`-and-`read` gymnastics became a proper modal with focus handling and keyboard shortcuts.
+Every attempt to pass structured data (a list of VMs, a status map, the outcome of a dry-run) between menus turned into another round of `eval` gymnastics or temp files. I rewrote it in Python using [Textual](https://textual.textualize.io/) and the difference was immediate.
 
-A few weekends later I had a TUI with a live status dashboard, an accordion menu driving every phase of the procedure, and type-to-confirm guards on the destructive actions. The wiki page still exists; it's now the specification that the TUI implements, not something I follow by hand.
+A few weekends later I had a TUI with a live status dashboard, an accordion menu driving every phase of the procedure, and type-to-confirm guards on the destructive actions. The wiki page still exists; it's now the specification the TUI implements, not something I follow by hand. Everything between the confirmations (listing VMs, polling the [Palette API]({{< ref "infrastructure/spectrocloud" >}}) through rate limits, waiting for DNS to propagate) is done by the TUI, visibly, with a live status trail.
 
-What I kept was the operator's judgment. The TUI does not run the whole procedure unattended. Every destructive step still confirms. Every mutation still shows the plan before it fires. But everything between those confirmations (listing VMs, polling the Palette API through rate limits, waiting for DNS to propagate) is done by the TUI, visibly, with a live status trail.
-
-Reinstalling a cluster now fits in a Saturday afternoon. I don't dread it. I actually enjoy it, because watching the dashboard light up green row by row as the new cluster stands up is genuinely satisfying.
+Reinstalling a cluster now fits in a Saturday afternoon. I don't dread it; watching the dashboard light up green row by row is genuinely satisfying.
 
 ## The realization
 
 Somewhere around the fourth or fifth iteration, I noticed something odd. The TUI wasn't really about reinstalls. Everything it did (bucket wipes, DNS flips with rollback, liveness guards against wiping the wrong cluster) was disaster recovery.
 
-A planned blue/green reinstall is a controlled DR drill. The cluster is deliberately lost. The workloads are deliberately restored. The only difference between "I reinstalled green" and "green burned down in a fire" is whether the old cluster is still running during the restore. The actions I automate are the same. The safety invariants are the same. The backup dependencies are the same.
+A planned blue/green reinstall is a controlled DR drill. The cluster is deliberately lost. The workloads are deliberately restored. The only difference between "I reinstalled green" and "green burned down in a fire" is whether the old cluster is still running during the restore. Same actions automated. Same safety invariants. Same backup dependencies.
 
 I was building a DR automation tool and calling it a reinstall helper.
 
 That reframe changed how I think about the TUI. Every feature I'd added to make the cutover safer (liveness checks, type-to-confirm for irreversible steps, backup-age gates) wasn't just ergonomics. It was disaster recovery tooling. Using the TUI regularly for planned reinstalls, I'm continuously testing my actual DR path. The procedure I used in anger had already been rehearsed dozens of times.
 
+What I deliberately kept, through every iteration, was the operator's judgment. The TUI doesn't run the whole procedure unattended: every destructive step still confirms, every mutation still shows the plan before it fires. That's not a limitation, it's the point. A DR tool that runs itself end-to-end is exactly the kind of tool that finds new ways to fail during the incident you built it for.
+
+And that reframe matters beyond my homelab.
+
 ## The runbook problem
 
-There's a broader point hiding in this. A written runbook (a Confluence page, a wiki, a `RUNBOOK.md`) is a static description of a moving system. You read it top to bottom, you copy-paste the commands, and somewhere around step 14 you skip a line, or you paste a command with the wrong argument, or the step you're on assumes a precondition that silently isn't true anymore. That's how incidents happen during planned work.
+A written runbook (a Confluence page, a wiki, a `RUNBOOK.md`) is a static description of a moving system. You read it top to bottom, you copy-paste the commands, and somewhere around step 14 you skip a line, or you paste a command with the wrong argument, or the step you're on assumes a precondition that silently isn't true anymore. That's how incidents happen during planned work.
 
 A TUI with a live status dashboard flips that: the current state is always in front of you, the next safe action is the one you can see lit up, and the tool refuses to fire a step whose precondition isn't met. The runbook stops describing the system and becomes part of it.
 
@@ -48,17 +50,17 @@ It's a single-screen Textual app, split into three regions: a live status dashbo
 
 <img src="/images/k8s-provision-tui-start.png" alt="k8s-provision-tui at startup: live status dashboard listing 16 check rows grouped by phase, with colored status glyphs for each" style="max-width: 900px; width: 100%; height: auto;" />
 
-Each dashboard row is one check: VM templates on the Proxmox nodes, registration token freshness in Palette, edge hosts registered, cluster profile deployed, Flux controllers running, backup freshness per system (VolSync, CNPG, K10, Velero), and so on. The glyphs (●/◐/○) track state in real time. A background worker re-runs the checks every few seconds, and `r` forces a refresh on demand. The rows for the current phase of the cutover are where the operator's eye naturally goes; the rest are a running check that the rest of the homelab isn't on fire while I'm mid-cutover.
+Each dashboard row is one check: VM templates on the Proxmox nodes, registration token freshness in Palette, edge hosts registered, cluster profile deployed, Flux controllers running, backup freshness per system (VolSync, CNPG, K10, Velero), and so on. The glyphs (●/◐/○) track state in real time. A threaded worker runs the checks on startup, after every action, and any time I press `r`; backup rows can also be put on a 5-second watch so freshness gates go green the moment a backup lands. The rows for the current phase of the cutover are where the operator's eye naturally goes; the rest are a running check that the rest of the homelab isn't on fire while I'm mid-cutover.
 
 The menu mirrors the phases of the wiki runbook. Expanding a phase reveals its actions, each one annotated with its own status glyph based on the live dashboard state:
 
 <img src="/images/k8s-provision-tui-menu-expanded.png" alt="Accordion menu with Setup, Pre-cutover, Backups, Drain, and Cutover phases expanded, each action labeled with a live status glyph and a short summary" style="max-width: 900px; width: 100%; height: auto;" />
 
-Triggering an action never fires the underlying command blindly. Every action first shows a preview modal with the exact plan: which VMs, which clusters, which files, and the command chain that will run. For mutating actions the default button is "No", so you have to deliberately say yes.
+No action fires without a preview. Every action first shows a modal with the exact plan: which VMs, which clusters, which files, and the command chain that will run. For mutating actions the default button is "No", so you have to deliberately say yes.
 
 <img src="/images/k8s-provision-tui-run-ansible.png" alt="Preview modal for 'Run Ansible' showing the full command chain that will execute, with Yes/No buttons" style="max-width: 900px; width: 100%; height: auto;" />
 
-Once confirmed, output streams into a dashboard pane in place of the checklist. Instead of calling `app.suspend()` to hand the terminal over to the subprocess, the TUI stays on-screen and the subprocess output scrolls line by line into a log widget. A "Press Enter to return" modal closes the action when it finishes, and you never have to hunt through scrollback for a failed step.
+Once confirmed, output streams into a dashboard pane in place of the checklist. Instead of calling `app.suspend()` to hand the terminal over to the subprocess, the TUI stays on-screen and the subprocess output scrolls line by line into a log widget. A "Press Enter to return" modal closes the action when it finishes, and you never have to hunt through scrollback for a failed step. The whole destructive-action surface is pinned by a **72-case test suite** covering type-to-confirm guards, liveness regressions, and pilot-driven screen navigation; the kind of coverage you want on a tool allowed to **wipe backup buckets**.
 
 <img src="/images/k8s-provision-tui-ansible-output.png" alt="Ansible playbook output streaming live into the dashboard CommandLog pane while the TUI menu stays visible around it" style="max-width: 900px; width: 100%; height: auto;" />
 
