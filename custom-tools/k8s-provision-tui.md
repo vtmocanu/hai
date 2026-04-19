@@ -10,6 +10,15 @@ I already run my Kubernetes clusters in a blue/green pattern: new color up, data
 
 ## The procedure I kept postponing
 
+Roughly, a blue/green cutover in my homelab looks like this:
+
+1. Verify fresh backups on the live color (VolSync, CNPG, Velero, K10).
+2. Prep the target color: wipe its per-color backup buckets and Ceph pool, deploy the Spectro cluster profile.
+3. Provision target VMs (Terraform + Proxmox), install the Palette agent (Ansible), and let Palette build the new cluster. Flux reconciles on the new color and workloads rehydrate from the fresh backups.
+4. Drain the live color: suspend Flux, hibernate non-critical CNPG clusters, scale down workloads, drain the nodes.
+5. Flip DNS (public + private) to the target color.
+6. Tear down the old color's VMs.
+
 The cutover lived in a wiki page. It was long. Really long. Dozens of steps, each one a shell command or a kubectl pipeline or a click in the [Spectro Palette UI]({{< ref "infrastructure/spectrocloud" >}}), with prerequisites that mattered, ordering that mattered, and invariants ("the live color must not be the target color", "CNPG hibernation must happen after Flux is suspended") that were easy to forget at step 17 when you're tired.
 
 Every step was documented. Every step was correct. It just took hours, demanded the kind of attention where one misstep would blow away live backups, and ate a full afternoon every time. **So the procedure worked the way long procedures always work:** I read it, **dreaded it, and postponed** whatever triggered the need to run it. The longer I postponed, the more drift accumulated in the old cluster, the scarier the switch felt, the longer I postponed. You know the loop.
