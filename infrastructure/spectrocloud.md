@@ -35,7 +35,7 @@ Before going further, the one-sentence framing that made Palette click for me: *
 Two things follow from that design and matter for a homelab:
 
 - **No lock-in on OS or K8s distro.** You choose the pack. I run edge-native BYOI with my own Debian image and upstream kubeadm, not k3s-on-SUSE.
-- **Local, self-healing clusters.** Palette's architecture is decentralized: each cluster reconciles its own profile locally, so it keeps running if the management plane is unreachable. That's obviously aimed at air-gapped edge deployments, but it's also why I'm happy trusting it in a homelab where my WAN is not always the problem I want to think about.
+- **Local, self-healing clusters.** Palette's architecture is decentralized: each cluster reconciles its own profile locally, so it keeps running if the management plane is unreachable. That's obviously aimed at air-gapped edge deployments.
 
 ## What else Palette does
 
@@ -49,8 +49,6 @@ I run Palette through the edge-native flow on Proxmox VMs. That's a narrow corne
 - **Virtual clusters** via [vcluster](https://www.vcluster.com/) integration, for tenant isolation on shared physical clusters.
 - **Virtual Machine Orchestrator** for running VMs and containers from the same platform (via KubeVirt under the hood).
 - **Import mode** to bring existing clusters under management without rebuild.
-
-You pick the substrate, Palette pins the stack. A design I keep appreciating as I zoom out.
 
 ## Easy to start, deep when you want it
 
@@ -73,9 +71,9 @@ This matches how I like to run things. My default posture is **stay as close to 
 Beyond the UI, there are four ways to drive Palette programmatically (same next-next-finish-or-power-user spectrum, just headless):
 
 - REST API with an `ApiKey` header
-- Official [Python SDK](https://github.com/spectrocloud/pyspectrocloud-client) (Go SDK also exists)
+- Official [Go SDK](https://www.spectrocloud.com/blog/extend-your-kubernetes-automation-with-the-palette-go-sdk)
 - [Terraform provider](https://registry.terraform.io/providers/spectrocloud/spectrocloud/latest/docs)
-- Official [Crossplane provider](https://github.com/spectrocloud/provider-palette)
+- [Crossplane provider](https://github.com/crossplane-contrib/provider-palette) (community, auto-generated from the TF provider via Upjet)
 
 I use the Terraform provider and plan to stay there. The Crossplane provider is well-maintained, and I [run Crossplane heavily for workloads]({{< ref "crossplane/why-crossplane" >}}), but cluster provisioning is one place I want a deliberate plan-then-apply boundary rather than a continuous reconciliation loop.
 
@@ -190,31 +188,19 @@ So a pack version bump either keeps working or tells me exactly which anchor to 
 
 ## The OSS alternative I'd try
 
-If I ever needed to leave Palette, I wouldn't go back to Kubespray. I'd reach for a cluster-lifecycle stack built around Cluster API plus [Sveltos](https://projectsveltos.github.io/sveltos/) for the add-on layer.
+If I ever wanted to look at something else besides Spectro, I wouldn't go back to Kubespray. I'd reach for a cluster-lifecycle stack built around Cluster API plus [Sveltos](https://projectsveltos.github.io/sveltos/) for the add-on layer.
 
 Sveltos is the work of [Gianluca Mardente](https://www.linkedin.com/in/gianlucamardente/), and it does for add-ons roughly what CAPI does for clusters: declarative, multi-cluster, templated deployments of Helm charts, kustomize overlays, and raw manifests across a fleet, with solid multi-tenancy. Pair it with a CAPI provider for your substrate (CAPMOX for Proxmox, CAPM3 for metal3, CAPA for AWS, and so on) and a CNI like Cilium, and you end up with roughly the shape of a Palette cluster profile, assembled from open-source parts.
 
 [Eleni Grosdouli](https://www.linkedin.com/in/eleni-grosdouli-85a1a5116/) has written [a walkthrough of that exact stack on Proxmox](https://blog.grosdouli.dev/blog/capmox-managed-k8s-cilium-sveltos): RKE2 as the management cluster, CAPMOX provisioning workload clusters, Cilium for networking, and Sveltos driving add-ons across the fleet via templated manifests. It reads like the OSS-native counterpart to what I do with Palette.
 
-I want to be honest: I haven't shipped this stack. This is the "if I had to" plan, not a validated path I can recommend from scar tissue. But the primitives are all pieces I respect, and I met both Gianluca and Eleni at Cloud Native Rejekts / KubeCon Amsterdam 2026; they are the kind of deeply passionate, deeply technical people whose work I tend to bet on sight unseen.
+I have not used Sveltos myself, so this is a plan on paper, not a validated path. But the primitives are all pieces I respect, and I met both Gianluca and Eleni at Cloud Native Rejekts / KubeCon Amsterdam 2026; they are the kind of deeply passionate, deeply technical people whose work I tend to bet on sight unseen.
 
-The reason I'm not making the switch today is exactly the point this post opened with: Palette lets me stay vanilla-with-overrides without writing the control loop myself, and I haven't hit anything that pushes me off it. If that changed, Sveltos + CAPI would be where I'd go.
-
-## Where it rubs
-
-In the spirit of not writing a product pitch: Palette is not all roses.
-
-The pack values YAML editor is powerful but raw. You are editing 500-line Helm-style value files in a web form, with no schema-aware completion beyond what the browser does. The `replace()`-chain dance in my Terraform exists precisely because I didn't want to commit 500 lines of upstream YAML to source and re-diff it on every pack bump; that's friction I chose, but it *is* friction.
-
-The learning curve for advanced features is real too. Profile versioning, append-vs-replace semantics on values, how manifests interact with pack ordering, the difference between `tenant` and `project` scope, none of that is hard once you've hit it twice, but the first time you'll read docs. G2 reviewers say the same thing. It's honest product feedback, not a deal-breaker.
-
-On the commercial side: Palette's enterprise flow is paid SaaS that scales with cluster and node counts, and most homelab readers won't qualify for a permanent free tier. My own tenant is a never-expiring trial Kevin set me up with at the booth, not a general-public offer. Worth knowing before you build a whole setup on top of it.
-
-None of this would push me back to Kubespray.
+For now, I'm enjoying Spectro and it works perfectly for my homelab stack, so I'm not looking at alternatives. But Sveltos + CAPI is where I'd start if that ever changed.
 
 ## Closing note
 
 Spectro Cloud has quietly become one of those pieces of the stack I stopped worrying about. **Defaults when I want them, full control when I need it.** A real API, a real Terraform provider, a real Crossplane provider. I can operate it from the UI, the CLI, the API, or a Kubernetes CRD, and I pick whichever tool fits the task.
 
-For the record, the entire list of non-open-source tools I run is three: Spectro Cloud Palette for cluster provisioning, [Kasten K10](https://www.kasten.io/) for backups, and [Tailscale](https://tailscale.com/) as an overlay network and exit node. That Palette earned a seat on an otherwise aggressively open-source stack (alongside two tools I also took years to let in) is, in my book, the strongest compliment I have.
+For the record, the entire list of non-open-source tools I run (at the moment of writing) is three: Spectro Cloud Palette for cluster provisioning, [Kasten K10](https://www.kasten.io/) for backups, and [Tailscale](https://tailscale.com/) as an overlay network and exit node. That Palette earned a seat on an otherwise aggressively open-source stack (alongside two tools I also took years to let in) is, in my book, the strongest compliment I have.
 
