@@ -316,6 +316,10 @@ For the full feature reference, see the [official output styles docs](https://co
 
 AI confidently states things. Some are true, some aren't. Get in the habit of asking "wait, is that right?" — worst case you confirm it, best case you learn something or catch a mistake.
 
+## AI Defaults to Stale Versions
+
+AI's training cutoff means it reaches for versions that were current months (or years) ago. Before pinning anything — chart, image tag, runtime, dependency — tell it to look up the latest stable (or LTS) from the project's release page and pin to that. Never floating tags like `latest`.
+
 ## Verify Bugs — Make AI Prove It
 
 When AI claims there's a bug in an open source project, don't just take its word for it. Make it **clone the repo and investigate the source code** to confirm. AI can misread docs, hallucinate behavior, or confuse versions. But when you have it trace the actual code path — reading the handler, the frontend component, the RBAC check, the test cases — you get a real answer, not a guess.
