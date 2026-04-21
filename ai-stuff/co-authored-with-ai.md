@@ -96,6 +96,15 @@ Pocket-ID's S3 backend returned full prefixed keys from List instead of relative
 
 Listed in reverse chronological order (most recent first).
 
+#### rustfs #2587: alpha.94+ silently hangs at startup, IAM never loads
+
+- **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
+- **Issue**: [rustfs/rustfs#2587](https://github.com/rustfs/rustfs/issues/2587)
+- **Status**: confirmed existing upstream report; rollback to alpha.90 fixes it
+- **Language**: Rust
+
+Renovate bumped RustFS through alpha.93 → .94 → .96 → .97 and the container stopped initializing: logs froze at `Starting: /usr/bin/rustfs /data`, `admin info` reported 0/1 drives online, IAM never loaded, and Harbor 500'd every OCI pull with `InvalidAccessKeyId`. Matched the existing alpha.94 report on #2587 (and the related alpha.95 SNSD `FaultyDisk` regression in [#2601](https://github.com/rustfs/rustfs/issues/2601)). Rolled back to alpha.90.
+
 #### rustfs #2497: alpha.93 silently corrupts multipart uploads (`w_size=0`) after ~24h
 
 - **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
