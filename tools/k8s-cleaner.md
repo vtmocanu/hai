@@ -49,6 +49,7 @@ So yes, I run almost all cleaners in **scan-only mode**. Nothing gets auto-delet
 | `cnpg-orphan-resources` | CNPG ScheduledBackups/Backups referencing non-existing Clusters |
 | `cnpg-orphan-prometheusrules` | PrometheusRules referencing non-existing CNPG Clusters (causes false alerts) |
 | `helm-not-gitops` | Helm releases deployed manually, not via Flux |
+| `ingress-broken-targets` | Ingresses whose backend Service is missing or has zero ready endpoints |
 
 ## Configuration Examples
 
@@ -227,6 +228,14 @@ spec:
 
 Notice the difference: single-resource scans use `evaluate` inside a `resourceSelector` (checking `obj`), while cross-resource scans use `aggregatedSelection` at the `resourcePolicySet` level (iterating over `resources`).
 
+### A Recent Addition: Ingresses Pointing Nowhere
+
+Kubernetes doesn't validate Ingress backends at admission time, so a typo in a chart or a consumer whose pods never came up produces a silently broken route. You only find out when someone complains about a 503.
+
+`ingress-broken-targets` aggregates `Ingress`, `Service`, and `Endpoints`, then flags any Ingress whose backend Service is missing or has zero ready addresses. ExternalName services are skipped.
+
+On its first scan, it caught a real bug: an ingress for my internal Kubernetes Dashboard pointed at a Kong Service that didn't exist in the installed chart layout. Silently broken for who knows how long.
+
 ## Exclusions
 
 Every scan checks for a global ignore annotation first:
@@ -265,6 +274,7 @@ I also have PrometheusRules that fire when scans detect issues that persist beyo
 | Non-Flux Deployments | warning | 1h |
 | Orphaned CNPG Resources | warning | 1h |
 | Non-GitOps Helm Releases | warning | 1h |
+| Ingresses With Broken Targets | warning | 1h |
 
 The scans find things. The alerts make sure I actually deal with them.
 
