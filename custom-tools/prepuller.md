@@ -96,8 +96,14 @@ spec:
 Three details make this work in practice:
 
 - **`imagePullPolicy: IfNotPresent`** on both init and pause containers, so kubelet reuses the local cache once it's warm.
-- **The `pause` container stays running forever.** Kubelet's [image garbage collector](https://kubernetes.io/docs/concepts/architecture/garbage-collection/#containers-images) evicts images "in order based on the last time they were used" once disk usage crosses `imageGCHighThresholdPercent` (default 85%). The Kubernetes docs don't formally spell out how completed-init-container images are treated, but empirically the pull-once-then-sit-in-pause pattern keeps the cached layers around on every node I've tested it on. If your nodes run hot on disk, tune `imageGCHighThresholdPercent` and `imageMaximumGCAge` rather than expecting the prepuller to win that fight unaided.
+- **The `pause` container stays running forever** so the pod never reaches `Succeeded`. That keeps the init containers' image references in kubelet's "in use" set, which protects them from GC — see below.
 - **Resource requests are minimal** so the pod schedules on nodes that are otherwise fully packed.
+
+### Is it GC-safe?
+
+Yes, as long as the DaemonSet pod is alive. Kubelet's [image GC](https://kubernetes.io/docs/concepts/architecture/garbage-collection/#containers-images) runs when image-filesystem usage crosses `imageGCHighThresholdPercent` (default 85%) and evicts images least-recently-used first. What the docs don't spell out but kubelet does in practice: it skips any image that's still *in use*, where "in use" means referenced by any container in the runtime's pod list — **init containers included**, as long as the pod still exists. The `pause` container's only job is to keep the pod alive so those references stay registered.
+
+One opt-in knob defeats this: [`imageMaximumGCAge`](https://kubernetes.io/docs/concepts/architecture/garbage-collection/#image-maximum-age-gc) (GA in v1.35, default `0` = disabled) evicts images by age regardless of "in use". Leave it unset.
 
 ## Why it's beneficial
 
