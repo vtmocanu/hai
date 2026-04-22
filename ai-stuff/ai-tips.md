@@ -400,5 +400,7 @@ AI-assisted coding is addictive. You get into a flow where ideas turn into worki
 
 Don't forget to step away. Stretch, hydrate, touch grass. Your best ideas often come when you're not staring at a terminal.
 
+Not convinced it's a real problem? Read [I take my laptop to the gym so Claude doesn't have downtime](https://www.claudecodecamp.com/p/i-take-my-laptop-to-the-gym-so-claude-doesn-t-have-downtime). That's the edge of the cliff.
+
 {{< youtube ZJEnQOsMtsU >}}
 
