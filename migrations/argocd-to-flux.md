@@ -707,6 +707,18 @@ The structure has two distinct layers:
 
 This allows both clusters to share deployment logic while keeping manifests organized separately.
 
+### The `-pre` / (main) / `-post` Convention
+
+Every controller that needs it is split into up to three sibling Flux Kustomizations:
+
+| Suffix | What lives here | Why |
+|--------|-----------------|-----|
+| `infra-<x>-pre` | Secrets/ConfigMaps the HelmRelease references **by name** at install time (`existingSecret`, `envFrom.secretRef`, etc.) materialized by Crossplane/Infisical | The HR's Helm `--wait` blocks on Pod Ready, which blocks on the Secret existing. Without a `-pre` gate, cold-start deadlocks |
+| `infra-<x>` | The HelmRelease itself + anything that fits in the same SSA pass | The chart install |
+| `infra-<x>-post` | CRs whose CRD isn't owned by this controller (PrometheusRule, ServiceMonitor, Middleware, VPA) + anything that needs the controller's Pods up (e.g., admission webhooks serving) | Applying these before the HR is Ready fails with CRD-not-found or webhook-rejected |
+
+Every `VerticalPodAutoscaler` lives in `-post/` because `infra-vpa` owns the CRD. **A bootstrap-deps lint (`scripts/check-bootstrap-deps.sh`, wired into a pre-commit hook and a Forgejo Actions workflow) enforces this**: every Secret-by-name reference in a HelmRelease has to resolve to a `-pre` sibling, a seeded bootstrap Secret, or an explicit allowlist entry.
+
 ### Why Separate Controllers from Configs?
 
 Controllers and configs are in separate Flux Kustomizations because of **CRD availability**:
@@ -764,9 +776,12 @@ graph TD
     IC --> ICfg[infra-configs]
     IC --> WSTACK[wstack compositions]
     ICfg --> PC[crossplane-providerconfigs]
-    PC --> RDY[infra-ready]
-    WSTACK --> RDY
-    RDY --> Apps[apps]
+    PC --> RR[infra-ready-restore]
+    WSTACK --> RR
+    RR --> RDY[infra-ready]
+    RR --> RestoreApps[cold-start apps]
+    IC --> RDY
+    RDY --> Apps[normal apps]
 
     subgraph "controllers"
         IC
@@ -797,7 +812,7 @@ graph TD
     end
 ```
 
-The `infra-ready` gate simplifies app dependencies — apps just depend on one thing instead of multiple infrastructure components.
+Two-tier gate: `infra-ready-restore` is the minimum set that cold-start-critical apps (forgejo, harbor, CNPG, infisical) need to come up before backups can be restored; `infra-ready` is the full gate everything else waits on. This keeps the refactor compatible with a true cold-start-from-backup scenario — the monitoring/backup stack doesn't have to be green before the apps that restore it can start.
 
 This is defined via two files. First, the cluster entry point:
 
@@ -833,23 +848,40 @@ spec:
   path: ./infrastructure/controllers/cert-manager
   wait: true  # Wait for pods ready before dependents proceed
 ---
-# infra-ready.yaml - gate for apps
+# infra-ready-restore.yaml - minimum gate for cold-start-critical apps
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-ready-restore
+spec:
+  dependsOn:
+    - name: crossplane-providerconfigs
+    - name: crossplane-wdb
+    - name: crossplane-wapp
+    - name: crossplane-wsecret
+    - name: infra-harbor     # Most pods pull images from Harbor
+    - name: infra-traefik    # Apps need ingress
+    - name: infra-configs    # ClusterIssuers, priority classes
+  path: ./clusters/base/infrastructure/ready
+  wait: true
+---
+# infra-ready.yaml - full gate for normal apps
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: infra-ready
 spec:
   dependsOn:
-    # Crossplane compositions
-    - name: crossplane-providerconfigs
-    - name: crossplane-wdb
-    - name: crossplane-wapp
-    - name: crossplane-wsecret
-    # Core infrastructure
-    - name: infra-harbor   # Most pods pull images from Harbor
-    - name: infra-traefik  # Apps need ingress
-    - name: infra-configs  # Apps need cluster-issuers, priority-classes
-  path: ./clusters/base/infrastructure/ready  # Empty kustomization
+    - name: infra-ready-restore
+    # Monitoring + backup stack on top of the restore gate
+    - name: infra-wkps
+    - name: infra-cnpg
+    - name: infra-velero
+    - name: infra-k10
+    - name: infra-otel
+    - name: infra-kyverno
+    - name: infra-k8s-cleaner
+  path: ./clusters/base/infrastructure/ready
   wait: true
 ```
 
