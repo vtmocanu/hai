@@ -97,10 +97,10 @@ If that work is on `main`, untangling it is a nightmare. If that work is on a br
 **The practice:**
 
 - Start every non-trivial task on a new branch, even if you "just want to try something"
-- For anything bigger, use a [worktree](https://git-scm.com/docs/git-worktree). It gives you a separate directory for the experimental branch so you can keep `main` checked out and building in parallel
+- For anything bigger, use a worktree. It gives you a separate directory for the experimental branch so you can keep `main` checked out and building in parallel
 - When AI goes off the rails (it will), `git checkout main` and delete the branch. Gone
 
-Worktrees also let you run multiple AI sessions in parallel on the same repo without fighting over a shared working directory.
+[Worktrees]({{< ref "git-worktrees" >}}) also let you run multiple AI sessions in parallel on the same repo without fighting over a shared working directory.
 
 **Bonus:** once the work is on a branch, push it, open a PR, and have AI do a final review of the whole diff before you merge. See [Spin Up Expert Review Panels](#spin-up-expert-review-panels) for how I structure that.
 
