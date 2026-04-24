@@ -45,6 +45,8 @@ Before calling something done, ask AI to review it like a senior engineer review
 
 ## Sharpen the Saw
 
+<img src="/images/sharpen-the-saw.png" alt="Sharpen the saw" style="max-width: 700px; width: 100%; height: auto;" />
+
 The thing that feels most like procrastination is the thing that compounds fastest. Writing a new prompt, updating `CLAUDE.md`, installing a plugin, wiring up an MCP, refining a skill: it always feels like you should be doing "real" work instead. There's a pressing bug, a feature deadline, a migration everyone's waiting on.
 
 But every hour invested in your setup pays back many times over. A well-tuned harness means AI asks fewer dumb questions, makes fewer dumb mistakes, and needs less hand-holding on every task from that point forward. A neglected harness means explaining the same things to the same model for the 50th time.
@@ -58,6 +60,8 @@ But every hour invested in your setup pays back many times over. A well-tuned ha
 **This is what makes AI keep getting faster and better.** The engineers who get the most out of AI treat the harness as a first-class artifact, not a side quest. It's the leverage that makes everything else faster.
 
 ## Write PRDs, Clear Sessions Often
+
+<img src="/images/write-spec-clear-slate.png" alt="Write the spec, clear the slate" style="max-width: 700px; width: 100%; height: auto;" />
 
 Two practices that used to be context-window workarounds and are still the right default even with 1M tokens.
 
@@ -148,6 +152,8 @@ Allow as many read-only tools as possible in your Claude Code settings (`~/.clau
 ```
 
 The result: Claude can read files, search code, check git state, and browse documentation without nagging you. It only asks permission when it needs to write, edit, or execute something potentially destructive.
+
+For a deeper dive on managing permissions across global and per-project Claude Code configs, see [Dippy permissions]({{< ref "dippy-permissions" >}}).
 
 ## Set Effort Level to Max
 
