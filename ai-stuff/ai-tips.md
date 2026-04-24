@@ -57,6 +57,31 @@ But every hour invested in your setup pays back many times over. A well-tuned ha
 
 **This is what makes AI keep getting faster and better.** The engineers who get the most out of AI treat the harness as a first-class artifact, not a side quest. It's the leverage that makes everything else faster.
 
+## Write PRDs, Clear Sessions Often
+
+Two practices that used to be context-window workarounds and are still the right default even with 1M tokens.
+
+**Write a PRD before starting anything significant.** Problem, proposed solution, success criteria, a list of milestones. Then point AI at the PRD and work through it one milestone at a time, clearing the session between them. The [PRD workflow on the dot-ai page]({{< ref "dot-ai" >}}#prds-planning-before-implementing) shows how I structure mine.
+
+This originally mattered because context was tight. 200K tokens sounds like a lot until you're ten tool calls into a migration: compaction kicks in, AI hallucinates what it half-remembers, and you spend the rest of the session fighting ghosts. Breaking work into PRD-sized chunks meant each task fit cleanly into a fresh session.
+
+**Does 1M context fix this?** No, and the research is clear:
+
+- **Context rot is measurable.** Chroma benchmarked 18 frontier models; every one degrades as context grows, and the rot starts around 50K tokens, long before you hit the headline limit ([Chroma's context rot research](https://www.trychroma.com/research/context-rot))
+- **Lost in the middle.** Information near the start or end of context is recalled reliably; information buried in the middle loses 30%+ accuracy. The more you stuff in, the more you bury
+- **Hallucination scales with context.** Opus 4.6 scores 76% on Anthropic's own MRCR retrieval benchmark at 1M. Excellent for a frontier model, and still 24% wrong
+- **Costs rise more than caching implies.** Cache reads are 0.1x base input, but cache writes are 1.25x. Every new tool call rewrites part of the cache, and the cached chunk keeps growing, so you pay more on reads too. The "infinite context is free if you cache" intuition is wrong
+- **It gets sluggish.** Transformer attention is quadratic; huge contexts slow everything down per token, even ignoring quality
+
+So the practice survives:
+
+- Write the PRD, then execute it in a **fresh** session. This is Anthropic's own advice: ["once the spec is complete, start a fresh session to execute it"](https://claude.com/blog/using-claude-code-session-management-and-1m-context)
+- `/clear` often, especially between unrelated tasks
+- If you've corrected AI more than twice on the same thing in one session, clear and restart with a better prompt that bakes in what you just learned
+- Treat the context window as a workbench you keep tidy, not as your working memory
+
+The PRD file is the memory that survives the clear. That's the whole trick.
+
 ## Use AI to Generate Prompts
 
 Use AI to generate prompts for AI — inception, I know :)
@@ -230,6 +255,8 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 The goal isn't to micromanage — it's to maintain ownership. You're responsible for what ships, not the AI.
 
 ## Your Rubber Duck Is Now Alive
+
+<img src="/images/rubber-duck.png" alt="Your rubber duck is now alive" style="max-width: 700px; width: 100%; height: auto;" />
 
 [Rubber duck debugging](https://en.wikipedia.org/wiki/Rubber_duck_debugging) has been around forever: you explain your problem out loud to a rubber duck and halfway through the explanation you figure it out yourself. It works because articulating the problem forces you to think it through.
 
