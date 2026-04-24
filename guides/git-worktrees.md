@@ -208,6 +208,10 @@ Here are the actual alias definitions. Add them to your `~/.gitconfig` under `[a
 
 </details>
 
+{{< callout type="info" >}}
+If you'd rather not hand-roll aliases, there's also [worktree-manager](https://github.com/jarredkenny/worktree-manager) — a dedicated CLI for creating, listing, and cleaning up worktrees. I'm not using it myself, but it looks interesting and might be worth a try.
+{{< /callout >}}
+
 ## How I use worktrees with AI
 
 ### A worktree per PRD or big task
