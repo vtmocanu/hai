@@ -278,6 +278,25 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 
 The goal isn't to micromanage — it's to maintain ownership. You're responsible for what ships, not the AI.
 
+## On Vibecoding
+
+My original stance when I started using AI agents was simple: **if you can't do it without AI, don't do it with AI.** You should know what AI is doing at all times. No vibecoding (Karpathy's term for prompting, accepting whatever AI spits out, and pasting errors back until it works). Only what he now calls [**agentic engineering**](https://thenewstack.io/vibe-coding-is-passe/): AI does the implementation, human owns architecture, quality, and correctness.
+
+That's evolved.
+
+I've built a lot of cool stuff by vibecoding since then (see also [Co-Authored with AI]({{< ref "co-authored-with-ai" >}}) for the running log). At home I vibecode freely. At work I avoid it as much as I can. The blast radius is the difference: at home it's me, at work it's a team or a client.
+
+The nuance: you *can* build surprisingly complex, genuinely useful stuff by vibecoding, but you still have to know what you're doing a bit. Enough to notice when the AI is confidently wrong. Enough to steer when it drifts. Enough to read the diff and sense when something's off, even if you couldn't have written it yourself.
+
+And critically: vibecoded projects need guardrails that compensate for what you're not personally watching.
+
+- **Tests** that AI can run and that actually catch regressions
+- **Linting and type-checking** on every save, so AI knows the instant it broke something
+- **Clean git history** (branches, worktrees) so you can roll back bad runs cheaply
+- **Regular reviews** of what's accumulated, before the surface area gets too big
+
+Without that, vibecoding becomes "AI writes 4000 lines, you merge blindly, production breaks two weeks later, nobody can explain why." With it, vibecoding becomes a legitimate(?) way to build ambitious stuff fast.
+
 ## Your Rubber Duck Is Now Alive
 
 <img src="/images/rubber-duck.png" alt="Your rubber duck is now alive" style="max-width: 700px; width: 100%; height: auto;" />
