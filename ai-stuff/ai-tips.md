@@ -86,6 +86,22 @@ So the practice survives:
 
 The PRD file is the memory that survives the clear. That's the whole trick.
 
+## Keep `main` Safe
+
+Always work on a branch (or a worktree) when AI is about to touch anything non-trivial. This one habit will save you regularly.
+
+Here's the flip side of AI generating a lot of code fast: it can confidently restructure your architecture, rename half your files, and introduce three abstractions you didn't ask for. All across ten commits. All in 30 minutes.
+
+If that work is on `main`, untangling it is a nightmare. If that work is on a branch, you throw the branch away and try again with a better prompt. No sunk-cost fallacy, no regret. Being able to cheaply delete a week of AI exploration is sometimes the only reason the exploration was safe to try in the first place.
+
+**The practice:**
+
+- Start every non-trivial task on a new branch, even if you "just want to try something"
+- For anything bigger, use a [worktree](https://git-scm.com/docs/git-worktree). It gives you a separate directory for the experimental branch so you can keep `main` checked out and building in parallel
+- When AI goes off the rails (it will), `git checkout main` and delete the branch. Gone
+
+Worktrees also let you run multiple AI sessions in parallel on the same repo without fighting over a shared working directory.
+
 ## Use AI to Generate Prompts
 
 Use AI to generate prompts for AI — inception, I know :)
