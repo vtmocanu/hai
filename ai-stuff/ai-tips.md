@@ -278,13 +278,19 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 
 The goal isn't to micromanage — it's to maintain ownership. You're responsible for what ships, not the AI.
 
-## On Vibecoding
+## Agentic engineering
 
-My original stance when I started using AI agents was simple: **if you can't do it without AI, don't do it with AI.** You should know what AI is doing at all times. No vibecoding (Karpathy's term for prompting, accepting whatever AI spits out, and pasting errors back until it works). Only what he now calls [**agentic engineering**](https://thenewstack.io/vibe-coding-is-passe/): AI does the implementation, human owns architecture, quality, and correctness.
+<img src="/images/on-vibecoding.png" alt="On vibecoding" style="max-width: 700px; width: 100%; height: auto;" />
+
+My original stance when I started using AI agents was simple: **if you can't do it without AI, don't do it with AI.** **You should know what AI is doing at all times.** **No vibecoding** (Karpathy's term for prompting, accepting whatever AI spits out, and pasting errors back until it works). Only what he now calls [**agentic engineering**](https://thenewstack.io/vibe-coding-is-passe/): AI does the implementation, human owns architecture, quality, and correctness.
 
 That's evolved.
 
-I've built a lot of cool stuff by vibecoding since then (see also [Co-Authored with AI]({{< ref "co-authored-with-ai" >}}) for the running log). At home I vibecode freely. At work I avoid it as much as I can. The blast radius is the difference: at home it's me, at work it's a team or a client.
+I've built a lot of cool stuff by vibecoding since then.
+
+Vibecoding is also how I've contributed to OSS projects I depend on. Features landed, bugs fixed, detailed reports filed, in codebases I'd never have touched on my own. And every PR got a proper review from the project's maintainers before merge, which is the guardrail vibecoded code usually skips. Full log on [Co-Authored with AI]({{< ref "co-authored-with-ai" >}}).
+
+At home I vibecode freely. At work I avoid it as much as I can. The blast radius is the difference: at home it's me, at work it's a team or a client.
 
 The nuance: you *can* build surprisingly complex, genuinely useful stuff by vibecoding, but you still have to know what you're doing a bit. Enough to notice when the AI is confidently wrong. Enough to steer when it drifts. Enough to read the diff and sense when something's off, even if you couldn't have written it yourself.
 
