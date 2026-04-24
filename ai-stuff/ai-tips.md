@@ -33,7 +33,7 @@ And **always include regression/E2E tests**. Without them, AI will fix one thing
 
 **2. Make AI remember what matters**
 
-Use `CLAUDE.md` files (global and per-repo), saved prompts, memory MCPs — whatever it takes. AI that remembers your patterns, conventions, and preferences keeps getting better. AI that starts fresh every time stays mediocre. This is how you build compounding value instead of repeating yourself forever.
+Use [`CLAUDE.md`]({{< ref "claude-md" >}}) files (global and per-repo), saved prompts, memory MCPs — whatever it takes. AI that remembers your patterns, conventions, and preferences keeps getting better. AI that starts fresh every time stays mediocre. This is how you build compounding value instead of repeating yourself forever.
 
 **3. Make AI review its own work**
 
@@ -505,28 +505,9 @@ You can also ask Claude directly to remember something: "remember that we always
 **Deep dive:** [Anatomy of the .claude/ folder](https://blog.dailydoseofds.com/p/anatomy-of-the-claude-folder) covers the full directory structure, from `CLAUDE.md` to custom commands, skills, agents, and permission settings.
 {{< /callout >}}
 
-If you want a **ready-made starting point** for your own `CLAUDE.md`, there's a popular single-file one on GitHub: [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) (82k+ stars), distilling Karpathy's four LLM coding principles: **seek clarity, stay minimal, edit surgically, define targets**. I don't use it myself (I've grown attached to some of Claude Code's defaults that catch cases I wouldn't have thought to specify), but it's a tight, well-reasoned set of instructions worth reading.
-
-## Split Instructions with `.claude/rules/`
-
-Once your `CLAUDE.md` gets big enough, maintaining one giant file becomes painful. The `.claude/rules/` folder lets you split instructions into separate files by concern. Every `.md` file in there gets loaded automatically alongside `CLAUDE.md`.
-
-**The real power is path-scoped rules.** Add YAML frontmatter to a rule file and it only activates when Claude is working on matching paths:
-
-```yaml
----
-paths:
-  - "src/api/**/*.ts"
-  - "src/handlers/**/*.ts"
----
-
-All handlers must return the `{ data, error }` shape.
-Use zod for request body validation.
-```
-
-Claude won't load this file when editing a React component. It only kicks in when working inside `src/api/` or `src/handlers/`.
-
-This scales well for teams too. Each team maintains their own domain's rules independently, no merge conflicts in a shared `CLAUDE.md`.
+{{< callout type="info" >}}
+For a dedicated walkthrough of how I structure my `CLAUDE.md` files (global + per-repo), including a ready-made template and how to split large instruction sets into `.claude/rules/`, see the [CLAUDE.md page]({{< ref "claude-md" >}}).
+{{< /callout >}}
 
 ## Take a Break
 

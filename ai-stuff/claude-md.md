@@ -2,6 +2,10 @@
 
 `CLAUDE.md` is how you give Claude Code project-specific memory. It's a markdown file that Claude reads automatically at the start of every session — think of it as persistent instructions that survive between conversations.
 
+{{< callout type="info" >}}
+For the broader set of practices around getting value from AI coding assistants, see [AI Tips]({{< ref "ai-tips" >}}).
+{{< /callout >}}
+
 ## Where CLAUDE.md Files Live
 
 | Location | Scope | Example Use |
@@ -115,6 +119,31 @@ These serve different purposes:
 | **Examples** | "Use gsed not sed" | Full Crossplane/KCL guide |
 
 Rule of thumb: if it's under ~20 lines and always relevant, put it in `CLAUDE.md`. If it's a deep knowledge base, make it a [saved prompt]({{< ref "saved-prompts" >}}) or [dot-ai prompt]({{< ref "dot-ai" >}}).
+
+## Starting Points
+
+If you want a **ready-made template** instead of building one up organically, there's a popular single-file `CLAUDE.md` on GitHub: [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) (82k+ stars), distilling Karpathy's four LLM coding principles: **seek clarity, stay minimal, edit surgically, define targets**. I don't use it myself (I've grown attached to some of Claude Code's defaults that catch cases I wouldn't have thought to specify), but it's a tight, well-reasoned set of instructions worth reading before you write your own.
+
+## Split Instructions with `.claude/rules/`
+
+Once your `CLAUDE.md` gets big enough, maintaining one giant file becomes painful. The `.claude/rules/` folder lets you split instructions into separate files by concern. Every `.md` file in there gets loaded automatically alongside `CLAUDE.md`.
+
+**The real power is path-scoped rules.** Add YAML frontmatter to a rule file and it only activates when Claude is working on matching paths:
+
+```yaml
+---
+paths:
+  - "src/api/**/*.ts"
+  - "src/handlers/**/*.ts"
+---
+
+All handlers must return the `{ data, error }` shape.
+Use zod for request body validation.
+```
+
+Claude won't load this file when editing a React component. It only kicks in when working inside `src/api/` or `src/handlers/`.
+
+This scales well for teams too. Each team maintains their own domain's rules independently, no merge conflicts in a shared `CLAUDE.md`.
 
 ## Tips
 
