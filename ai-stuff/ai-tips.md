@@ -43,6 +43,20 @@ Before calling something done, ask AI to review it like a senior engineer review
 
 ---
 
+## Sharpen the Saw
+
+The thing that feels most like procrastination is the thing that compounds fastest. Writing a new prompt, updating `CLAUDE.md`, installing a plugin, wiring up an MCP, refining a skill: it always feels like you should be doing "real" work instead. There's a pressing bug, a feature deadline, a migration everyone's waiting on.
+
+But every hour invested in your setup pays back many times over. A well-tuned harness means AI asks fewer dumb questions, makes fewer dumb mistakes, and needs less hand-holding on every task from that point forward. A neglected harness means explaining the same things to the same model for the 50th time.
+
+**Make it a habit:**
+
+- When you catch yourself repeating instructions, save them to `CLAUDE.md` or a skill
+- When an MCP or plugin would have saved you 10 minutes today, install it tomorrow
+- When your setup feels crusty, spend a morning cleaning it up instead of pushing through
+
+**This is what makes AI keep getting faster and better.** The engineers who get the most out of AI treat the harness as a first-class artifact, not a side quest. It's the leverage that makes everything else faster.
+
 ## Use AI to Generate Prompts
 
 Use AI to generate prompts for AI — inception, I know :)
@@ -318,7 +332,17 @@ For the full feature reference, see the [official output styles docs](https://co
 
 ## Question Everything
 
-AI confidently states things. Some are true, some aren't. Get in the habit of asking "wait, is that right?" — worst case you confirm it, best case you learn something or catch a mistake.
+AI confidently states things. Some are true, some aren't. **Always challenge it — don't assume it's right just because it sounds right.**
+
+When something feels off (or even when it doesn't), push back:
+
+- **Make it convince you.** "Why do you think that? Walk me through it." If the answer is hand-wavy, the claim probably is too.
+- **Ask for links.** Official docs, release notes, source code, GitHub issues. If it can't cite anything, treat the claim as a guess.
+- **Do your own research when still unsure.** Read the linked page yourself. Don't trust the summary of the summary.
+
+AI can be wrong for boring reasons: it's trained on data from months or years ago, it's confusing two similar libraries, or it's just being lazy and pattern-matching on what an answer *usually* looks like instead of actually checking.
+
+Worst case you confirm it and move on. Best case you catch a mistake before it ships or learn something new in the process.
 
 ## AI Defaults to Stale Versions
 
