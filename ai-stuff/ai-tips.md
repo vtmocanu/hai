@@ -272,6 +272,7 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 - **Always review the work** — don't blindly accept output. Read it, understand it, question it.
 - **Make it test its own work** — ask for verification, have it run the tests, check the logs.
 - **Challenge assumptions** — AI might be wrong (you catch a mistake) or right (you learn something). Either way, you win.
+- **Stay curious with what AI suggests** — when it proposes a flag, primitive, or pattern you don't recognize, stop and read the docs. I didn't know about `priorityClassName: system-node-critical` until AI suggested it; 20 minutes later I understood Kubernetes priority classes and rolled it out on the right workloads. Curiosity compounds into real depth; blind acceptance quietly makes you worse.
 - **Train your preferences** — use global/local `CLAUDE.md`, saved prompts, memory MCPs. The more context AI has about how you work, the less you repeat yourself.
 - **Provide feedback** — when something's off, say so. "That's too verbose", "We don't do it that way", "Simplify this". It adjusts.
 - **Learn from failures together** — when you find the right way to do something, update the context immediately. Make AI learn from mistakes so they don't repeat.
@@ -534,4 +535,9 @@ Don't forget to step away. Stretch, hydrate, touch grass. Your best ideas often 
 Not convinced it's a real problem? Read [I take my laptop to the gym so Claude doesn't have downtime](https://www.claudecodecamp.com/p/i-take-my-laptop-to-the-gym-so-claude-doesn-t-have-downtime). That's the edge of the cliff.
 
 {{< youtube ZJEnQOsMtsU >}}
+
+## Resources
+
+- [How I Tamed Chaotic AI Coding with Simple Workflow Commands](https://www.youtube.com/watch?v=LUFJuj1yIik)
+- [Mastering Claude Code in 30 minutes](https://www.youtube.com/watch?v=6eBSHbLKuN0)
 
