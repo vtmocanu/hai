@@ -18,7 +18,7 @@ If you take nothing else from this page:
 
 **1. AI doesn't remove the need for discipline—it raises the cost of not having it.**
 
-Spec-driven development, testing, and documentation are more important than ever. When AI can generate code at 10x the pace, the fundamentals that keep a codebase healthy (clear specs up front, tests that actually run, docs that stay honest) become the difference between compounding progress and compounding mess. Skip them and AI accelerates your drift into chaos just as fast as it accelerates feature delivery.
+Spec-driven development, testing, and documentation are more important than ever. Same for the unglamorous basics: branch off `main`, open a PR, review before merge. When AI can generate code at 10x the pace, the fundamentals that keep a codebase healthy (clear specs up front, tests that actually run, docs that stay honest, changes that don't land straight on `main`) become the difference between compounding progress and compounding mess. Skip them and AI accelerates your drift into chaos just as fast as it accelerates feature delivery.
 
 **The beauty of AI agents is that all of this is now simplified: you can have AI write the specs, tests, and docs for you. Your job shifts from writing them to reviewing them.**
 
@@ -101,6 +101,8 @@ If that work is on `main`, untangling it is a nightmare. If that work is on a br
 - When AI goes off the rails (it will), `git checkout main` and delete the branch. Gone
 
 Worktrees also let you run multiple AI sessions in parallel on the same repo without fighting over a shared working directory.
+
+**Bonus:** once the work is on a branch, push it, open a PR, and have AI do a final review of the whole diff before you merge. See [Spin Up Expert Review Panels](#spin-up-expert-review-panels) for how I structure that.
 
 ## Use AI to Generate Prompts
 
