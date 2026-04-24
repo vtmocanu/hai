@@ -229,6 +229,23 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 
 The goal isn't to micromanage — it's to maintain ownership. You're responsible for what ships, not the AI.
 
+## Your Rubber Duck Is Now Alive
+
+[Rubber duck debugging](https://en.wikipedia.org/wiki/Rubber_duck_debugging) has been around forever: you explain your problem out loud to a rubber duck and halfway through the explanation you figure it out yourself. It works because articulating the problem forces you to think it through.
+
+Now the duck talks back. And it has opinions.
+
+Treat AI as a brainstorming partner, not just a task runner. Before writing code, before filing a plan, pitch the half-baked idea: *"I'm thinking of doing X this way, what do you think? What am I missing?"* You'll often find the idea has a flaw you hadn't spotted, or a simpler alternative you hadn't considered, or a subtle issue that only shows up when you try to explain it out loud.
+
+**When this mode beats delegation:**
+
+- You're weighing two approaches and can't decide which is better
+- You have a vague gut feeling something is off but can't articulate it
+- You're about to start something big and want a sanity check first
+- You just want someone to push back on your reasoning
+
+The duck still does its old job (you think more clearly by explaining yourself), but now it can catch blind spots, propose alternatives, and ask the annoying follow-up questions that expose weak assumptions. It's rubber-duck debugging with teeth.
+
 ## Make AI Recommend Best Practices
 
 By default, AI lists options neutrally. Tell it to be opinionated — highlight the best-practice choice and explain why. Add this to your `CLAUDE.md`:
@@ -329,6 +346,16 @@ You'll need to start a new session for it to take effect (output styles are load
 For the full feature reference, see the [official output styles docs](https://code.claude.com/docs/en/output-styles).
 
 **Alternative approach:** [Caveman](https://github.com/JuliusBrussee/caveman) takes a more radical approach to the same problem. Instead of tuning the system prompt, it compresses Claude's output using a custom encoding that strips articles, prepositions, and filler words. I haven't tried it yet, but it's worth a look if output styles alone aren't aggressive enough for your taste.
+
+## Feed AI Your Hunches
+
+When you notice something (a weird line in the logs, a pattern you half-remember, a suspicion about which file is involved), tell AI immediately. Don't let it spin in circles while you sit there thinking "I bet it's the cache layer" and waiting for it to figure that out on its own.
+
+AI isn't a mind reader. If you saw a flash of something in a dashboard two days ago, or you remember this service had a similar bug last month, or you just have a gut feeling about where to start: say it. Worst case it's wrong and AI corrects you. Best case you save 20 minutes of it re-exploring ground you've already covered.
+
+**The trap:** it's tempting to watch AI flail a bit because it feels like a test. "If it can't figure it out without hints, it's not really smart, right?" Wrong. You have context AI doesn't. Withholding it doesn't prove anything, it just burns time and tokens.
+
+The best collaboration runs both directions at once: you feeding in what you know, AI challenging what you assume.
 
 ## Question Everything
 
