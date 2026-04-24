@@ -16,13 +16,13 @@ Practical tips for getting real value from AI coding assistants. Takes months to
 
 If you take nothing else from this page:
 
-**1. Make AI remember what matters**
+**1. AI doesn't remove the need for discipline—it raises the cost of not having it.**
 
-Use `CLAUDE.md` files (global and per-repo), saved prompts, memory MCPs — whatever it takes. AI that remembers your patterns, conventions, and preferences keeps getting better. AI that starts fresh every time stays mediocre. This is how you build compounding value instead of repeating yourself forever.
+Spec-driven development, testing, and documentation are more important than ever. When AI can generate code at 10x the pace, the fundamentals that keep a codebase healthy (clear specs up front, tests that actually run, docs that stay honest) become the difference between compounding progress and compounding mess. Skip them and AI accelerates your drift into chaos just as fast as it accelerates feature delivery.
 
-**2. AI must test its own work**
+**The beauty of AI agents is that all of this is now simplified: you can have AI write the specs, tests, and docs for you. Your job shifts from writing them to reviewing them.**
 
-This is non-negotiable. If AI can't run tests, you're stuck in a ping-pong loop: AI writes code → you run it → it breaks → you paste logs → AI fixes → repeat. That's slow and exhausting.
+Testing is where this bites first and hardest. If AI can't run tests, you're stuck in a ping-pong loop: AI writes code → you run it → it breaks → you paste logs → AI fixes → repeat. That's slow and exhausting.
 
 Set up your environment so AI can:
 - Run unit tests directly
@@ -30,6 +30,10 @@ Set up your environment so AI can:
 - Check logs and errors itself
 
 And **always include regression/E2E tests**. Without them, AI will fix one thing and break three others. You'll spend more time debugging than if you'd written it yourself. Good test coverage is the guardrail that lets AI move fast without wrecking everything.
+
+**2. Make AI remember what matters**
+
+Use `CLAUDE.md` files (global and per-repo), saved prompts, memory MCPs — whatever it takes. AI that remembers your patterns, conventions, and preferences keeps getting better. AI that starts fresh every time stays mediocre. This is how you build compounding value instead of repeating yourself forever.
 
 **3. Make AI review its own work**
 
