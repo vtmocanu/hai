@@ -505,6 +505,8 @@ You can also ask Claude directly to remember something: "remember that we always
 **Deep dive:** [Anatomy of the .claude/ folder](https://blog.dailydoseofds.com/p/anatomy-of-the-claude-folder) covers the full directory structure, from `CLAUDE.md` to custom commands, skills, agents, and permission settings.
 {{< /callout >}}
 
+If you want a **ready-made starting point** for your own `CLAUDE.md`, there's a popular single-file one on GitHub: [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) (82k+ stars), distilling Karpathy's four LLM coding principles: **seek clarity, stay minimal, edit surgically, define targets**. I don't use it myself (I've grown attached to some of Claude Code's defaults that catch cases I wouldn't have thought to specify), but it's a tight, well-reasoned set of instructions worth reading.
+
 ## Split Instructions with `.claude/rules/`
 
 Once your `CLAUDE.md` gets big enough, maintaining one giant file becomes painful. The `.claude/rules/` folder lets you split instructions into separate files by concern. Every `.md` file in there gets loaded automatically alongside `CLAUDE.md`.
