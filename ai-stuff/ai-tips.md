@@ -471,13 +471,11 @@ The tools are already there in every modern coding agent: WebSearch, WebFetch, G
 
 A few phrasings I keep close at hand: **"investigate online to see if others hit this issue and how they resolved it"**, **"clone the repo to `/tmp` and trace the code path before claiming it's a bug"**, **"use context7 to fetch current docs for `<library>` before writing the code"**.
 
-The wins compound. A 30-second web search beats an afternoon of debugging a wrong-by-confidence answer. The two sections below are both specific applications of this pattern: pinning versions, and confirming OSS bugs before filing.
+A specific application worth calling out: **versions and pinning**. AI's training cutoff means it reaches for versions that were current months (or years) ago. Before pinning anything (chart, image tag, runtime, dependency), tell it to look up the latest stable (or LTS) from the project's release page and pin to that. Never floating tags like `latest`.
 
-## AI Defaults to Stale Versions
+The wins compound. A 30-second web search beats an afternoon of debugging a wrong-by-confidence answer.
 
-AI's training cutoff means it reaches for versions that were current months (or years) ago. Before pinning anything — chart, image tag, runtime, dependency — tell it to look up the latest stable (or LTS) from the project's release page and pin to that. Never floating tags like `latest`.
-
-## Verify Bugs — Make AI Prove It
+### Verify Bugs — Make AI Prove It
 
 When AI claims there's a bug in an open source project, don't just take its word for it. Make it **clone the repo and investigate the source code** to confirm. AI can misread docs, hallucinate behavior, or confuse versions. But when you have it trace the actual code path — reading the handler, the frontend component, the RBAC check, the test cases — you get a real answer, not a guess.
 
