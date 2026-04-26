@@ -526,6 +526,10 @@ For a dedicated walkthrough of how I structure my `CLAUDE.md` files (global + pe
 
 ## Take a Break
 
+<img src="/images/ai-is-addictive.jpg" alt="I'll have so much free time with AI, me 847 prompts ago" style="max-width: 500px; width: 100%; height: auto;" />
+
+[Source: Ihor Klymchuk on LinkedIn](https://www.linkedin.com/posts/ihor-klymchuk_the-biggest-myth-about-ai-that-it-gives-activity-7451981418991239168-3fPF)
+
 AI-assisted coding is addictive. You get into a flow where ideas turn into working code faster than ever, one task leads to another, and suddenly hours have vanished. The dopamine loop of "prompt → result → prompt → result" is real.
 
 Don't forget to step away. Stretch, hydrate, touch grass. Your best ideas often come when you're not staring at a terminal.
