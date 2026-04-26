@@ -463,6 +463,16 @@ AI can be wrong for boring reasons: it's trained on data from months or years ag
 
 Worst case you confirm it and move on. Best case you catch a mistake before it ships or learn something new in the process.
 
+## When Unsure, Make AI Investigate
+
+AI defaults to answering from training data. When the question hinges on something that *changes* (current versions, recent regressions, today's API shape, a specific commit's behavior, a library bug filed last week), that default is wrong. **Tell it to use its tools instead of its memory.**
+
+The tools are already there in every modern coding agent: WebSearch, WebFetch, Grep, context7 / docs MCPs, `gh issue list`, clone-and-grep. AI just doesn't reach for them unprompted because confident-from-memory is the cheaper path. Naming the tool in your prompt flips the default.
+
+A few phrasings I keep close at hand: **"investigate online to see if others hit this issue and how they resolved it"**, **"clone the repo to `/tmp` and trace the code path before claiming it's a bug"**, **"use context7 to fetch current docs for `<library>` before writing the code"**.
+
+The wins compound. A 30-second web search beats an afternoon of debugging a wrong-by-confidence answer. The two sections below are both specific applications of this pattern: pinning versions, and confirming OSS bugs before filing.
+
 ## AI Defaults to Stale Versions
 
 AI's training cutoff means it reaches for versions that were current months (or years) ago. Before pinning anything — chart, image tag, runtime, dependency — tell it to look up the latest stable (or LTS) from the project's release page and pin to that. Never floating tags like `latest`.
