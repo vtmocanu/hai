@@ -204,6 +204,21 @@ This keeps context lean for simple tasks while having full tooling available whe
 **Recommended watch:** [MCP Servers Explained: Why Most Are Useless (And How to Fix It)](https://www.youtube.com/watch?v=7baGJ1bC9zE) — good breakdown of what makes an MCP actually useful vs just noise.
 {{< /callout >}}
 
+## Install Plugins, Not Just Skills
+
+Claude Code plugins bundle multiple extension types into a single installable unit: skills, slash commands, subagents, MCP servers, hooks. One command pulls in a coordinated set of capabilities instead of stitching them together piece by piece.
+
+```
+/plugin install frontend-design@claude-plugins-official
+/reload-plugins
+```
+
+The `@<marketplace>` suffix points at a plugin source (the official marketplace, an org repo, or your own). After install, `/reload-plugins` makes new skills and commands available in the current session.
+
+Useful when you want a coordinated bundle, e.g. a frontend toolkit that ships a design skill plus the matching commands, or a domain pack that wires up an MCP server alongside the prompts that drive it. For one-offs (a single skill or command), authoring it directly under `~/.claude/` is still simpler.
+
+Same caveat as MCPs: every plugin you install adds tool definitions and metadata to your baseline context. Install the ones you actually use; uninstall the rest.
+
 ## Tell AI to Work in Parallel
 
 For migrations and repetitive tasks, tell AI to process multiple items in parallel. Instead of "migrate this resource" → review → "now this one" → review, say "migrate 5 resources in parallel."
