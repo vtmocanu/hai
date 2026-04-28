@@ -509,9 +509,9 @@ A few phrasings I keep close at hand:
 - **"clone the repo to `/tmp` and trace the code path before claiming it's a bug"**
 - **"use context7 to fetch current docs for `<library>` before writing the code"**
 
-A specific application worth calling out: **versions and pinning**. AI's training cutoff means it reaches for versions that were current months (or years) ago. Before pinning anything (chart, image tag, runtime, dependency), tell it to look up the latest stable (or LTS) from the project's release page and pin to that. Never floating tags like `latest`.
-
 The wins compound. A 30-second web search beats an afternoon of debugging a wrong-by-confidence answer. Worst case you confirm AI was right and move on. Best case you catch a mistake before it ships, or learn something new in the process.
+
+For one specific application of this mindset that bites DevOps teams more than any other, see [Pin Versions, Not `latest`](#pin-versions-not-latest) below.
 
 #### Verify Bugs — Make AI Prove It
 
@@ -532,6 +532,23 @@ make sure this is actually a bug before we report it
 ```
 
 This also works in reverse — sometimes the investigation reveals you were holding it wrong, saving you from filing an embarrassing false bug report.
+
+### Pin Versions, Not `latest`
+
+{{< callout type="warning" >}}
+**AI's training cutoff means it reaches for versions that were current months (or years) ago.** Before pinning anything (chart, image tag, runtime, dependency), tell it to look up the latest stable or LTS from the project's release page and pin to that. Never use floating tags like `latest`.
+{{< /callout >}}
+
+The same pattern applies anywhere AI suggests a specific version, image digest, API version, or feature flag: assume it's stale until verified. Helm chart versions, container image tags, Kubernetes API versions (`apps/v1beta1` is long gone), Terraform provider versions, language runtime versions, all live in the danger zone.
+
+**Before applying any AI-suggested pin:**
+
+- Look up the latest stable from the project's release page or registry
+- For k8s and CNCF projects, prefer the most recent minor that's been out long enough to have a `.1` or `.2` patch (avoid `.0` releases unless you have a reason)
+- Never use `latest`, `main`, `master`, or other floating tags in production
+- For container images, pin to a digest (`sha256:...`) when supply-chain integrity matters
+
+A 30-second registry check beats discovering at 2am that the AI-suggested chart version was deprecated 8 months ago.
 
 ### Use AI to Generate Prompts
 
