@@ -319,6 +319,14 @@ And critically: vibecoded projects need guardrails that compensate for what you'
 
 Without that, vibecoding becomes "AI writes 4000 lines, you merge blindly, production breaks two weeks later, nobody can explain why." With it, vibecoding becomes a legitimate(?) way to build ambitious stuff fast.
 
+## The Cost of Being Wrong Just Collapsed
+
+{{< youtube K88qA6cx-60 >}}
+
+> You no longer have to be sure you are doing the right thing before you start building. The cost of being wrong just dropped through the floor. You can produce something fast, put it in front of people, see if it sticks, and if it does not, throw it away and try something else. And then something else. And then something else. You keep iterating until you land on a hit. What used to be a carefully planned, months-long bet is now a rapid sequence of cheap experiments. The winners are not the ones with the best first idea. They are the ones who can try ten ideas in the time it used to take to plan one.
+>
+> And that cheapness of building does not just speed up execution from the top. It changes who can initiate ideas in the first place. When creating something takes days instead of months, you do not need executive approval to explore. Claude Code started as a side project inside Anthropic. Nobody directed it from the top. Now it is a core part of their strategy. That kind of bottom-up innovation becomes far more viable when the cost of trying is close to zero. Engineers building tools that help their own work, small teams spinning up prototypes for new products, individuals scratching their own itch and discovering it is everyone's itch. The cheapness of building flattens the hierarchy of innovation itself.
+
 ## Your Rubber Duck Is Now Alive
 
 <img src="/images/rubber-duck.png" alt="Your rubber duck is now alive" style="max-width: 700px; width: 100%; height: auto;" />
