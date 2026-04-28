@@ -327,6 +327,53 @@ Without that, vibecoding becomes "AI writes 4000 lines, you merge blindly, produ
 >
 > And that cheapness of building does not just speed up execution from the top. It changes who can initiate ideas in the first place. When creating something takes days instead of months, you do not need executive approval to explore. Claude Code started as a side project inside Anthropic. Nobody directed it from the top. Now it is a core part of their strategy. That kind of bottom-up innovation becomes far more viable when the cost of trying is close to zero. Engineers building tools that help their own work, small teams spinning up prototypes for new products, individuals scratching their own itch and discovering it is everyone's itch. The cheapness of building flattens the hierarchy of innovation itself.
 
+## Don't Build What Already Exists
+
+<img src="/images/dont-reinvent-the-wheel.png" alt="Author hammering together a clunky wooden wheel in a workshop while a shelf of polished wheels labeled VolSync, Robusta, CNCF, OSS glows in the background; sticky notes on the bench read tests, CI/CD, bug fixes, releases, docs" style="max-width: 700px; width: 100%; height: auto;" />
+
+The flip side of "the cost of being wrong just collapsed" is the temptation to build everything from scratch. AI makes "I'll just build it myself" feel almost free: type a prompt, get a working prototype in an hour. The temptation is huge. Resist it.
+
+Before writing the first line, **do the research**. Spend a couple of hours searching: existing tools, combinations of tools, CNCF projects, k8s-at-home patterns, GitHub topic pages, the awesome-* lists. The thing you're about to build probably already exists, often as a more mature, better-tested, better-documented project than what you'd ship.
+
+I've learned this the hard way:
+
+- **[s3bkp]({{< ref "s3bkp" >}})**: I built a 2,400-line bash backup tool because Velero didn't fit my model. [VolSync was doing the same thing better]({{< ref "reinventing-the-wheel" >}}) the whole time. Another afternoon of research would have saved months.
+- **A homemade k8s troubleshooting agent**: I started prototyping an AI-driven runbook flow before realizing [Robusta](https://home.robusta.dev/) already shipped most of what I had in mind. Killed the prototype, used the existing tool.
+
+**The cost of "I'll just build it" is bigger than AI-assisted development makes it look.** Writing the code is the cheap part. The real cost is everything that comes after:
+
+- Tests that actually catch regressions
+- Bug fixes for edge cases you didn't anticipate
+- Releases, versioning, changelogs
+- CI/CD pipelines, build infrastructure, signing
+- Documentation that stays current with the code
+- Forever-maintenance: every dependency upgrade, every k8s API deprecation, every breaking change downstream
+
+A mature project absorbs all of that for you. Your "free" hour of AI-generated code becomes a part-time job over the next two years.
+
+**The better path is usually to contribute, not build.** If an existing tool covers 90% of what you need but is missing a feature, the right move is rarely "fork and rewrite." It's "open an issue, ask the maintainer how they feel about the idea, find out whether a PR would be welcome." Most maintainers are happy to discuss, especially if you're offering to do the work.
+
+Be upfront that the implementation will be AI-assisted. The maintainers I've worked with are willing to consider it as long as you've done your best to test the change end-to-end and not ship AI slop. Some appreciate the transparency. The ones who'd reject it on principle, you'd rather find out before writing 2,000 lines of code.
+
+I've shipped real features and bug fixes this way to projects I had no business contributing to (no Go, no Rust, no React production experience). See [Co-Authored with AI]({{< ref "co-authored-with-ai" >}}) for the full log. The pattern that works:
+
+1. Open a discussion or issue describing the feature you need and your use case
+2. Ask the maintainer how they feel about it and whether a PR would be welcome
+3. Mention up front that the implementation will be AI-generated, and that you'll validate it end-to-end against your real workload before opening the PR
+4. Wait for the green light before writing anything
+
+The conversation up front prevents closed-as-out-of-scope PRs, and it tends to start an actual relationship with the project rather than a one-off transaction.
+
+**When building is the right call:**
+
+- You've actually checked and nothing genuinely solves the problem
+- Existing tools are abandoned, broken, or carry licensing or security risks
+- The thing you'd build is small enough that maintenance stays trivial
+- It's genuinely novel, something rewarding to invent, with a clear reason nobody else built it yet
+- You'll learn something building it you can't learn any other way (real, but rarely the deciding factor)
+
+Inventing something new can be deeply rewarding. Reinventing something that already exists, less so. Weigh it consciously at the start, before the AI-generated repo has 4,000 lines and a deployment pipeline.
+
 ## Your Rubber Duck Is Now Alive
 
 <img src="/images/rubber-duck.png" alt="Your rubber duck is now alive" style="max-width: 700px; width: 100%; height: auto;" />
