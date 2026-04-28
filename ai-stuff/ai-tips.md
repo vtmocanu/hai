@@ -85,7 +85,7 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 
 The goal isn't to micromanage — it's to maintain ownership. You're responsible for what ships, not the AI.
 
-### Agentic engineering
+### Agentic Engineering
 
 <img src="/images/on-vibecoding.png" alt="On vibecoding" style="max-width: 700px; width: 100%; height: auto;" />
 
@@ -171,7 +171,7 @@ How I structure work day-to-day so AI moves fast without breaking things.
 
 ### Write PRDs, Clear Sessions Often
 
-<img src="/images/write-spec-clear-slate.png" alt="Write the spec, clear the slate" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/write-spec-clear-slate.png" alt="Write PRDs to keep sessions clean" style="max-width: 700px; width: 100%; height: auto;" />
 
 Two practices that used to be context-window workarounds and are still the right default even with 1M tokens.
 
@@ -226,7 +226,7 @@ migrate the next 5 harbor replications in parallel,
 show me the changes for each so I can review them together
 ```
 
-### Run Multiple Sessions — The Dialup Workaround
+### Run Multiple Sessions: The Dialup Workaround
 
 AI agents can feel like dialup. You ask something, wait while it thinks, reviews, runs tests... and you're just sitting there. The workaround? **Run multiple Claude Code sessions in parallel.**
 
@@ -351,7 +351,7 @@ For a detailed breakdown of effort levels and which settings make sense per subs
 **Strategy:**
 
 - **Global MCPs** (`~/.claude/settings.json`): Only essential, always-needed tools (e.g.: Context7 for docs, [dot-ai]({{< ref "dot-ai" >}}) for k8s/shared prompts, prometheus)
-- **Per-repo MCPs** (`.claude/settings.json` in repo): Project-specific tools (e.g.: homeassitant, harbor)
+- **Per-repo MCPs** (`.claude/settings.json` in repo): Project-specific tools (e.g.: homeassistant, harbor)
 
 This keeps context lean for simple tasks while having full tooling available where needed.
 
