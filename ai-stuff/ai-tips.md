@@ -643,6 +643,10 @@ Not convinced it's a real problem? Read [I take my laptop to the gym so Claude d
 
 {{< youtube ZJEnQOsMtsU >}}
 
+{{< callout type="info" >}}
+**Made it all the way down here?** You're one of the few. [DM me on LinkedIn](https://www.linkedin.com/in/vtmocanu/) and tell me what landed, what didn't, what you'd add, what you'd cut. This page keeps growing because of conversations like that, and I read every message.
+{{< /callout >}}
+
 ### Resources
 
 - [How I Tamed Chaotic AI Coding with Simple Workflow Commands](https://www.youtube.com/watch?v=LUFJuj1yIik)
