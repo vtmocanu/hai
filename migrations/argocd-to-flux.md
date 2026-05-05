@@ -719,6 +719,41 @@ Every controller that needs it is split into up to three sibling Flux Kustomizat
 
 Every `VerticalPodAutoscaler` lives in `-post/` because `infra-vpa` owns the CRD. **A bootstrap-deps lint (`scripts/check-bootstrap-deps.sh`, wired into a pre-commit hook and a Forgejo Actions workflow) enforces this**: every Secret-by-name reference in a HelmRelease has to resolve to a `-pre` sibling, a seeded bootstrap Secret, or an explicit allowlist entry.
 
+### Slicing CRDs out of slow charts
+
+Some controllers' CRDs are needed by many dependents (`PrometheusRule`, `Middleware`, etc.) but the controller's chart install is slow — kube-prometheus-stack on cold-start can take 10+ minutes for chart pull, dry-run, helm install, and Pod Ready. Forcing every dependent that just needs the `monitoring.coreos.com` CRDs to wait for the whole HR is a critical-path bottleneck.
+
+The fix is to apply the CRDs in a separate fast Kustomization that joins `infra-crds-ready` directly, leaving the controller HR (which `infra-crds-ready` does NOT wait on) free to take its time. Three patterns, in order of preference:
+
+**1. First-party companion CRDs chart.** kube-prometheus-stack's CRDs are also published as a standalone `prometheus-operator-crds` chart by the same maintainer org. We install it as `infra-kps-crds`, set `crds.enabled: false` on the kube-prometheus-stack HR, and let helm-controller's default take-ownership behaviour adopt the live CRDs into the new release on first reconcile. This is the cleanest split — the upstream maintainer is doing the bookkeeping for us.
+
+**2. Chart-`/crds/`-slice via the same OCIRepository.** Charts whose CRDs live in the chart tarball's `/crds/` directory (traefik is the canonical case) can be sliced without any upstream cooperation: a single `OCIRepository` serves both `chartRef` for the HelmRelease and `sourceRef` for a sibling Flux Kustomization with `path: ./<chart>/crds`. Renovate keeps both consumers locked to the same `tag:`, so chart and CRD versions never drift. Per-CRD `healthChecks` are mandatory (otherwise the slice marks itself Ready before the API server reports the CRDs as Established and dependents race), and the controller HR needs `dependsOn: <slice-name>` so the chart's own templated CRs (`IngressRoute`, `TLSStore`, etc.) find their CRDs at install time:
+
+```yaml
+# infra-traefik-crds.yaml — slice from the same OCI artifact the HR uses
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+spec:
+  sourceRef:
+    kind: OCIRepository
+    name: my-traefik-chart        # also referenced as chartRef by the HR
+  path: ./traefik/crds
+  prune: false
+  wait: true
+  healthChecks:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      name: ingressroutes.traefik.io
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      name: middlewares.traefik.io
+    # ... one per CRD in the chart
+```
+
+**3. Manifest split for CRDs we own.** Crossplane XRDs (`Wsecret`, `Wapp`, `Wdb`, `HarborReplication`) are ours: we restructured each composition's sibling repo to expose `xrds/` and `manifests/` as separate Kustomize bases, then made the composition Kustomization `dependsOn: infra-xrds`. The XRDs apply in seconds; only the slow Composition+Function reconciliation stays on the controller path.
+
+What we explicitly didn't do: static CRD mirrors checked into the Flux repo, or adopting random community "CRDs-only" charts that aren't maintained by the upstream operator's owners. Both go stale silently. The bar is "first-party or first-party-adjacent same-maintainer-org charts only" — patterns 1 and 3 satisfy it directly; pattern 2 satisfies it because the slice and the HR consume the same upstream artifact, just with different `path:` filters.
+
 ### Why Separate Controllers from Configs?
 
 Controllers and configs are in separate Flux Kustomizations because of **CRD availability**:
@@ -778,9 +813,12 @@ graph TD
     ICfg --> PC[crossplane-providerconfigs]
     PC --> RR[infra-ready-restore]
     WSTACK --> RR
-    RR --> RDY[infra-ready]
+    RR --> CRDS[infra-crds-ready]
+    IC --> CRDS
+    SLICED --> CRDS
+    CRDS --> RDY[infra-ready]
+    RR --> RDY
     RR --> RestoreApps[cold-start apps]
-    IC --> RDY
     RDY --> Apps[normal apps]
 
     subgraph "controllers"
@@ -804,6 +842,13 @@ graph TD
         WSEC[wsecret]
     end
 
+    subgraph "sliced CRDs"
+        SLICED[ ]
+        KPS[infra-kps-crds]
+        XRDS[infra-xrds]
+        TCRD[infra-traefik-crds]
+    end
+
     subgraph "apps"
         Apps
         Kutt
@@ -812,7 +857,7 @@ graph TD
     end
 ```
 
-Two-tier gate: `infra-ready-restore` is the minimum set that cold-start-critical apps (forgejo, harbor, CNPG, infisical) need to come up before backups can be restored; `infra-ready` is the full gate everything else waits on. This keeps the refactor compatible with a true cold-start-from-backup scenario — the monitoring/backup stack doesn't have to be green before the apps that restore it can start.
+Three-tier gate: `infra-ready-restore` is the minimum set that cold-start-critical apps (forgejo, harbor, CNPG, infisical) need to come up before backups can be restored. `infra-crds-ready` is a parallel CRD-readiness aggregator: sliced CRD-only Kustomizations (KPS via the first-party `prometheus-operator-crds` chart, the Crossplane XRDs split out of their composition repos, and traefik via a chart-`/crds/`-slice) sit alongside the slower controllers so dependents that only need a CRD don't wait for the full chart install. `infra-ready` then collapses to a two-edge super-gate (`dependsOn: [infra-ready-restore, infra-crds-ready]`); apps continue to depend only on `infra-ready` and inherit the speedup transparently. This keeps the design compatible with a true cold-start-from-backup scenario — the monitoring/backup stack doesn't have to be green before the apps that restore it can start — and shaves the slowest chart installs (kube-prometheus-stack, traefik) off the CRD-readiness critical path.
 
 This is defined via two files. First, the cluster entry point:
 
@@ -865,7 +910,29 @@ spec:
   path: ./clusters/base/infrastructure/ready
   wait: true
 ---
-# infra-ready.yaml - full gate for normal apps
+# infra-crds-ready.yaml - parallel CRD-readiness aggregator
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-crds-ready
+spec:
+  dependsOn:
+    # Sliced (CRDs only, fast):
+    - name: infra-kps-crds       # KPS CRDs via first-party chart
+    - name: infra-xrds           # Crossplane XRDs (Wsecret/Wapp/Wdb/Harbor)
+    - name: infra-traefik-crds   # Traefik CRDs from chart's /crds/ dir
+    # Non-sliced (full HR Ready):
+    - name: infra-vpa
+    - name: infra-velero
+    - name: infra-cnpg
+    - name: infra-kyverno
+    - name: infra-otel
+    - name: infra-infisical-operator
+    # ... etc.
+  path: ./clusters/base/infrastructure/ready
+  wait: true
+---
+# infra-ready.yaml - super-gate normal apps depend on
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -873,14 +940,7 @@ metadata:
 spec:
   dependsOn:
     - name: infra-ready-restore
-    # Monitoring + backup stack on top of the restore gate
-    - name: infra-wkps
-    - name: infra-cnpg
-    - name: infra-velero
-    - name: infra-k10
-    - name: infra-otel
-    - name: infra-kyverno
-    - name: infra-k8s-cleaner
+    - name: infra-crds-ready
   path: ./clusters/base/infrastructure/ready
   wait: true
 ```
