@@ -1,6 +1,6 @@
 # k8s-cleaner: Finding Orphaned Resources in Kubernetes
 
-<img src="/images/k8s-cleaner-logo.png" alt="k8s-cleaner logo" style="max-width: 200px;">
+<img src="/images/k8s-cleaner-logo.png" alt="k8s-cleaner logo" class="hero-image" style="max-width: 200px;">
 
 ## The Problem
 

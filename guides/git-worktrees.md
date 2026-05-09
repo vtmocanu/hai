@@ -1,6 +1,6 @@
 # Git Worktrees
 
-<img src="/images/git-worktrees.png" alt="Git Worktrees" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/git-worktrees.png" alt="Git Worktrees" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
 
 Most developers use one working directory per repo. When you switch branches, git overwrites the files in place. That works fine until you need two branches at the same time, or three, or you want AI to try a big refactor without touching your current work.
 

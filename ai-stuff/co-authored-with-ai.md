@@ -1,6 +1,6 @@
 # Co-Authored with AI
 
-<img src="/images/coauth.png" alt="A robot and engineer repairing quirky open-source project machines at a workshop bench, under a CO-AUTHORED WITH AI sign" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/coauth.png" class="hero-image" alt="A robot and engineer repairing quirky open-source project machines at a workshop bench, under a CO-AUTHORED WITH AI sign" style="max-width: 700px; width: 100%; height: auto;" />
 
 I am not a programmer. I have spent years operating Linux and Kubernetes infrastructure, but I cannot write production code on my own to a quality I'd feel comfortable shipping to a maintainer. What changed in the last year is that I can ship code anyway: Claude Code writes what I cannot, I keep ownership of the judgment calls, and we end up with contributions real maintainers actually act on.
 

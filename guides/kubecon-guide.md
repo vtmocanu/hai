@@ -1,6 +1,6 @@
 # My KubeCon Survival Guide
 
-<img src="/images/kubecon.jpeg" alt="KubeCon London 2025 keynote hall" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/kubecon.jpeg" class="hero-image" alt="KubeCon London 2025 keynote hall" style="max-width: 700px; width: 100%; height: auto;" />
 
 ## Start Here
 

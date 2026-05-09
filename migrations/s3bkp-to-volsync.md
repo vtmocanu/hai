@@ -1,6 +1,6 @@
 # From s3bkp to VolSync
 
-<img src="/images/s3bkp-to-volsync.png" alt="Transition from s3bkp (cluttered, retiring soon) to VolSync (clean, automated) with temporary worker robots and blue/green S3 buckets" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/s3bkp-to-volsync.png" class="hero-image" alt="Transition from s3bkp (cluttered, retiring soon) to VolSync (clean, automated) with temporary worker robots and blue/green S3 buckets" style="max-width: 700px; width: 100%; height: auto;" />
 
 {{< tabs >}}
 

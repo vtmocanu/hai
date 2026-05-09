@@ -1,6 +1,6 @@
 # Krew — Homebrew for kubectl
 
-<img src="/images/krew.png" alt="Krew" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/krew.png" alt="Krew" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
 
 [Krew](https://krew.sigs.k8s.io/) is essentially Homebrew for kubectl — a plugin manager that lets you discover, install, and manage kubectl plugins from a curated index of 300+ community tools. Instead of hunting down GitHub repos and wrangling binaries yourself, it's just:
 

@@ -1,6 +1,6 @@
 # The Stack
 
-<img src="/images/the-stack.png" alt="A friendly robot arranging floating glass slabs representing the layers of the homelab stack" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/the-stack.png" class="hero-image" alt="A friendly robot arranging floating glass slabs representing the layers of the homelab stack" style="max-width: 700px; width: 100%; height: auto;" />
 
 ## Main Site
 

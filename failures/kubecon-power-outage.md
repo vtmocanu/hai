@@ -1,6 +1,6 @@
 # The KubeCon Power Outage
 
-<img src="/images/kubecon-power-outage.png" alt="Split scene: a man at KubeCon on the phone looking worried, while at home everything is offline and his wife is frustrated" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/kubecon-power-outage.png" class="hero-image" alt="Split scene: a man at KubeCon on the phone looking worried, while at home everything is offline and his wife is frustrated" style="max-width: 700px; width: 100%; height: auto;" />
 
 ## The Setup
 

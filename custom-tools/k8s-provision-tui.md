@@ -1,6 +1,6 @@
 # k8s-provision-tui: the DR automation I didn't know I was building
 
-<img src="/images/k8s-provision-tui.png" alt="A relaxed operator at a dim console watching a TUI dashboard, blue cluster steady on the left, green cluster being rebuilt on the right" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/k8s-provision-tui.png" alt="A relaxed operator at a dim console watching a TUI dashboard, blue cluster steady on the left, green cluster being rebuilt on the right" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
 
 I already run my Kubernetes clusters in a blue/green pattern: new color up, data migrated, old color torn down, every piece of it reproducible from git. The [data-integrity problem](/migrations/s3bkp-to-volsync/) was solved. What I hadn't solved was the ceremony of actually doing the switch.
 

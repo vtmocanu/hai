@@ -1,6 +1,6 @@
 # Prepuller Action: GitOps-native Image Caching, as Code
 
-<img src="/images/prepuller.png" alt="A cartoon robot in a warehouse standing on a conveyor-belt floor, handling container-image boxes between server racks, with a glowing PREPULLER enabled label overhead" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/prepuller.png" class="hero-image" alt="A cartoon robot in a warehouse standing on a conveyor-belt floor, handling container-image boxes between server racks, with a glowing PREPULLER enabled label overhead" style="max-width: 700px; width: 100%; height: auto;" />
 
 {{< callout type="info" >}}
 **TL;DR.** A Forgejo Action that watches your GitOps repo, finds every `HelmRelease` tagged with a `prepuller` label, renders the chart offline, extracts all container image references, and writes a `DaemonSet` per workload that pre-pulls those images onto every node. Flux deploys the DaemonSets on the next reconcile; kubelet caches the images locally and keeps them warm. Gives you: faster pod startup on reschedules, insulation from registry outages, protection against Docker Hub rate limits, and zero per-workload maintenance beyond a single label.
