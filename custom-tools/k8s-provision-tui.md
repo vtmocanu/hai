@@ -39,7 +39,7 @@ Somewhere around the fourth or fifth iteration, I noticed something odd. The TUI
 
 A planned blue/green reinstall is a controlled DR drill. The cluster is deliberately lost. The workloads are deliberately restored. The only difference between "I reinstalled green" and "green burned down in a fire" is whether the old cluster is still running during the restore. Same actions automated. Same safety invariants. Same backup dependencies.
 
-I was building a DR automation tool and calling it a reinstall helper.
+**I was building a DR automation tool** and calling it a reinstall helper.
 
 That reframe changed how I think about the TUI. Every feature I'd added to make the cutover safer (liveness checks, type-to-confirm for irreversible steps, backup-age gates) wasn't just ergonomics. It was disaster recovery tooling. Using the TUI regularly for planned reinstalls, I'm continuously testing my actual DR path. The procedure I used in anger had already been rehearsed dozens of times.
 
@@ -59,7 +59,7 @@ It's a single-screen Textual app, split into three regions: a live status dashbo
 
 <img src="/images/k8s-provision-tui-start.png" alt="k8s-provision-tui at startup: live status dashboard listing 16 check rows grouped by phase, with colored status glyphs for each" style="max-width: 900px; width: 100%; height: auto;" />
 
-Each dashboard row is one check: VM templates on the Proxmox nodes, registration token freshness in Palette, edge hosts registered, cluster profile deployed, Flux controllers running, backup freshness per system (VolSync, CNPG, K10, Velero), and so on. The glyphs (●/◐/○) track state in real time. A threaded worker runs the checks on startup, after every action, and any time I press `r`; backup rows can also be put on a 5-second watch so freshness gates go green the moment a backup lands. The rows for the current phase of the cutover are where the operator's eye naturally goes; the rest are a running check that the rest of the homelab isn't on fire while I'm mid-cutover.
+Each dashboard row is one check, grouped into the phases of a cutover: shared infrastructure (Ceph health, live Proxmox memory, VM templates, registration token), live-cluster backup freshness (VolSync, CNPG, K10, Velero, Forgejo dump), target prep (buckets empty, Ceph pool empty, Spectro profile deployed), provisioning (VMs, edge hosts, cluster, kubeconfig), draining the live cluster (Flux suspended, workloads scaled down, CNPG hibernated, non-k8s VMs stopped, node pairs drained, no stale cordoned nodes), pre-cutover sanity (Flux bootstrapped on target, pods ready, local DNS preview), the cutover itself (coordinated final-sync snapshot age, public DNS flipped, local DNS preview disabled, router port forwards repointed), a manual-checks gate, and post-flip cleanup of the old cluster (VMs stopped, onboot disabled, Terraform destroyed). The glyphs (●/◐/○) track state in real time. A threaded worker runs the checks on startup, after every action, and any time I press `r`; backup rows can also be put on a 5-second watch so freshness gates go green the moment a backup lands. The rows for the current phase of the cutover are where the operator's eye naturally goes; the rest are a running check that the rest of the homelab isn't on fire while I'm mid-cutover.
 
 The menu mirrors the phases of the wiki runbook. Expanding a phase reveals its actions, each one annotated with its own status glyph based on the live dashboard state:
 
@@ -69,7 +69,7 @@ No action fires without a preview. Every action first shows a modal with the exa
 
 <img src="/images/k8s-provision-tui-run-ansible.png" alt="Preview modal for 'Run Ansible' showing the full command chain that will execute, with Yes/No buttons" style="max-width: 900px; width: 100%; height: auto;" />
 
-Once confirmed, output streams into a dashboard pane in place of the checklist. Instead of calling `app.suspend()` to hand the terminal over to the subprocess, the TUI stays on-screen and the subprocess output scrolls line by line into a log widget. A "Press Enter to return" modal closes the action when it finishes, and you never have to hunt through scrollback for a failed step. The whole destructive-action surface is pinned by a **72-case test suite** covering type-to-confirm guards, liveness regressions, and pilot-driven screen navigation; the kind of coverage you want on a tool allowed to **wipe backup buckets**.
+Once confirmed, output streams into a dashboard pane in place of the checklist. Instead of calling `app.suspend()` to hand the terminal over to the subprocess, the TUI stays on-screen and the subprocess output scrolls line by line into a log widget. A "Press Enter to return" modal closes the action when it finishes, and you never have to hunt through scrollback for a failed step. The whole destructive-action surface is pinned by a test suite that has grown past **280 cases** covering type-to-confirm guards, liveness regressions, and pilot-driven screen navigation; the kind of coverage you want on a tool allowed to **wipe backup buckets** or **reset Ceph pools**.
 
 <img src="/images/k8s-provision-tui-ansible-output.png" alt="Ansible playbook output streaming live into the dashboard CommandLog pane while the TUI menu stays visible around it" style="max-width: 900px; width: 100%; height: auto;" />
 
@@ -77,9 +77,11 @@ The same streaming pattern covers API-driven actions too. The most destructive o
 
 <img src="/images/k8s-provision-tui-bucket-clean.png" alt="Bucket cleanup action streaming output: per-bucket rm commands, their results, and a summary of objects wiped" style="max-width: 900px; width: 100%; height: auto;" />
 
+The DNS flip isn't the end. Once traffic is on the target color and the dashboard's post-flip section lights up, the same TUI handles teardown: stopping the old cluster's VMs, disabling their `onboot` so a Proxmox reboot doesn't wake them up, and finally `tofu destroy` against the old color. The same pattern — preview, confirm, stream, dashboard row turns green — but pointed at deletion. Without the TUI, this is the part of the runbook I used to skip "until later" and end up with two clusters running for a week.
+
 ## Where does this leave you?
 
 If any of this resonates, do the thing. **Open your DR plan** (you have one, right? 😅), **point the AI agent of your choice at it, and tell it to build a TUI for it.** Start small. Iterate. The first version won't be pretty; mine was hundreds of lines of bash and a nested gum menu. That's fine. The payoff isn't the TUI, it's that every time you use it you're rehearsing a restore you'd otherwise have done zero times.
 
-My TUI is ~4,000 lines of Python, intentionally specific to my homelab's blue/green layout, and one of the most satisfying things I've built this year.
+My TUI started at ~4,000 lines of Python and has grown to ~16,000 as I keep folding in the next "thing I always forget at step 17", intentionally specific to my homelab's blue/green layout, and one of the most satisfying things I've built this year.
 
