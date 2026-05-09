@@ -8,6 +8,8 @@ I'm **Vlad Mocanu**, a Senior Platform Engineer based in Romania. 20+ years in i
 
 **Community:** Organizer of [Cloud Native Days Romania](https://cloudnativedays.ro/). Managed to bring Viktor Farcic and Whitney Lee as keynote speakers for the 2026 edition — still can't believe it.
 
+**Resume:** [Download the full resume (PDF)](/files/vlad-mocanu-resume.pdf)
+
 ## The Journey
 
 Started as Linux Sysadmin in 2005, spent about 7 years working for [Rompetrol](https://www.rompetrol.com/), eventually led a team of 5 Sysadmins at [EveryMatrix](https://everymatrix.com/). Joined [Pond5](https://www.pond5.com/) in 2017 (later acquired by [Shutterstock](https://www.shutterstock.com/)) — all infra was in AWS, so I had to quickly pick up cloud skills and made the mental shift into DevOps philosophy and platform engineering. Been all-in on Kubernetes since 2021.
