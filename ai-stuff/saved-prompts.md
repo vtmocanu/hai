@@ -903,6 +903,27 @@ When user asks to permit a command:
 | rm, sudo, chmod | - | ALWAYS |
 ```
 
+### skill-usage-counter (vendored from the internet)
+
+I usually avoid skills sourced from the internet. They run with the same reach Claude has, the upstream maintainer can push a malicious update at any time, and a deleted repo silently breaks every machine that pulled from it. Default stance: write my own.
+
+**The exception** is when there's no built-in equivalent and the skill is small enough to fully audit. In that case I vendor it: read every line, copy the files into my own skills repo, and remove the runtime dependency on the upstream URL.
+
+**The case that earned an exception**: [skill-usage-counter](https://github.com/landicefu/skill-usage-counter), a tiny plugin that counts how often each skill's `SKILL.md` gets read. I needed it because Claude Code's skill-description budget is finite, so once you have a hundred-plus skills installed, low-priority descriptions get silently dropped from context. Identifying which skills I actually use lets me mark the rest as `name-only` and reclaim that budget. There is no built-in stats command for this.
+
+**My vetting and vendoring process:**
+
+1. **Clone to `/tmp`** and read everything, scripts, dependencies, anything that runs.
+2. **Ask Claude Code to audit it**: every file, every external call, every hook side effect. I want a flat verdict before any of it touches `~/.claude/`.
+3. **Copy the files into my own skills repo** with a `SOURCE.md` recording upstream URL, commit SHA, vendored date, the modifications I made, and the procedure for future updates.
+4. **Wire it through my standard regeneration flow** so it's treated like any other skill in the repo, no special-case wiring.
+
+After that, the upstream repo is reference material, not a runtime dependency. If they delete it tomorrow, my install is unaffected. If they push something I don't like, my `git diff` against my pinned commit catches it before it lands.
+
+{{< callout type="info" >}}
+The audit is the load-bearing step. If a skill is too large or too obfuscated to read in one sitting, that's a signal to skip it entirely, not vendor it.
+{{< /callout >}}
+
 ---
 
 ## The Long Game
