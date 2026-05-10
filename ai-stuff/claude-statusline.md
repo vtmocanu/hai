@@ -1,6 +1,6 @@
 # Custom Claude Code Status Line
 
-Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've been iterating on mine for a while; the current version is **v2.1.1** and now lives in a public repo: [codeberg.org/vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline).
+Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've been iterating on mine for a while; the current version is **v2.1.6** and now lives in a public repo: [codeberg.org/vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline).
 
 The v2 layout uses two lines with diagonal corner cuts and width-synchronized lines. Each session gets a unique color from a 12-color palette (hashed from the session ID), so when I have multiple sessions open, I can tell them apart at a glance.
 
@@ -30,7 +30,7 @@ The installer extracts the chosen ref via `git archive` (so it never mutates you
 To pin a specific release:
 
 ```bash
-./install.sh --version v2.1.1
+./install.sh --version v2.1.6
 ```
 
 To uninstall:
@@ -87,7 +87,7 @@ git pull
 ./install.sh
 ```
 
-The installer detects the previous install and reports the upgrade transition (`upgraded v2.0.1 -> v2.1.1`).
+The installer detects the previous install and reports the upgrade transition (`upgraded v2.1.1 -> v2.1.6`).
 
 ## Source, issues, contributions
 
