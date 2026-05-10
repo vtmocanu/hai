@@ -49,7 +49,7 @@ Keep CLAUDE.md lean — it loads on every session and consumes context window. B
 }
 ```
 
-Audit your skills periodically and delete the ones you don't actually use — every skill you keep around is permanent rent on your context window.
+Audit your skills periodically and delete the ones you don't actually use — every skill you keep around is permanent rent on your context window. For skills you want to keep but rarely trigger automatically, run `/skills` and switch them to **name-only** mode: their description is dropped from the listing (so they cost just a line) and you can still invoke them explicitly with `/skill-name`.
 {{< /callout >}}
 
 **Option 2: Custom slash commands**
