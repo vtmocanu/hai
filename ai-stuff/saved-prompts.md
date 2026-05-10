@@ -40,6 +40,18 @@ Both files are read together — just open Claude Code and it follows the instru
 Keep CLAUDE.md lean — it loads on every session and consumes context window. Best for small prompts (a few lines). For larger prompts, use custom slash commands instead — they load on-demand only when you invoke them.
 {{< /callout >}}
 
+{{< callout type="warning" >}}
+**Watch your skills budget.** The list of available skills is injected into every session's system prompt — if you accumulate dozens of skills, their names + descriptions can quietly eat a meaningful chunk of your context window. Claude Code exposes a `skillListingBudgetFraction` setting in `~/.claude/settings.json` that caps how much of the budget that listing can consume. I bumped mine to 4% so descriptions don't get truncated for me:
+
+```json
+{
+  "skillListingBudgetFraction": 0.04
+}
+```
+
+Audit your skills periodically and delete the ones you don't actually use — every skill you keep around is permanent rent on your context window.
+{{< /callout >}}
+
 **Option 2: Custom slash commands**
 
 Create a `.claude/commands/` folder in your project or home directory:
