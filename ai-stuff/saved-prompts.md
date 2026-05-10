@@ -932,6 +932,8 @@ I usually avoid skills sourced from the internet. They run with the same reach C
 
 After that, the upstream repo is reference material, not a runtime dependency. If they delete it tomorrow, my install is unaffected. If they push something I don't like, my `git diff` against my pinned commit catches it before it lands.
 
+Vendoring also unlocked a useful extension: the upstream tracker only counted `SKILL.md` reads, which missed most of how skills actually get invoked, so I extended it to also count `Skill`-tool calls and user-typed `/slash` commands (filtered against `~/.claude/commands/` to skip built-ins like `/help`), with a new `Sources` column in the viewer breaking the totals down by invocation type.
+
 {{< callout type="info" >}}
 The audit is the load-bearing step. If a skill is too large or too obfuscated to read in one sitting, that's a signal to skip it entirely, not vendor it.
 {{< /callout >}}
