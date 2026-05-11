@@ -21,6 +21,10 @@ The `homeassistant` SKILL.md contains a section that begins:
 
 Then the steps are spelled out as a numbered list: turn off `light.ws_ln_bedroom`, turn off `switch.bedroom_desk_socket`, turn off `light.xi_ws_bedroom_outside_right`, set `media_player.move_2` volume to 0.01, call `sonos.set_sleep_timer` with `sleep_time: 3600`, start playlist `spotify:playlist:0UJ5qDOZb1zlJJ23b54bRg` with shuffle, then query the Sonos directly over UPnP to read back the remaining timer. (Home Assistant 2025.12+ no longer exposes `sleep_time` as a state attribute, so the skill bypasses HA and talks to the speaker on port 1400.)
 
+Ask Vasile directly and he'll describe the routine back in plain English:
+
+<img src="/images/vasile-nb-explained.jpeg" alt="WhatsApp screenshot of Vasile explaining the nb routine: bedroom lights off, Sonos volume to 1%, sleep timer 60 min, Deep Sleep 432 hz playlist on shuffle, confirm with remaining timer" style="max-width: 380px; width: 100%; height: auto;" />
+
 **I didn't write any of that as code. I wrote it as a Markdown bulleted list inside `SKILL.md`.** Claude reads the list at session init and executes it.
 
 That's the unit of capability around here: a folder with a `SKILL.md` describing triggers, available tools, and reply formatting. Nothing else.
@@ -41,13 +45,11 @@ A few design choices shape everything downstream:
 
 The inbox/outbox + SQLite-as-contract design is the part I find most elegant. The agent-runner is genuinely substitutable: as long as something writes Claude's replies into the outbound DB on time, the host doesn't care what produced them. Host orchestrates, container computes, two SQLite files in between are the contract.
 
-## What Vasile is
+## What he can actually do
 
 Vasile is my deployment of nanoclaw on a Proxmox VM at home. He talks to me on WhatsApp (a dedicated number) and on a couple of Slack channels (Socket Mode, no public webhook needed); state lives in a separate runtime repo that survives reprovisioning; secrets come from Infisical and are rendered onto the VM by a long-running agent process, never committed to git, never baked into the image.
 
-## What he can actually do
-
-Vasile currently runs these skills:
+He currently runs these skills:
 
 | Skill | What it does | Example prompt |
 |-------|-------------|----------------|
@@ -60,21 +62,17 @@ Vasile currently runs these skills:
 | `forgejo` | Manage my self-hosted git: PRs, issues, CI logs, repo metadata | `open a PR for this branch titled "fix: cache bug"` |
 | `usage-report` | 24-hour Claude token + quota report, on demand and scheduled at 09:00 every day | `daily usage` |
 
-None of these came from a skill registry or a community pack. Each one is hand-authored Markdown in this repo, written with Claude doing most of the typing while I described what I wanted Vasile to do.
+One implementation note: the `kubectl` skill consumes a kubeconfig rendered from Infisical, scoped to a `vasile-reader` ClusterRole with `get/list/watch` on every resource (Secrets included, deliberately) but no exec, no portforward, no writes. The token is a `kubernetes.io/service-account-token` JWT that never expires, regenerated on each blue/green cluster swap.
+
+None of these came from a registry. Each one is hand-authored Markdown in this repo, written with Claude doing most of the typing while I described what I wanted Vasile to do.
+
+Other people wire their *claw agents to mail, calendar, reminders, notes, contacts (OpenClaw has first-class Gmail Pub/Sub, a browser tool, and a cron runner, all of which lend themselves to that style of setup). The possibilities are essentially endless; just be careful what access you grant and what skills you feed it. None of those are on Vasile yet; each is one Markdown file away.
 
 The bilingual triggers ("stinge living" for "turn off the living room", "nb" for the goodnight routine) are intentional. I switch between English and Romanian mid-sentence in real life; the agent should too. Claude handles the language match automatically; the skill files just enumerate the obvious variants.
 
 There's also a `ping` skill that replies with a random IT joke.
 
 <img src="/images/vasile-ping-jokes.png" alt="Two ping exchanges with Vasile on WhatsApp showing IT jokes" style="max-width: 500px; width: 100%; height: auto;" />
-
-## What makes the setup interesting
-
-A couple of choices on the vasile side go beyond what nanoclaw ships with.
-
-**The whole box is codified.** A `tf/vasile` Terraform repo provisions the VM from scratch: apt packages, Docker, Node 22, Infisical agent with six secret templates, OneCLI install, upstream nanoclaw clone pinned to a Renovate-tracked tag, runtime repo clone, ACL setup so containers (UID 1000) can read/write the right host trees, Claude Code install. Post-Terraform, a checklist in `CLAUDE.md` walks through the manual nanoclaw steps (channel adapter installs, source-patching skills, OneCLI vault seed, WhatsApp pairing). If the VM is destroyed tomorrow, the recipe to rebuild it is in version control.
-
-**Read-only Kubernetes.** The `kubectl` skill consumes a kubeconfig rendered from Infisical by the on-VM agent, scoped to a `vasile-reader` ClusterRole that grants `get/list/watch` on every resource but no exec, no portforward, no writes. The role explicitly includes Secrets, which is a deliberate choice. The default `view` ClusterRole excludes them, but I wanted the homelab agent to be able to read the whole picture. The token is a `kubernetes.io/service-account-token` JWT that doesn't expire, regenerated on each blue/green cluster swap by a documented procedure.
 
 ## Wow factor
 
@@ -84,7 +82,7 @@ A few moments while building this made me actually understand the excitement.
 
 **You can tell it to change itself.** It's like telling Windows you want round windows instead of rectangular ones, and having that be a sentence, not a quarter-long roadmap item. Or, if you're a platform engineer: imagine an internal developer platform that grows new capabilities every time you chat with it.
 
-**Intent as Code.** My first proper experiment with intent-as-code, and it worked better than I expected: the whole assistant is rebuildable from intent stored in git. The Terraform repo (`tf/vasile`) handles the deterministic side: VM, packages, Infisical agent, OneCLI gateway, nanoclaw clone pinned to a Renovate-tracked tag. The runtime repo (`wxs/vasile`) carries the *intent*: a CLAUDE.md describing what skills exist, what channels are registered, what the bedtime routine does, what SQL fixes are needed, what mounts to wire. `task tofu:apply` finishes, Claude reads CLAUDE.md, and the rest of the assistant rebuilds itself from intent, end to end. If the VM is destroyed tomorrow, I run two commands and a few minutes later Vasile is back, with the same skills, the same routines, the same character.
+**Intent as Code.** My first experiment with intent-as-code worked better than expected: the whole assistant is rebuildable from intent stored in git. The Terraform repo (`tf/vasile`) handles the deterministic side: VM, packages, Infisical agent, OneCLI gateway, nanoclaw clone pinned to a Renovate-tracked tag. The runtime repo (`wxs/vasile`) carries the *intent*: a CLAUDE.md describing what skills exist, what channels are registered, what the bedtime routine does, what SQL fixes are needed, what mounts to wire. `task tofu:apply` finishes, Claude reads CLAUDE.md, and the rest of the assistant rebuilds itself from intent, end to end. If the VM is destroyed tomorrow, I run two commands and a few minutes later Vasile is back, with the same skills, the same routines, the same character.
 
 Declarative IaC says *"this is the shape of the system"*. Intent-as-Code says *"this is what I want the system to do, and the agent figures out the steps."* Terraform realises the first. The second is being invented in real time, every day, in CLAUDE.md files like the one in this repo.
 
