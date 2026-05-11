@@ -66,6 +66,8 @@ One implementation note: the `kubectl` skill consumes a kubeconfig rendered from
 
 None of these came from a registry. Each one is hand-authored Markdown in this repo, written with Claude doing most of the typing while I described what I wanted Vasile to do.
 
+That's a deliberate security choice. A skill gets the same tool permissions the agent has, so importing a stranger's Markdown into your assistant is the AI-agent equivalent of `curl | bash` from an unverified URL. The credentials are scoped the same way: every integration has its own dedicated token, rendered from Infisical only at runtime. The `kubectl` ServiceAccount reads but cannot write; the Home Assistant access token is scoped to my instance; the Forgejo token writes only to the repos vasile is allowed to touch; the Anthropic credential never reaches the container at all, since OneCLI injects it at the HTTPS proxy boundary. One leaked token doesn't unlock the others.
+
 Other people wire their *claw agents to mail, calendar, reminders, notes, contacts (OpenClaw has first-class Gmail Pub/Sub, a browser tool, and a cron runner, all of which lend themselves to that style of setup). The possibilities are essentially endless; just be careful what access you grant and what skills you feed it. None of those are on Vasile yet; each is one Markdown file away.
 
 The bilingual triggers ("stinge living" for "turn off the living room", "nb" for the goodnight routine) are intentional. I switch between English and Romanian mid-sentence in real life; the agent should too. Claude handles the language match automatically; the skill files just enumerate the obvious variants.
