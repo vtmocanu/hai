@@ -86,6 +86,14 @@ A few moments while building this made me actually understand the excitement.
 
 **Intent as Code.** My first experiment with intent-as-code worked better than expected: the whole assistant is rebuildable from intent stored in git. The Terraform repo (`tf/vasile`) handles the deterministic side: VM, packages, Infisical agent, OneCLI gateway, nanoclaw clone pinned to a Renovate-tracked tag. The runtime repo (`wxs/vasile`) carries the *intent*: a CLAUDE.md describing what skills exist, what channels are registered, what the bedtime routine does, what SQL fixes are needed, what mounts to wire. `task tofu:apply` finishes, Claude reads CLAUDE.md, and the rest of the assistant rebuilds itself from intent, end to end. If the VM is destroyed tomorrow, I run two commands and a few minutes later Vasile is back, with the same skills, the same routines, the same character.
 
+Something else nanoclaw's CONTRIBUTING guidance has stuck with me:
+
+> **Don't add features. Add skills.**
+>
+> If you want to add a new channel or agent provider, don't add it to trunk. New channel adapters land on the `channels` branch; new agent providers land on `providers`. Users install them in their own fork with `/add-<name>` skills, which copy the relevant module(s) into the standard paths, wire the registration, and pin dependencies.
+
+Trunk stays minimal, the review surface shrinks, every user gets exactly the modules they asked for. If this pattern generalises (and I suspect it does), open-source contribution shifts from "PRs against trunk" to "skill packs users opt into through their own assistant". **The future of contributing might be intent-based.**
+
 Declarative IaC says *"this is the shape of the system"*. Intent-as-Code says *"this is what I want the system to do, and the agent figures out the steps."* Terraform realises the first. The second is being invented in real time, every day, in CLAUDE.md files like the one in this repo.
 
 ## Chat as the right surface
