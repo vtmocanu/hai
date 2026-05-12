@@ -1,0 +1,15 @@
+# AI radar
+
+A running log of AI-adjacent links I want to remember: tools to try, projects to watch, articles I read or mean to. Some are tested and I have an opinion. Most are on the *want-to-try* pile.
+
+Status legend:
+
+- ✅ tried it, recommend
+- 🟡 tried it, mixed feelings
+- ❌ tried it, would not bother again
+- 👀 on my list, not tried yet
+
+| Date added | Item | What it is | Status |
+|------------|------|------------|--------|
+| 2026-05-12 | [clawd-on-desk](https://github.com/rullerzhou-afk/clawd-on-desk) | Pixel desktop pet that reacts in real-time to AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, …) with 12 animated states. Permission-bubble UI for tool approvals, eye tracking in idle, session dashboard for concurrent agents. | ✅ Tested, recommend |
+
