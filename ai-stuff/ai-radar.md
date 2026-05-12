@@ -11,5 +11,6 @@ Status legend:
 
 | Date added | Item | What it is | Status |
 |------------|------|------------|--------|
+| 2026-05-12 | [multica.ai](https://www.multica.ai/) | Open-source platform that turns coding agents into real teammates — assign tasks to AI agents, track progress, and manage a combined human-agent workforce from a centralized dashboard. | 👀 Not tried yet |
 | 2026-05-12 | [clawd-on-desk](https://github.com/rullerzhou-afk/clawd-on-desk) | Pixel desktop pet that reacts in real-time to AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, …) with 12 animated states. Permission-bubble UI for tool approvals, eye tracking in idle, session dashboard for concurrent agents. | ✅ Tested, recommend |
 
