@@ -9,6 +9,7 @@ Status legend:
 - ❌ tried it, would not bother again
 - 👀 on my list, not tried yet
 
+{{< filterable-table column="Status" valueLabels=`{"✅":"Tried, recommend","🟡":"Tried, mixed","❌":"Tried, would skip","👀":"Not tried yet"}` >}}
 | Date added | Item | What it is | Status |
 |------------|------|------------|--------|
 | 2026-05-12 | [dot-ai](https://github.com/vfarcic/dot-ai) ([my write-up](/ai-stuff/dot-ai/)) | Viktor Farcic's AI-powered MCP server for Kubernetes operations. I use it for shared/git skills — custom prompts synced from a central git repo (my `wxs/ai-resources`) and exposed as `/dot-ai-*` slash commands globally across all Claude Code projects. | ✅ Tested, recommend |
@@ -18,4 +19,5 @@ Status legend:
 | 2026-05-12 | [agnix](https://github.com/agent-sh/agnix) | Linter and LSP for AI coding assistants — validates `CLAUDE.md`, `AGENTS.md`, `SKILL.md`, hooks and MCP configs with autofixes. Rust CLI with plugins for VS Code and other major IDEs. | 👀 Not tried yet — waiting on [#909](https://github.com/agent-sh/agnix/issues/909) for per-file rule overrides |
 | 2026-05-12 | [nanoclaw](https://github.com/nanocoai/nanoclaw) ([my deployment: Vasile](/ai-stuff/vasile-nanoclaw-bot/)) | Lightweight container-isolated personal AI agent framework. Connects to WhatsApp, Telegram, Slack, Discord, Gmail; memory, scheduled jobs, runs on Anthropic's Agents SDK. Built from scratch, ~15 source files. | ✅ Tested, recommend |
 | 2026-05-12 | [Dippy](https://github.com/ldayton/Dippy) ([my write-up](/ai-stuff/dippy-permissions/)) | CLI tool that runs as a Claude Code `PreToolUse` hook to manage permissions. Supports wildcards at any position, guidance messages on prompt, layered global + project configs — things `settings.json` still can't do natively. | ✅ Tested, recommend |
+{{< /filterable-table >}}
 
