@@ -20,5 +20,6 @@ Status legend:
 | 2026-05-12 | [nanoclaw](https://github.com/nanocoai/nanoclaw) ([my deployment: Vasile](/ai-stuff/vasile-nanoclaw-bot/)) | Lightweight container-isolated personal AI agent framework. Connects to WhatsApp, Telegram, Slack, Discord, Gmail; memory, scheduled jobs, runs on Anthropic's Agents SDK. Built from scratch, ~15 source files. | ✅ Tested, recommend |
 | 2026-05-12 | [Dippy](https://github.com/ldayton/Dippy) ([my write-up](/ai-stuff/dippy-permissions/)) | CLI tool that runs as a Claude Code `PreToolUse` hook to manage permissions. Supports wildcards at any position, guidance messages on prompt, layered global + project configs — things `settings.json` still can't do natively. | ✅ Tested, recommend |
 | 2026-05-12 | [RTK](https://github.com/rtk-ai/rtk) ([my write-up](/ai-stuff/rtk/)) | Rust CLI proxy that sits between Claude Code and shell commands, filtering noisy tool output (passing tests, ANSI escapes, repeated log lines) before it reaches the context window. | 🟡 Tried, hit some issues, might revisit |
+| 2026-05-12 | [ccxray](https://github.com/lis186/ccxray) | Transparent HTTP proxy + dashboard that gives "X-ray vision" into Claude Code sessions — inspect every request/response, tool call, and token spend in real time. | 🟡 Interesting, couldn't find a use case |
 {{< /filterable-table >}}
 
