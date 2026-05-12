@@ -207,6 +207,7 @@ I run this pattern across four compositions ([wapp, wdb, wsecret, harbor]({{< re
 - Not using "official" Crossplane packaging for compositions (functions still use xpkg)
 - Generated manifests committed to git (clearly marked as generated)
 - Each composition needs a GitRepository + Kustomization in Flux
+- **No automatic GC for old versions.** Every released composition stays under `manifests/` until I manually move it to `old/`. Renovate auto-bumps every consumer to the latest within a day, so old versions go orphan almost immediately, and each leaves an idle ~64 Mi function pod running in `crossplane-system`. The alternative — auto-pruning on release — would race with in-flight Renovate PRs and lose the one-line pinning escape hatch.
 
 **Gained:**
 - Faster iteration -- bump a file, push, done
@@ -214,4 +215,6 @@ I run this pattern across four compositions ([wapp, wdb, wsecret, harbor]({{< re
 - Easier testing -- render tests and E2E run against the exact same artifacts
 - Simpler rollback -- revert the VERSION bump or point XRs back to an old `compositionRef`
 - Renovate handles the entire upgrade flow across all consumers
+
+**How I cope with the lifecycle gap**: a Prometheus alert (`CrossplaneOrphanComposition`) fires when a Composition has zero XRs referencing it for 24 hours. The alert tells me exactly which `composition+function-vX.Y.Z.yaml` pair to move into `old/`. Flux prunes the Composition and Function CRs; Crossplane garbage-collects the FunctionRevision and pod automatically. This converts "silent cluster memory leak" into "weekly hygiene task with a clear signal."
 
