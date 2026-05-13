@@ -1,6 +1,6 @@
 # Custom Claude Code Status Line
 
-Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've been iterating on mine for a while; the current version is **v2.1.6** and now lives in a public repo: [codeberg.org/vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline).
+Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've been iterating on mine for a while; the current version is **v2.2.1** and now lives in a public repo: [codeberg.org/vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline).
 
 The v2 layout uses two lines with diagonal corner cuts and width-synchronized lines. Each session gets a unique color from a 12-color palette (hashed from the session ID), so when I have multiple sessions open, I can tell them apart at a glance.
 
@@ -8,7 +8,7 @@ The v2 layout uses two lines with diagonal corner cuts and width-synchronized li
 
 **Line 1** (project-colored background): session topic, folder, git branch + status, Kubernetes context
 
-**Line 2** (black background): model + effort level, elapsed time, context window bar, 5h/7d API quota bars with reset times, Claude service status icon
+**Line 2** (black background): model + effort level, optional account profile badge (the `wxs` chip above — useful when juggling multiple Claude Code logins), elapsed time, context window bar, 5h/7d API quota bars with reset times, Claude service status icon
 
 All meters are color-coded: green under 50%, gold 50-80%, coral 80%+.
 
@@ -30,7 +30,7 @@ The installer extracts the chosen ref via `git archive` (so it never mutates you
 To pin a specific release:
 
 ```bash
-./install.sh --version v2.1.6
+./install.sh --version v2.2.1
 ```
 
 To uninstall:
@@ -87,7 +87,7 @@ git pull
 ./install.sh
 ```
 
-The installer detects the previous install and reports the upgrade transition (`upgraded v2.1.1 -> v2.1.6`).
+The installer detects the previous install and reports the upgrade transition (`upgraded v2.1.1 -> v2.2.1`).
 
 ## Source, issues, contributions
 
@@ -117,6 +117,8 @@ Claude Code calls your script after each assistant message, piping a JSON blob t
 **Claude service status** - A separate fetch script (`~/.claude/claude-status-fetch.sh`) calls the [status.claude.com](https://status.claude.com) Statuspage JSON API and writes a one-line cache to `/tmp/claude-service-status`. The statusline checks the cache age on each render and spawns a background refresh if it's older than 60 seconds. The status is displayed as a single icon (`✓`/`⚠`/`~`/`✗`) to save horizontal space for rate limit detail.
 
 **Terminal tab title** - The tab title is set to the session topic (or folder name if no topic exists yet).
+
+**Account profile badge (opt-in)** - For people who switch between multiple Claude Code logins (work vs. personal), the statusline can show a colored badge on line 2 identifying the active account. It reads `.oauthAccount.accountUuid` directly from `~/.claude.json` (Claude Code's own state file — also swapped atomically by [claude-account-switcher](https://github.com/Symbioose/claude-account-switcher)), looks up the UUID in `~/.claude/profile-labels.json`, and renders the configured label in the configured color. No network call, no Keychain access — works the same on macOS and Linux. Disabled when the mapping file is absent, when its top-level `enabled` is `false`, or when `STATUSLINE_PROFILE=0` is set. Unknown UUIDs render as a `XXXXXX?` hint in gray so you know to add a mapping (helper script at `~/.claude/label-current-profile.sh <label> [color]` pulls the UUID + email + org from `~/.claude.json` and writes the entry).
 
 **Adaptive line width** - Both lines are padded to match the wider one. `SAFE_WIDTH` (default 110, override with `STATUSLINE_WIDTH` env var) controls how much rate limit detail is generated on line 2 (full bars + reset times, compact bars, or percentages only). Line 1 is also width-enforced: if it exceeds `SAFE_WIDTH`, components are progressively truncated (K8S context first, then branch name, then topic) to prevent `cli-truncate` from silently dropping line 2.
 
