@@ -615,6 +615,30 @@ Enable it in `~/.claude/settings.json`:
 
 Restart Claude Code for it to take effect. Caveats: one team per lead, no nested teams, `/resume` doesn't restore in-process teammates. See the [official docs](https://code.claude.com/docs/en/agent-teams).
 
+**Teammate display modes** — Claude Code accepts `--teammate-mode` to control where teammates render:
+
+- `in-process` (default): all teammates share your single terminal; `Shift+Up`/`Shift+Down` cycles views. Works anywhere, feels cramped.
+- `split-panes`: each teammate gets its own tmux or iTerm2 pane, all visible at once.
+- `auto`: uses split panes if it detects tmux, else falls back to in-process.
+
+#### See Teams in cmux Panes
+
+[cmux](https://cmux.com/) is a native macOS terminal built for multi-agent work. It ships a `cmux claude-teams` launcher that:
+
+- sets `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` for you,
+- installs a tmux shim on `PATH` that translates tmux calls (`split-window`, `send-keys`, etc.) into native cmux splits,
+- execs `claude --teammate-mode auto`.
+
+Result: every teammate spawns as a real cmux pane stacked in a right column, with sidebar metadata and notifications. No tmux required.
+
+I alias it for one-keystroke launches:
+
+```bash
+alias cc='cmux claude-teams'
+```
+
+See the [cmux blog post](https://cmux.com/blog/cmux-claude-teams) and [Claude Code Teams docs](https://cmux.com/docs/agent-integrations/claude-code-teams) for the full setup.
+
 ### Manage Memories with `/memory`
 
 Claude Code has two memory systems: `CLAUDE.md` files (you write these, they're instructions and rules) and **auto memory** (Claude writes these, things it learns as you work together).
