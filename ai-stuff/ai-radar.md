@@ -1,5 +1,7 @@
 # AI radar
 
+<img src="/images/ai-radar.png" alt="AI Scout monitoring a radar console with AI tool blips tagged by status" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
+
 A running log of AI-adjacent links I want to remember: tools to try, projects to watch, articles I read or mean to. Some are tested and I have an opinion. Most are on the *want-to-try* pile.
 
 Status legend:
