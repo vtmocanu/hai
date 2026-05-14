@@ -599,6 +599,22 @@ You can run shell commands directly from inside Claude Code by prefixing them wi
 
 Useful for quick checks while Claude is working, verifying something yourself before Claude continues, or running commands you don't need Claude to see or interpret.
 
+### Enable Experimental Agent Teams
+
+Claude Code has an experimental feature that lets agents **talk to each other directly** (not just report back to a lead). Each teammate runs in its own 1M-token context, with a shared task list and an inbox-based mailbox for inter-agent messaging. Different from subagents, which can only reply to their parent.
+
+Enable it in `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  }
+}
+```
+
+Restart Claude Code for it to take effect. Caveats: one team per lead, no nested teams, `/resume` doesn't restore in-process teammates. See the [official docs](https://code.claude.com/docs/en/agent-teams).
+
 ### Manage Memories with `/memory`
 
 Claude Code has two memory systems: `CLAUDE.md` files (you write these, they're instructions and rules) and **auto memory** (Claude writes these, things it learns as you work together).
