@@ -61,6 +61,7 @@ He currently runs these skills:
 | `freshrss` | 24-hour news digest, grouped by category, summarised for WhatsApp | `give me today's digest, top 3 per category` |
 | `forgejo` | Manage my self-hosted git: PRs, issues, CI logs, repo metadata | `open a PR for this branch titled "fix: cache bug"` |
 | `usage-report` | 24-hour Claude token + quota report, on demand and scheduled at 09:00 every day | `daily usage` |
+| `issue-tracker` | Watches a list of GitHub issues and releases for changes; a daily pre-agent script hits the GitHub API and only wakes Vasile when something actually changed | `watch github.com/org/repo/issues/42`, `remove from watch list` |
 
 One implementation note: the `kubectl` skill consumes a kubeconfig rendered from Infisical, scoped to a `vasile-reader` ClusterRole with `get/list/watch` on every resource (Secrets included, deliberately) but no exec, no portforward, no writes. The token is a `kubernetes.io/service-account-token` JWT that never expires, regenerated on each blue/green cluster swap.
 
@@ -102,5 +103,11 @@ Chat turns out to be the right surface for ambient ops. I don't want a dashboard
 
 A typical sequence: a memory-pressure alert lands in the `alerts` Slack channel. I ping Vasile to investigate. He pulls `kubectl` (read-only), finds the workload eating memory, opens a PR against the Flux repo bumping its memory request, and drops the PR link back into the channel. I merge from my phone. Flux reconciles, the alert clears. I never opened the laptop.
 
+The same logic applies to GitHub. I follow a handful of upstream issues and releases — open-source projects I'm waiting on for a bug fix, a feature, a new version. GitHub's own notification system works fine: email, the mobile app badge, the inbox. Instead, Vasile watches a list of specific issues and repos maintained in `data/watched-issues.json`. A pre-agent bash script runs the GitHub API check every morning at 08:00 and only wakes Vasile when something actually changed — new comment, state transition, new release tag. I could set up email filters or check the GitHub app. I just prefer chatting.
+
+<img src="/images/vasile-issue-tracker.png" alt="WhatsApp screenshot of Vasile's daily GitHub roundup: state changes on watched issues and releases, plus a 'no changes' list" style="max-width: 380px; width: 100%; height: auto;" />
+
 Two letters before bed.
+
+<img src="/images/vasile-nb-exchange.png" alt="WhatsApp screenshot: sending 'nb' to Vasile and getting back 'All good boss! Noapte bună! 🌙 Sleep timer: 00:59:56'" style="max-width: 600px; width: 100%; height: auto;" />
 
