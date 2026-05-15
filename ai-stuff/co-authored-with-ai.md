@@ -62,6 +62,16 @@ Extended the Renovate log parser to detect 7 message types and extract per-PR ac
 
 Made the "Open PRs" header badge in the operator dashboard clickable so it acts as a toggle filter: click once to show only projects with currently-open PRs, click again to clear. Entire RenovateJob cards with zero matching projects are hidden from view (not just rendered with empty tables), with a small inline hint when nothing matches. The maintainers liked the interaction model and pointed to a [concurrent PR by RonaldPhilipsen](https://github.com/mogenius/renovate-operator/pull/277) that extended the same idea to all 6 header badges with a cleaner implementation (native `<button>`, centralized predicates, filter info banner). I deployed both PRs to my cluster, validated #277 end-to-end, agreed it was the better solution, and closed mine in favor of it. #277 merged 2026-04-11.
 
+#### agnix #915: `[[overrides]]` for per-file rule suppression (most thorough upstream review so far)
+
+- **Project**: [agent-sh/agnix](https://github.com/agent-sh/agnix) (Rust CLI that lints AGENTS.md / CLAUDE.md and related AI instruction files)
+- **PR**: [agent-sh/agnix#915](https://github.com/agent-sh/agnix/pull/915)
+- **Issue**: [agent-sh/agnix#909](https://github.com/agent-sh/agnix/issues/909)
+- **Status**: merged 2026-05-14
+- **Language**: Rust
+
+Added a `[[overrides]]` array-of-tables to `.agnix.toml` so users can disable specific rules for a glob list of paths (e.g., a memory file like `~/.claude/CLAUDE.md` that legitimately contains quoted-example trigger phrases which should still fire on every other memory file). Multiple blocks stack as a set union; the layer is additive only. The review, run by [Avi Fenesh](https://github.com/avifenesh), ran two rounds, one of which surfaced a cross-file determinism bug in the project-level rules that pushed the fix toward a filter-at-input model.
+
 ### Bugs
 
 #### renovate-operator #289: Dashboard stat-badge filter was lost on every reload
