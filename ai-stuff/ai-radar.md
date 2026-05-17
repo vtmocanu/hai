@@ -14,6 +14,7 @@ Status legend:
 {{< filterable-table column="Status" valueLabels=`{"✅":"Tried, recommend","🟡":"Tried, mixed","❌":"Tried, would skip","👀":"Not tried yet"}` >}}
 | Date added | Item | What it is | Status |
 |------------|------|------------|--------|
+| 2026-05-17 | [Tolaria](https://github.com/refactoringhq/tolaria) | Desktop app (macOS/Windows/Linux) for managing Markdown knowledge bases. Files-first — notes stay as plain `.md` files, never locked in a proprietary format. Git-first — every vault is a git repo with full history. Built by the Refactoring.fm folks; 10k+ stars, used for second brains, personal wikis, and storing AI assistant context. | 👀 Not tried yet |
 | 2026-05-13 | [claude-account-switcher](https://github.com/Symbioose/claude-account-switcher) | macOS menubar app for switching between multiple Claude Code logins. Stores each account's OAuth tokens in Keychain (`claude-switcher:{email}`), keeps cached account metadata in `~/.config/claude-switcher/accounts.json`, and atomically swaps `~/.claude.json`'s `oauthAccount` field on switch — so other tools (e.g. statusline scripts) can read the active account locally without a network call. | ✅ Tested, recommend |
 | 2026-05-12 | [dot-ai](https://github.com/vfarcic/dot-ai) ([my write-up](/ai-stuff/dot-ai/)) | Viktor Farcic's AI-powered MCP server for Kubernetes operations. I use it for shared/git skills — custom prompts synced from a central git repo (my `wxs/ai-resources`) and exposed as `/dot-ai-*` slash commands globally across all Claude Code projects. | ✅ Tested, recommend |
 | 2026-05-12 | [Infisical agent-vault](https://github.com/Infisical/agent-vault) | Open-source credential broker that securely proxies API calls for AI agents by injecting credentials at the network layer — agents never see the secrets directly. | 👀 Not tried yet — waiting on [#124](https://github.com/Infisical/agent-vault/issues/124) |
@@ -25,4 +26,3 @@ Status legend:
 | 2026-05-12 | [RTK](https://github.com/rtk-ai/rtk) ([my write-up](/ai-stuff/rtk/)) | Rust CLI proxy that sits between Claude Code and shell commands, filtering noisy tool output (passing tests, ANSI escapes, repeated log lines) before it reaches the context window. | 🟡 Tried, hit some issues, might revisit |
 | 2026-05-12 | [ccxray](https://github.com/lis186/ccxray) | Transparent HTTP proxy + dashboard that gives "X-ray vision" into Claude Code sessions — inspect every request/response, tool call, and token spend in real time. | 🟡 Interesting, couldn't find a use case |
 {{< /filterable-table >}}
-
