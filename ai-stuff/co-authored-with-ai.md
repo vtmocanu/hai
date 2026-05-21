@@ -106,6 +106,14 @@ Pocket-ID's S3 backend returned full prefixed keys from List instead of relative
 
 Listed in reverse chronological order (most recent first).
 
+#### rustfs: tracking issues across alpha → beta releases
+
+- **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
+- **Status**: ongoing; beta.4 verified in place on stb 2026-05-21
+- **Language**: ops + upstream triage
+
+Active development, fast releases. Claude Code owns the per-release triage on every Renovate bump: scrape the changelog, cross-check tracked issues and PRs (#2807, #2761, #2996, #3028, #3031) against my own logs, decide hold / upgrade / rollback. The four entries below (#2457, #2497, #2587, #1838) are the visible reports; the unseen work is a per-version verdict table that keeps the stb deployment coherent as the project churns from alpha through beta.
+
 #### rustfs #2587: alpha.94+ silently hangs at startup, IAM never loads
 
 - **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
