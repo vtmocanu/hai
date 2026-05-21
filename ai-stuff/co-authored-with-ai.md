@@ -109,10 +109,10 @@ Listed in reverse chronological order (most recent first).
 #### rustfs: tracking issues across alpha → beta releases
 
 - **Project**: [rustfs/rustfs](https://github.com/rustfs/rustfs) (Rust-based S3-compatible object storage)
-- **Status**: ongoing; beta.4 verified in place on stb 2026-05-21
+- **Status**: ongoing; back on alpha.90 after the 2026-05-21 beta.4 attempt got rolled back within ~1h45m
 - **Language**: ops + upstream triage
 
-Active development, fast releases. Claude Code owns the per-release triage on every Renovate bump: scrape the changelog, cross-check tracked issues and PRs (#2807, #2761, #2996, #3028, #3031) against my own logs, decide hold / upgrade / rollback. The four entries below (#2457, #2497, #2587, #1838) are the visible reports; the unseen work is a per-version verdict table that keeps the stb deployment coherent as the project churns from alpha through beta.
+Active development, fast releases. Claude Code owns the per-release triage on every Renovate bump: scrape the changelog, cross-check tracked issues and PRs (#2807, #2761, #2996, #3028, #3031) against my own logs, decide hold / upgrade / rollback. Today's beta.4 attempt was a textbook case: initial post-upgrade checks looked clean for an hour, then a CI Trivy job failed on a 93 MB multipart blob with `Io error: encrypted object metadata is incomplete`. Same error class as upstream's [#3028](https://github.com/rustfs/rustfs/issues/3028) (filed there as an SSE bug against beta.3), but I don't run SSE, so the scope is broader than the upstream report claims. Reproduced it deterministically via raw mcli, posted the data on the issue, rolled back. The four entries below (#2457, #2497, #2587, #1838) are the visible per-issue reports; the unseen work is a per-version verdict table that keeps the stb deployment coherent as the project churns from alpha through beta.
 
 #### rustfs #2587: alpha.94+ silently hangs at startup, IAM never loads
 
