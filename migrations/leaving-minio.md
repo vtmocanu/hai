@@ -21,8 +21,6 @@ For years MinIO was the obvious answer for self-hosted S3. Then the rug pull sta
 
 Independent write-ups: [Blocks & Files](https://blocksandfiles.com/2025/06/19/minio-removes-management-features-from-basic-community-edition-object-storage-code/), [It's FOSS](https://itsfoss.com/news/minio-moves-away-from-open-source/), [Vonng "MinIO is Dead"](https://blog.vonng.com/en/db/minio-is-dead/), and [InfoQ](https://www.infoq.com/news/2025/12/minio-s3-api-alternatives/).
 
-I do not run RustFS or VersityGW because I have strong feelings about open-source purity. I run them because MinIO's trajectory made it a bad bet for a homelab that I want to still be using in three years. The console gutting was the trigger, the maintenance-mode announcement was the confirmation.
-
 ## First swap: Garage
 
 I had heard good things about [Garage](https://garagehq.deuxfleurs.fr/) (Rust, AGPLv3, designed for small geo-distributed clusters). On paper it looked perfect for my setup. In practice, running Garage as a single node on a Synology NAS surfaced two problems I never fully diagnosed:
@@ -30,30 +28,30 @@ I had heard good things about [Garage](https://garagehq.deuxfleurs.fr/) (Rust, A
 1. Intermittent hangs lasting several minutes, during which both the S3 API and any in-flight transfers stalled. My best guess at the time was that the internal scrub or garbage collection loop was acquiring a lock that blocked client I/O on a single-node deployment. I never proved this conclusively (the logs at the verbosity I was running were not specific enough).
 2. CPU spikes that did not always correlate with traffic.
 
-Garage is explicitly designed for multi-node clusters with at least three nodes. Running it as a single node is technically supported but is not the intended use case, and I think this is what bit me. If I had a second Synology box, I would happily try Garage again.
+Garage is explicitly designed for multi-node clusters with at least three nodes. Running it as a single node is technically supported but is not the intended use case, and I think this is what bit me.
 
 ## Second swap: VersityGW
 
 I moved next to [VersityGW](https://github.com/versity/versitygw) (Go, Apache-2.0). The pitch is different: it is not a storage system, it is an **S3 gateway in front of a POSIX filesystem**. On a Synology that I had already provisioned as a giant Btrfs volume, this fits perfectly. No erasure coding layer, no internal scrub loop, just plain files on disk with metadata in IAM directories. Backups are trivial because everything is just files.
 
-It worked well for most of my buckets immediately. The single thing that bit me was [Nextcloud](https://nextcloud.com/), which uses an S3-compatible primary object store. Nextcloud always sends `x-amz-acl: private` on `PutObject`, and VersityGW v1.0–v1.2 responded with `501 NotImplemented`. Every upload failed, including thumbnails and chunked file writes. I filed [versitygw#1904](https://github.com/versity/versitygw/issues/1904) with the repro; PR [#1875](https://github.com/versity/versitygw/pull/1875) added an opt-in `--disable-acl` flag in v1.3.0, and [#1911](https://github.com/versity/versitygw/pull/1911) made "ignore unsupported ACL headers" the default behaviour shortly after. Today on v1.4.1 the issue is gone.
+It worked well for most of my buckets immediately. The first thing that bit me was [Harbor](https://goharbor.io/) (my container registry). Hosting Harbor on VersityGW ran into a pile of S3-protocol edge cases around blob finalization, which I never traced to specific commits. Harbor is sensitive to nuances in how `CompleteMultipartUpload`, `HeadObject`, and signed-URL `GetObject` are implemented, and VersityGW's posix backend was tripping on one or more of those. Rather than file a series of issues against VersityGW for Harbor compatibility, I parked Harbor on a separate backend.
 
-In the same period I tried hosting [Harbor](https://goharbor.io/) (my container registry) on VersityGW too. That ran into its own pile of S3-protocol edge cases around blob finalization, which I never traced to specific commits. Harbor is sensitive to nuances in how `CompleteMultipartUpload`, `HeadObject`, and signed-URL `GetObject` are implemented, and VersityGW's posix backend was tripping on one or more of those. Rather than file a series of issues against VersityGW for Harbor compatibility, I parked Harbor on a separate backend.
+Next was [Nextcloud](https://nextcloud.com/), which uses an S3-compatible primary object store. Nextcloud always sends `x-amz-acl: private` on `PutObject`, and VersityGW v1.0–v1.2 responded with `501 NotImplemented`. Every upload failed, including thumbnails and chunked file writes. I filed [versitygw#1904](https://github.com/versity/versitygw/issues/1904) with the repro; PR [#1875](https://github.com/versity/versitygw/pull/1875) added an opt-in `--disable-acl` flag in v1.3.0, and [#1911](https://github.com/versity/versitygw/pull/1911) made "ignore unsupported ACL headers" the default behaviour shortly after. Today on v1.4.1 the issue is gone.
 
 ## Third addition: RustFS for Harbor and Nextcloud
 
-[RustFS](https://github.com/rustfs/rustfs) (Rust, Apache-2.0) is the project that markets itself most explicitly as a drop-in MinIO replacement. The admin API shape and the `mc` client (renamed `mcli` locally to avoid colliding with Midnight Commander) are familiar from MinIO. The on-disk format is not the same, so a live MinIO-to-RustFS data migration is not a tarball copy, but the S3-API surface and the day-to-day operator UX is close enough that the muscle memory transfers. So when I needed a second S3 endpoint for the two services VersityGW could not reliably host, RustFS was the obvious choice.
+[RustFS](https://github.com/rustfs/rustfs) (Rust, Apache-2.0) is the project that markets itself most explicitly as a drop-in MinIO replacement. When I needed a second S3 endpoint for the two services VersityGW could not reliably host, RustFS was the obvious choice.
 
-So today I run **two S3 backends on the same Synology**, fronted by Traefik with separate ingresses:
+Today I run **two S3 backends on the same Synology**, fronted by Traefik with separate ingresses:
 
 - **VersityGW** for backup buckets, document storage, certificate caches, registry mirrors that work fine with a POSIX backend, and most everything else. About 20 buckets.
-- **RustFS** for Harbor (the container registry's blob store), Nextcloud (with the `x-amz-acl` legacy bucket on this side too), a `public` bucket with anonymous read for static assets, and three flavours of Kubernetes backup buckets ([s3bkp](/migrations/s3bkp-to-volsync/) blue/green/citest, VolSync blue/green). About 9 buckets.
+- **RustFS** for Harbor (the container registry's blob store), Nextcloud (with the `x-amz-acl` legacy bucket on this side too), a `public` bucket with anonymous read for static assets, and three flavours of Kubernetes backup buckets. About 9 buckets.
 
 Both have intermittent issues. Both have responsive maintainers who fix things fast. Neither is what I would call boring infrastructure yet.
 
-## Every issue I have hit or filed
+## Some issues I've hit or filed
 
-The full list, mostly so I can find it later when something breaks again.
+A non-exhaustive list, mostly so I can find them later when something breaks again.
 
 ### RustFS
 
@@ -80,11 +78,11 @@ VersityGW's other gotcha for me has been keeping the admin endpoint behind its o
 
 ### Garage
 
-No upstream issues filed. The hangs I saw on single-node Synology never produced a reproducer clean enough to send to the maintainers. If a second NAS shows up in the homelab I will revisit Garage on three nodes and find out whether the multi-node deployment model fixes what I saw.
+No upstream issues filed. The hangs I saw on single-node Synology never produced a reproducer clean enough to send to the maintainers. I might revisit Garage once I can provision three nodes.
 
 ## So is this production-ready?
 
-If "production-ready" means "I can let it run for months and not look at it", then **VersityGW don't really know, maybe? RustFS no, both honest answers**.
+If "production-ready" means "I can let it run for months and not look at it", then **VersityGW don't really know, maybe? RustFS definitely not**.
 
 VersityGW's posix backend is conceptually simple enough that the worst case is "files on disk that any other S3 implementation could also serve". For backup, document storage, and registry mirrors that is the right shape.
 
