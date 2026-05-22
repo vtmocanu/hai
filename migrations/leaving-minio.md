@@ -7,7 +7,7 @@
 {{< tab name="Overview" icon="book-open" >}}
 
 {{< callout type="info" >}}
-**TL;DR**: When MinIO gutted its open-source web UI in May 2025 and then put the OSS repo into maintenance mode at the end of the year, I had to leave. I tried Garage first (single-node behaviour on a Synology NAS was unstable), settled on VersityGW for the bulk of my buckets (POSIX backend, very Synology-friendly), and added RustFS on the side for the buckets VersityGW couldn't host cleanly. Both replacements have rough edges. Maintainers fix things fast, but as of today (2026-05-21) I would still not call my RustFS deployment production-ready, and I keep alpha.90 warm as a rollback target.
+**TL;DR**: When MinIO gutted its open-source web UI in May 2025 and then put the OSS repo into maintenance mode at the end of the year, I had to leave. I tried Garage first (single-node behaviour on a Synology NAS was unstable), settled on VersityGW for the bulk of my buckets (POSIX backend, very Synology-friendly), and added RustFS on the side for the buckets VersityGW couldn't host cleanly. Both replacements have rough edges. Maintainers fix things fast, but as of today (2026-05-21) I would still not call my RustFS deployment production-ready.
 {{< /callout >}}
 
 ## Why MinIO had to go
