@@ -1,14 +1,12 @@
 # Supercharging Claude Code Permissions with Dippy
 
 {{< callout type="info" >}}
-I started using Dippy back when Claude Code's native permissions were really rough and the only way to get sane behavior was to bolt custom logic on the side. A lot has changed since. Auto-mode (with sandboxing) is now a thing, and covers most of what pushed me to Dippy in the first place. If I were starting over today, I'd probably try sandboxing + auto-mode first and only reach for Dippy if I hit something it couldn't do.
+**TL;DR:** Dippy is a Claude Code hook that adds guidance messages, last-match-wins ordering, and command delegation, none of which native permissions handle. Claude Code later shipped auto-mode (an LLM permission classifier with `hard_deny` rules), which covers a lot of what originally pushed me to Dippy. I run both: Dippy everywhere except `auto` mode (via a one-line wrapper hook), with the must-hold rules mirrored into `hard_deny` as a safety net. Dippy's expressiveness when I'm steering, auto-mode's velocity when I'm not.
 {{< /callout >}}
 
-Claude Code asks for permission before running shell commands and MCP tools. Out of the box, you manage this through `settings.json`, a flat JSON list of `allow` and `deny` entries. My main frustration was wildcards: I wanted to write `Bash(kubectl -n * get)` to match any namespace, but at the time I thought settings.json only supported prefix matching. No way to put a `*` in the middle of a command.
+Claude Code asks for permission before running shell commands and MCP tools. Out of the box, you manage this through `settings.json`, a flat JSON list of `allow` and `deny` entries. My original frustration was wildcards: I wanted to write `Bash(kubectl -n * get)` to match any namespace, but at the time I thought settings.json only supported prefix matching. No way to put a `*` in the middle of a command.
 
-That's what led me to Dippy. And while writing this post, I discovered that Claude Code actually added wildcard support at any position back in [v2.1.0](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#210) (January 2026). So `Bash(kubectl -n * get)` does work natively now. Good to know.
-
-Still, Dippy does things Claude Code can't do natively, so I'm sticking with it.
+That's what first pushed me toward Dippy. While writing this post I noticed Claude Code actually added wildcard support at any position back in [v2.1.0](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#210) (January 2026), so `Bash(kubectl -n * get)` works natively today. The wildcard gap closed, but the rest of the gap (guidance messages, last-match-wins, file-redirect controls, command delegation) is still there. That's why I kept Dippy.
 
 ## What is Dippy
 
@@ -188,9 +186,67 @@ allow /path/to/harbor-api.py exec
 allow-mcp mcp__flux-operator-mcp__*
 ```
 
+## Coexisting with auto-mode
+
+Claude Code's auto-mode is an LLM permission classifier with three rule buckets in `settings.json`: `allow`, `soft_deny`, and `hard_deny`. It's designed to eliminate prompts entirely. Perfect for unattended runs, hostile to Dippy's guidance messages.
+
+The good news: hooks fire **before** the permission system in every mode, including `auto` and `bypassPermissions`, so a Dippy `deny` still blocks the call no matter what. The bad news: in auto-mode, `ask` rules become noise (the whole point is no prompts), and the guidance messages I rely on never reach the model.
+
+My setup is a one-line wrapper that disables Dippy in `auto` mode and delegates to it everywhere else:
+
+```bash
+#!/usr/bin/env bash
+# ~/.claude/hooks/dippy-unless-auto.sh
+payload=$(cat)
+mode=$(printf '%s' "$payload" | jq -r '.permission_mode // "default"')
+if [ "$mode" = "auto" ]; then
+  exit 0
+fi
+printf '%s' "$payload" | dippy
+```
+
+The hook payload includes a `permission_mode` field, so the wrapper can route by mode. Swap `"command": "dippy"` for the wrapper path in `settings.json` and Dippy runs everywhere except auto:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "/Users/me/.claude/hooks/dippy-unless-auto.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Defense in depth:** since auto-mode bypasses Dippy in my setup, I mirror the must-hold denies into native permission rules that the classifier can't override. Tool-pattern blocks belong in `permissions.deny`, which is evaluated before the classifier even runs. Prose-only policy goes in `autoMode.hard_deny` (those entries are natural-language rules, not permission patterns). I keep `"$defaults"` so I inherit the built-in security boundaries:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(kubectl delete*)",
+      "Bash(rm -rf *)"
+    ]
+  },
+  "autoMode": {
+    "hard_deny": [
+      "$defaults",
+      "Never run helm install or helm uninstall: use GitOps via the k8s/flux repo instead"
+    ]
+  }
+}
+```
+
+The split tracks how I'm working. When I'm reading what Claude does, Dippy's guidance is the whole point. In auto-mode I've explicitly traded visibility for velocity, so the classifier owns the policy and Dippy stays out of the way.
+
 ## The Migration from settings.json to Dippy
 
-I pointed Claude at my global `settings.json` (191 entries) and 14 project-local `settings.local.json` files, and asked it to explore the full permission landscape, categorize everything, and migrate it all to Dippy configs.
+I pointed Claude at my global `settings.json` (191 entries) and 14 project-local `settings.local.json` files, and asked it to categorize everything and migrate it all to Dippy configs.
 
 The process went roughly like this:
 
@@ -200,14 +256,15 @@ The process went roughly like this:
 4. **Migrate project-local permissions** - For each repo, decided what to promote to global vs keep project-specific. Created 8 project `.dippy` files
 5. **Add MCP hook** - Added a second PreToolUse matcher for `mcp__.*` so Dippy intercepts MCP tools too
 6. **Validate** - Tested that all previously allowed commands still work, no new prompts for safe operations
-7. **Create a skill** - Asked Claude to build a skill for managing Dippy permissions going forward. Now when I need to allow a new command, I just say `/claude-permissions allow devbox run -- hugo server -D` and Claude handles the config edit. I review the diff, not write it
+7. **Create a [skill]({{< relref "commands-vs-mcp-vs-skills" >}})** - Asked Claude to build a skill for managing Dippy permissions going forward. Now when I need to allow a new command, I just say `/claude-permissions allow devbox run -- hugo server -D` and Claude handles the config edit. I review the diff, not write it
 
 ## Quick Start
 
 Install Dippy:
 
 ```bash
-brew install ldayton/tap/dippy
+brew tap ldayton/dippy
+brew install dippy
 ```
 
 Create a config at `~/.dippy/config`:
@@ -250,3 +307,5 @@ The day-to-day workflow is noticeably better:
 - **No more permission fatigue** - safe commands auto-approve, dangerous ones prompt with context
 - **Self-documenting** - the config file has comments and categories; `settings.json` was just a wall of strings
 - **Guidance over blocking** - when Claude tries `helm install`, it sees "Use GitOps: create a HelmRelease in the k8s/flux repo instead" rather than a bare denial and me having to explain it should do GitOps
+
+Pairing this with auto-mode's `hard_deny` gives me one setup that scales from "watch every command" to "just go", without rewriting policy in between.
