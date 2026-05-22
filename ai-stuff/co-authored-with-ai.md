@@ -250,3 +250,18 @@ When the embedding API's circuit breaker was open, the MCP server logged a warni
 
 The `k8s_cleaner_scan_resources_total` metric was a cumulative counter, which made meaningful Prometheus alerts hard. Alerts based on `> 0` fire indefinitely once any resources are ever detected, and `increase()` stops firing after its time window even if the same resources keep getting flagged. Requested gauge-style metrics that reflect the current count from the latest scan, which lets you write real "something needs attention right now" alerts.
 
+## Personal projects
+
+Not every Claude Code session ended in an upstream PR. Some were just for me.
+
+#### ExtraEssentials: a Zen Browser mod, then a one-line pref
+
+- **Status**: shelved 2026-05-22 in favor of `zen.tabs.essentials.max`
+- **Language**: userChrome JS + CSS
+
+Wanted more "Essentials"-style sections in [Zen Browser](https://zen-browser.app/), so Claude wrote ~1000 LOC of userChrome JS + CSS that tags folders by name prefix (default `* `) and renders their tabs as icon-only tile grids. Thin layer over Zen's native folder feature: a MutationObserver stamps an attribute on matching folders, CSS does the visuals. Drag/drop emulation, split-view guards, new-tab ejection, and a custom tile-shaped OS drag image accreted across versions. Mid-build, the userChromeJS loader was swapped from [Sine](https://github.com/CosmoCreeper/Sine) to upstream [fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig); Sine's "Remove mod" and "Update" UI buttons proved too footgun-y for a symlinked dev setup.
+
+Then I asked Claude to read Zen's source for any cap on native Essentials. The pref was right there: `zen.tabs.essentials.max`, default 12, single enforcement site. Set it to 24 in `about:config`, lost per-folder grouping, gained zero maintenance burden. Shelved the mod.
+
+I didn't write any of the code: my role was feedback, architectural calls, and live QA in Browser Console. Fun build anyway.
+
