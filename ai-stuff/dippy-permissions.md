@@ -1,5 +1,9 @@
 # Supercharging Claude Code Permissions with Dippy
 
+{{< callout type="info" >}}
+I started using Dippy back when Claude Code's native permissions were really rough and the only way to get sane behavior was to bolt custom logic on the side. A lot has changed since. Auto-mode (with sandboxing) is now a thing, and covers most of what pushed me to Dippy in the first place. If I were starting over today, I'd probably try sandboxing + auto-mode first and only reach for Dippy if I hit something it couldn't do.
+{{< /callout >}}
+
 Claude Code asks for permission before running shell commands and MCP tools. Out of the box, you manage this through `settings.json`, a flat JSON list of `allow` and `deny` entries. My main frustration was wildcards: I wanted to write `Bash(kubectl -n * get)` to match any namespace, but at the time I thought settings.json only supported prefix matching. No way to put a `*` in the middle of a command.
 
 That's what led me to Dippy. And while writing this post, I discovered that Claude Code actually added wildcard support at any position back in [v2.1.0](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#210) (January 2026). So `Bash(kubectl -n * get)` does work natively now. Good to know.

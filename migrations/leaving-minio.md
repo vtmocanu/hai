@@ -88,7 +88,7 @@ VersityGW's posix backend is conceptually simple enough that the worst case is "
 
 RustFS is younger, in active development, and ships breaking changes inside the same minor-version series. Every Renovate bump is an event that needs a person reading the changelog, cross-referencing open issues against my own logs, and deciding whether to upgrade, hold, or roll back. The good news is that the maintainers are responsive and fixes do land within days. The bad news is that the load-bearing part of my Harbor registry is still on software where I rolled back inside an hour today. I keep alpha.90 warm.
 
-I would not recommend this exact split to someone setting up a homelab from scratch in May 2026. I would tell them to put everything they can on a POSIX-backed S3 gateway, and only reach for a young storage system when they have a concrete reason to. For me, the concrete reason was Harbor's protocol expectations and Nextcloud's metadata appetite, and even those I keep meaning to retest against VersityGW now that the ACL issue is fixed.
+I would not recommend this exact split to someone setting up a homelab from scratch in May 2026. Garage didn't stick for me, but it's probably the most mature option to reach for right now if you can afford multiple nodes; single-node was the wrong shape for what I needed. For a single-box setup, honestly I don't really know. Try both VersityGW and RustFS and see which one sticks with you, but be prepared to debug a bit if you run many things on S3.
 
 The deeper-tech view (bucket layout, endpoints, what runs where) is in the **Technical Deep Dive** tab.
 
@@ -176,8 +176,7 @@ A few directions I am thinking about:
 
 1. **Retest Nextcloud on VersityGW** now that `x-amz-acl` is silently ignored. If it works, I drop one bucket off RustFS and the blast radius shrinks.
 2. **Retest Harbor on VersityGW** once one of the open Harbor-shaped RustFS issues (#2761 / #3031 / #3028) settles upstream and I have a quieter base to compare against. If VersityGW v1.4.x handles Harbor's protocol now, I could collapse to a single backend.
-3. **Add a second Synology** (a real DS-class box, not a single-node hack) and reconsider Garage in its native three-node configuration.
-4. **Move backups offsite** so that the NAS being down does not also mean the backups are down. Currently it does, which is the worst part of this whole setup.
+3. **Rethink how to get to three S3 nodes** for my setup, possibly moving S3 off the Synology entirely, so I can reconsider Garage in its native three-node configuration.
 
 For now: two backends, one box, alpha.90 warm, beta.4 watched. The journey off MinIO is over, the storage story is not.
 
