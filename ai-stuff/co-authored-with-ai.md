@@ -259,9 +259,9 @@ Not every Claude Code session ended in an upstream PR. Some were just for me.
 - **Status**: shelved 2026-05-22 in favor of `zen.tabs.essentials.max`
 - **Language**: userChrome JS + CSS
 
-Wanted more "Essentials"-style sections in [Zen Browser](https://zen-browser.app/), so Claude wrote ~1000 LOC of userChrome JS + CSS that tags folders by name prefix (default `* `) and renders their tabs as icon-only tile grids. Thin layer over Zen's native folder feature: a MutationObserver stamps an attribute on matching folders, CSS does the visuals. Drag/drop emulation, split-view guards, new-tab ejection, and a custom tile-shaped OS drag image accreted across versions. Mid-build, the userChromeJS loader was swapped from [Sine](https://github.com/CosmoCreeper/Sine) to upstream [fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig); Sine's "Remove mod" and "Update" UI buttons proved too footgun-y for a symlinked dev setup.
+Wanted more "Essentials"-style sections in [Zen Browser](https://zen-browser.app/), so Claude wrote ~1000 LOC of userChrome JS + CSS that tags folders by name prefix (default `* `) and renders their tabs as icon-only tile grids. Thin layer over Zen's native folder feature: a MutationObserver stamps an attribute on matching folders, CSS does the visuals. Drag/drop emulation, split-view guards, new-tab ejection, and a custom tile-shaped OS drag image piled up across versions. Mid-build, I swapped the userChromeJS loader from [Sine](https://github.com/CosmoCreeper/Sine) to upstream [fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig); Sine's "Remove mod" and "Update" UI buttons were too footgun-y for a symlinked dev setup.
 
-Then I asked Claude to read Zen's source for any cap on native Essentials. The pref was right there: `zen.tabs.essentials.max`, default 12, single enforcement site. Set it to 24 in `about:config`, lost per-folder grouping, gained zero maintenance burden. Shelved the mod.
+Then I asked Claude to read Zen's source for any cap on native Essentials. The pref was right there: `zen.tabs.essentials.max`, default 12, single enforcement site. Set it to 32 in `about:config`, lost per-folder grouping, gained zero maintenance burden. Shelved the mod.
 
-I didn't write any of the code: my role was feedback, architectural calls, and live QA in Browser Console. Fun build anyway.
+I didn't write any of the code: my role was feedback and live QA in Browser Console. Fun build anyway.
 
