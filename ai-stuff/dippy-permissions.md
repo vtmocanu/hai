@@ -1,7 +1,7 @@
 # Supercharging Claude Code Permissions with Dippy
 
 {{< callout type="info" >}}
-**TL;DR:** Dippy is a Claude Code hook that adds guidance messages, last-match-wins ordering, and command delegation, none of which native permissions handle. Claude Code later shipped auto-mode (an LLM permission classifier with `hard_deny` rules), which covers a lot of what originally pushed me to Dippy. I run both: Dippy everywhere except `auto` mode (via a one-line wrapper hook), with the must-hold rules mirrored into `hard_deny` as a safety net. Dippy's expressiveness when I'm steering, auto-mode's velocity when I'm not.
+**TL;DR:** Native Claude Code permissions don't do guidance messages, last-match-wins ordering, or command delegation. Dippy (a `PreToolUse` hook) does. Claude Code later shipped auto-mode, an LLM permission classifier designed to eliminate prompts, and a thin wrapper now runs Dippy inside auto-mode too. Explicit `allow` / `deny` rules short-circuit the classifier; an `[ASK]` marker on the scary stuff (force-push, `rm -rf`, `tofu apply`, etc.) still prompts me even when I'm hands-off. Everything else falls through to auto-mode. One config, both modes.
 {{< /callout >}}
 
 Claude Code asks for permission before running shell commands and MCP tools. Out of the box, you manage this through `settings.json`, a flat JSON list of `allow` and `deny` entries. My original frustration was wildcards: I wanted to write `Bash(kubectl -n * get)` to match any namespace, but at the time I thought settings.json only supported prefix matching. No way to put a `*` in the middle of a command.
@@ -188,24 +188,78 @@ allow-mcp mcp__flux-operator-mcp__*
 
 ## Coexisting with auto-mode
 
-Claude Code's auto-mode is an LLM permission classifier with three rule buckets in `settings.json`: `allow`, `soft_deny`, and `hard_deny`. It's designed to eliminate prompts entirely. Perfect for unattended runs, hostile to Dippy's guidance messages.
+Claude Code's auto-mode is an LLM permission classifier with three rule buckets in `settings.json`: `allow`, `soft_deny`, and `hard_deny`. It's designed to eliminate prompts entirely. Perfect for unattended runs, hostile to Dippy's guidance messages, at least at first glance.
 
-The good news: hooks fire **before** the permission system in every mode, including `auto` and `bypassPermissions`, so a Dippy `deny` still blocks the call no matter what. The bad news: in auto-mode, `ask` rules become noise (the whole point is no prompts), and the guidance messages I rely on never reach the model.
-
-My setup is a one-line wrapper that disables Dippy in `auto` mode and delegates to it everywhere else:
+The leverage point is timing. `PreToolUse` hooks fire **before** the permission system per the hook lifecycle, including in `auto`, which means a Dippy decision can short-circuit the classifier entirely whenever I want it to. The question is which decisions to forward and which to let the classifier handle. My current wrapper threads that needle:
 
 ```bash
 #!/usr/bin/env bash
-# ~/.claude/hooks/dippy-unless-auto.sh
+# ~/.claude/hooks/dippy-with-auto-fallback.sh
+set -u
 payload=$(cat)
-mode=$(printf '%s' "$payload" | jq -r '.permission_mode // "default"')
+mode=$(printf '%s' "$payload" | jq -r '.permission_mode // "default"' 2>/dev/null)
+
 if [ "$mode" = "auto" ]; then
+  output=$(printf '%s' "$payload" | dippy)
+  decision=$(printf '%s' "$output" | jq -r '.hookSpecificOutput.permissionDecision // ""' 2>/dev/null)
+  reason=$(printf '%s' "$output" | jq -r '.hookSpecificOutput.permissionDecisionReason // ""' 2>/dev/null)
+  case "$decision" in
+    allow|deny) printf '%s' "$output" ;;
+    ask)
+      case "$reason" in
+        *"[ASK]"*) printf '%s' "$output" ;;
+        *)         : ;;
+      esac
+      ;;
+    *) : ;;
+  esac
   exit 0
 fi
+
 printf '%s' "$payload" | dippy
 ```
 
-The hook payload includes a `permission_mode` field, so the wrapper can route by mode. Swap `"command": "dippy"` for the wrapper path in `settings.json` and Dippy runs everywhere except auto:
+In `default` / `acceptEdits` / `plan` / `bypassPermissions` modes, Dippy runs unchanged. In `auto`, the wrapper runs Dippy first and only forwards its output to Claude Code when:
+
+- The decision is `allow`: short-circuit, approve instantly, no classifier roundtrip
+- The decision is `deny`: short-circuit, block with Dippy's guidance message
+- The decision is `ask` **and** the rule's message contains the literal string `[ASK]`: force a prompt even in auto-mode
+
+Anything else (unknown commands that hit `set default ask`, or `ask` rules without the marker) gets swallowed and the classifier decides as normal.
+
+### The [ASK] marker
+
+Auto-mode's whole pitch is "no prompts." Forwarding every `ask` decision would defeat it. But some commands are scary enough that I want to be in the loop even when I'm not paying close attention. The marker lets me opt those in explicitly:
+
+```bash
+ask git push "[ASK] Confirm push target"
+ask git push --force "[ASK] WARNING: force-push can destroy remote history"
+ask git reset --hard "[ASK] WARNING: discards uncommitted changes permanently"
+ask git rebase "[ASK] WARNING: rebase rewrites history; confirm target branch"
+ask kubectl delete "[ASK] WARNING: will delete cluster resources"
+ask kubectl apply "[ASK] Confirm resource apply"
+ask kubectl drain "[ASK] WARNING: will evict all pods from node"
+ask tofu apply "[ASK] Confirm tofu apply"
+ask tofu destroy "[ASK] WARNING: will destroy infrastructure"
+ask rm -rf "[ASK] WARNING: recursive delete"
+ask sudo "[ASK] WARNING: running as root"
+ask gh pr create "[ASK] Confirm PR creation"
+ask gh issue comment "[ASK] Confirm posting comment"
+```
+
+The pattern I converged on: anything that touches remote state visible to other humans (`git push`, `gh pr create`, `gh issue comment`), anything that rewrites or destroys git history, anything that mutates a production cluster, anything that runs as root, anything that recursively deletes. About 28 rules in total. Everything else falls through to the classifier.
+
+`deny` rules don't need a marker. They always short-circuit in auto-mode under this wrapper, so the GitOps-style guidance still reaches the model:
+
+```bash
+deny helm install "Use GitOps: create a HelmRelease in the k8s/flux repo instead"
+deny helm upgrade "Use GitOps: update the HelmRelease in the k8s/flux repo instead"
+deny helm uninstall "Use GitOps: remove the HelmRelease from the k8s/flux repo instead"
+```
+
+### Wiring it in
+
+Swap the `"command"` in `settings.json` for the wrapper path on both Bash and MCP matchers:
 
 ```json
 {
@@ -214,7 +268,13 @@ The hook payload includes a `permission_mode` field, so the wrapper can route by
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "/Users/me/.claude/hooks/dippy-unless-auto.sh" }
+          { "type": "command", "command": "/Users/me/.claude/hooks/dippy-with-auto-fallback.sh" }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          { "type": "command", "command": "/Users/me/.claude/hooks/dippy-with-auto-fallback.sh" }
         ]
       }
     ]
@@ -222,7 +282,9 @@ The hook payload includes a `permission_mode` field, so the wrapper can route by
 }
 ```
 
-**Defense in depth:** since auto-mode bypasses Dippy in my setup, I mirror the must-hold denies into native permission rules that the classifier can't override. Tool-pattern blocks belong in `permissions.deny`, which is evaluated before the classifier even runs. Prose-only policy goes in `autoMode.hard_deny` (those entries are natural-language rules, not permission patterns). I keep `"$defaults"` so I inherit the built-in security boundaries:
+### Defense in depth (optional)
+
+Since the wrapper now forwards Dippy's denies in auto-mode, the native `permissions.deny` mirror isn't load-bearing anymore. I keep a slim version anyway. If something ever bypasses the hook (a future Claude Code release, a hook crash, a renamed script), the must-hold rules still hold:
 
 ```json
 {
@@ -242,7 +304,11 @@ The hook payload includes a `permission_mode` field, so the wrapper can route by
 }
 ```
 
-The split tracks how I'm working. When I'm reading what Claude does, Dippy's guidance is the whole point. In auto-mode I've explicitly traded visibility for velocity, so the classifier owns the policy and Dippy stays out of the way.
+Two layers below Dippy means the dangerous stuff stops even if the hook doesn't.
+
+### Net result
+
+The split now tracks intent rather than mode. Things I always want to be in the loop on (irreversible, public, or root) get the `[ASK]` marker and prompt me even in auto-mode. Things Dippy already has a policy for (explicit allow or deny rules) short-circuit the classifier. Everything else flows through auto-mode at full speed.
 
 ## The Migration from settings.json to Dippy
 
@@ -308,4 +374,4 @@ The day-to-day workflow is noticeably better:
 - **Self-documenting** - the config file has comments and categories; `settings.json` was just a wall of strings
 - **Guidance over blocking** - when Claude tries `helm install`, it sees "Use GitOps: create a HelmRelease in the k8s/flux repo instead" rather than a bare denial and me having to explain it should do GitOps
 
-Pairing this with auto-mode's `hard_deny` gives me one setup that scales from "watch every command" to "just go", without rewriting policy in between.
+Pairing this with auto-mode through the wrapper gives me one setup that scales from "watch every command" to "just go", without rewriting policy in between. The same config governs both modes; the wrapper decides what to enforce silently, what to surface, and what to delegate to the classifier.
