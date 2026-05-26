@@ -533,6 +533,33 @@ make sure this is actually a bug before we report it
 
 This also works in reverse — sometimes the investigation reveals you were holding it wrong, saving you from filing an embarrassing false bug report.
 
+### Tell AI to Push Back, Not Politely Cave
+
+The flip side of [Question Everything](#question-everything-force-ai-to-verify). When you push back on an AI's claim, its default is to apologize and rephrase as if you were right, regardless of whether you actually are. That's poison for trust: you can no longer tell whether it caved because you convinced it, or just to keep the peace.
+
+Add a rule to your `CLAUDE.md` that forces it to verify before agreeing or disagreeing, and to defend its claim with evidence when it has one:
+
+```markdown
+- **Truth over agreement.** Care about being correct, not agreeable. When
+  the user pushes back, do not silently cave or "politely" rephrase as if
+  they were right. If I had evidence for my claim, defend it and bring more
+  evidence. If I find I was wrong, say so directly ("you're right, I was
+  wrong because X") rather than dressing it up. If I am genuinely uncertain,
+  say "I'm not sure, let me check" and **actually verify before agreeing or
+  disagreeing**. Verification moves: read the relevant code in this
+  workspace, run a quick experiment, query the **context7 MCP** for
+  library/framework/CLI docs (preferred over web search since training data
+  may be stale), fetch authoritative docs with WebFetch / WebSearch, or, for
+  public OSS projects, `git clone --depth 1 <url> /tmp/<name>` and grep the
+  source directly (handler files, schema migrations, etc.) rather than
+  trusting a research agent's summary. Never validate a claim I have not
+  checked just to keep the peace. Sycophantic phrasing ("good point",
+  "great catch", "you're absolutely right") is not a substitute for
+  actually reasoning about whether the user is right.
+```
+
+Pair this with [Question Everything](#question-everything-force-ai-to-verify) above. You question AI's claims; AI questions yours; both sides verify with evidence. That's the productive shape, not the polite one.
+
 ### Pin Versions, Not `latest`
 
 {{< callout type="warning" >}}
