@@ -85,6 +85,17 @@ Treat AI like a capable junior you're coaching to senior. You're the team lead, 
 
 The goal isn't to micromanage — it's to maintain ownership. You're responsible for what ships, not the AI.
 
+{{< callout type="info" >}}
+**TL;DR, the 4 modes of AI coding** (from [Viktor Farcic's video](https://www.youtube.com/watch?v=7ME4R__IlLg)):
+
+1. **AI assists your writing**: you type, AI completes. IDEs win.
+2. **AI executes, you approve everything**: micromanagement, every step needs a click. IDEs and TUIs both work.
+3. **AI works, you watch**: selective delegation, monitor and intervene. TUIs fit better.
+4. **High autonomy, you review results**: AI ships the change, you review the diff. TUIs excel.
+
+The tool doesn't pick itself by tribe, it picks itself by *which mode you spend the most time in*. As you move down the list, you're acting less as an editor and more as a tech lead.
+{{< /callout >}}
+
 ### Agentic Engineering
 
 <img src="/images/on-vibecoding.png" alt="On vibecoding" style="max-width: 700px; width: 100%; height: auto;" />
