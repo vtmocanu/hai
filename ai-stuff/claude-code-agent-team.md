@@ -10,7 +10,7 @@
 
 Out of the box, Claude Code is a single conversation thread. The `Agent` tool delegates to a subagent in the same session and reports back, which is fine for one-off lookups but doesn't scale. I want a `coder` that owns implementation, a `reviewer` that reads diffs, and an `auditor` that hunts security regressions running in parallel with their own context windows and mailboxes.
 
-Claude Code's [agent teams](https://code.claude.com/docs/en/agent-teams) deliver that: each teammate runs in its own pane with its own statusline and context budget, sends messages via `SendMessage`, and claims tasks from a shared list created by `TaskCreate`. The orchestrator (me, or a "team lead" agent) spawns roles, routes findings between them, and tears the team down when the work is done.
+Claude Code's [agent teams](https://code.claude.com/docs/en/agent-teams) deliver that: each teammate runs in its own pane with its own context budget, sends messages via `SendMessage`, and claims tasks from a shared list created by `TaskCreate`. The orchestrator (me, or a "team lead" agent) spawns roles, routes findings between them, and tears the team down when the work is done.
 
 The feature is experimental and disabled by default, so the first step is opt-in.
 
