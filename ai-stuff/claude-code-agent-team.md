@@ -3,14 +3,14 @@
 <img src="/images/claude-code-agent-team.png" alt="A cartoon illustration of a developer at a control console flanked by five colored robot teammates each carrying a shield labeled with its role: CODER, REVIEWER, AUDITOR, TESTER, DOCS" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
 
 {{< callout type="info" >}}
-**TL;DR.** Claude Code's experimental agent-teams feature lets me spawn parallel teammates (coder, reviewer, auditor, tester, documenter) with their own tmux panes, mailboxes, and a shared task list. The team I run today is driven by an `/agent-team` skill I wrote on top of Claude Code's native subagent APIs: it probes the current repo, writes the matching `.claude/agents/*.md` role files plus an `.claude/agent-team.md` workflow doc, and drives the orchestrator flow at runtime. The shape of that skill was inspired by Viktor Farcic's [`dot-agent-deck`](https://github.com/vfarcic/dot-agent-deck), a TUI that both displays multiple agent sessions in parallel AND defines the team that runs in them. I have given Agent Deck a spin, like where it is going, and see real potential; I am waiting on a bit more refinement and a few more features before making it part of the daily flow.
+**TL;DR.** Claude Code's experimental agent-teams feature lets me spawn parallel teammates (coder, reviewer, auditor, tester, documenter) with their own panes, mailboxes, and a shared task list. The team I run today is driven by an `/agent-team` skill I wrote on top of Claude Code's native subagent APIs: it probes the current repo, writes the matching `.claude/agents/*.md` role files plus an `.claude/agent-team.md` workflow doc, and drives the orchestrator flow at runtime. The shape of that skill was inspired by Viktor Farcic's [`dot-agent-deck`](https://github.com/vfarcic/dot-agent-deck), a TUI that both displays multiple agent sessions in parallel AND defines the team that runs in them. I have given Agent Deck a spin, like where it is going, and see real potential; I am waiting on a bit more refinement and a few more features before making it part of the daily flow.
 {{< /callout >}}
 
 ## What "agent team" actually means in Claude Code
 
 Out of the box, Claude Code is a single conversation thread. The `Agent` tool delegates to a subagent in the same session and reports back, which is fine for one-off lookups but doesn't scale. I want a `coder` that owns implementation, a `reviewer` that reads diffs, and an `auditor` that hunts security regressions running in parallel with their own context windows and mailboxes.
 
-Claude Code's [agent teams](https://code.claude.com/docs/en/agent-teams) deliver that: each teammate runs in its own tmux pane with its own statusline and context budget, sends messages via `SendMessage`, and claims tasks from a shared list created by `TaskCreate`. The orchestrator (me, or a "team lead" agent) spawns roles, routes findings between them, and tears the team down when the work is done.
+Claude Code's [agent teams](https://code.claude.com/docs/en/agent-teams) deliver that: each teammate runs in its own pane with its own statusline and context budget, sends messages via `SendMessage`, and claims tasks from a shared list created by `TaskCreate`. The orchestrator (me, or a "team lead" agent) spawns roles, routes findings between them, and tears the team down when the work is done.
 
 The feature is experimental and disabled by default, so the first step is opt-in.
 
@@ -21,7 +21,9 @@ Two settings:
 1. **Environment flag.** Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in your shell or in `~/.claude/settings.json` under `env`. Without this, `TeamCreate` and the team-aware spawn flags are not available.
 2. **Claude Code v2.1.32 or later.** Check with `claude --version`. Anything earlier and the deferred tools (`TeamCreate`, `SendMessage`, `TaskUpdate`, etc.) are not registered.
 
-Once the flag is on, spawning a team is `TeamCreate` followed by parallel `Agent` calls in a single response (one call per teammate, same `team_name`, distinct `name`s). The teammates appear as new tmux panes, route messages to the lead's inbox automatically, and idle between turns.
+Once the flag is on, spawning a team is `TeamCreate` followed by parallel `Agent` calls in a single response (one call per teammate, same `team_name`, distinct `name`s). The teammates appear as new panes, route messages to the lead's inbox automatically, and idle between turns.
+
+Split-pane mode is the rendering backend that gives each teammate its own pane. The official docs name two supported options: tmux directly (any terminal), and iTerm2 with the [`it2` CLI](https://github.com/mkusaka/it2). I am not using tmux directly. My setup runs [cmux](https://github.com/manaflow-ai/cmux), a desktop terminal-multiplexer app that bundles Ghostty and handles the multi-pane choreography for me; the screenshot below comes from a cmux session. Pick whichever fits your terminal habits; the agent-teams feature itself is backend-agnostic above the rendering layer.
 
 Official docs are short and worth reading once: [code.claude.com/docs/en/agent-teams](https://code.claude.com/docs/en/agent-teams).
 
