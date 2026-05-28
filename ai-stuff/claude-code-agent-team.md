@@ -3,7 +3,7 @@
 <img src="/images/claude-code-agent-team.png" alt="A cartoon illustration of a developer at a control console flanked by five colored robot teammates each carrying a shield labeled with its role: CODER, REVIEWER, AUDITOR, TESTER, DOCS" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
 
 {{< callout type="info" >}}
-**TL;DR.** Claude Code's experimental agent-teams feature lets me spawn parallel teammates (coder, reviewer, auditor, tester, documenter) with their own panes, mailboxes, and a shared task list. The team I run today is driven by an `/agent-team` skill I wrote on top of Claude Code's native subagent APIs: it probes the current repo, writes the matching `.claude/agents/*.md` role files plus an `.claude/agent-team.md` workflow doc, and drives the orchestrator flow at runtime. The shape of that skill was inspired by Viktor Farcic's [`dot-agent-deck`](https://github.com/vfarcic/dot-agent-deck), a TUI that both displays multiple agent sessions in parallel AND defines the team that runs in them. I have given Agent Deck a spin, like where it is going, and see real potential; I am waiting on a bit more refinement and a few more features before making it part of the daily flow.
+**TL;DR.** Claude Code's experimental agent-teams feature lets me spawn parallel teammates (coder, reviewer, auditor, tester, documenter) with their own panes, mailboxes, and a shared task list. The team I run today is driven by an `/agent-team` skill I wrote on top of Claude Code's native subagent APIs: it probes the current repo, writes the matching `.claude/agents/*.md` role files plus an `.claude/agent-team.md` workflow doc, and drives the orchestrator flow at runtime. The shape of that skill was inspired by Viktor Farcic's [`dot-agent-deck`](https://github.com/vfarcic/dot-agent-deck), a TUI that both displays multiple agent sessions in parallel AND defines the team that runs in them. I have given Agent Deck a spin and plan to make it my daily runner once I invest the time to set it up properly. What it gives me: sandboxed agents, locked-down permissions, and a VM that keeps working after I close the laptop.
 {{< /callout >}}
 
 ## What "agent team" actually means in Claude Code
@@ -40,12 +40,14 @@ Official docs are short and worth reading once: [code.claude.com/docs/en/agent-t
 Viktor's video about Agent Deck for the curious. Already a bit dated: Agent Deck has since added auto-spinning-up and defining agents, working remotely on a VM, and more. This post is not about Agent Deck though, so I will not go deeper here.
 {{< /callout >}}
 
-I have taken Agent Deck for a spin, liked the direction, and am following the project as it matures. A few things stand out:
+I have taken Agent Deck for a spin, liked the direction, and am following the project as it matures. The things pulling me toward making it my daily runner, once I sit down to set it up properly:
 
-- **Multi-client.** It supports Claude Code and OpenCode out of the box, which would matter the day I add a second agent client to the mix.
-- **Velocity.** Viktor ships fast. New layouts, focus-mode integrations, and team-definition improvements land regularly, and I know roughly where the roadmap is heading from chatting with him about it.
+- **Sandboxing.** Each agent runs in an isolated environment so a misbehaving teammate cannot trash files on my laptop. Once five agents are actually writing code in parallel, this stops being a "nice to have" and starts being load-bearing.
+- **Laptop-closed operation.** Move the team off the local machine to a VM that keeps working after I close the lid. No more "I can't shut my laptop while the team is running."
+- **Permission discipline.** Give each agent only the access it needs, instead of inheriting whatever my local Claude Code session has.
+- **Multi-client and velocity.** Claude Code AND OpenCode out of the box, plus Viktor ships fast: new layouts, focus-mode integrations, and team-definition improvements land regularly. I know roughly where the roadmap is heading from chatting with him about it.
 
-It is not yet the thing I reach for every day. I am waiting on a bit more refinement and a few more features before relying on it for the full workflow, but the trajectory is good and I keep coming back to check on it.
+It is not yet the thing I reach for every day, but the blocker is on my side, not the project's: setting it up properly (sandbox, permissions, VM) takes time, and I have not invested that time yet. I expect to make Agent Deck my daily runner once I do.
 
 This is the project that nudged me to think about teams of agents as a first-class workflow. The native skill below is my own riff on the same idea, built on Claude Code's subagent APIs in a way I could use today.
 
