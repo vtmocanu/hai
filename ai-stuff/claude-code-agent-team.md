@@ -131,6 +131,17 @@ Pre-shutdown checks (mandatory before SendMessage shutdown_request)
    tool calls without rendered results.
 ```
 
+## Get the skill
+
+Two files, no other supporting assets:
+
+- [SKILL.md](/files/skills/dot-ai-agent-team/SKILL.md): the frontmatter description (always-on trigger) and the body that loads on invocation.
+- [roles.yaml](/files/skills/dot-ai-agent-team/roles.yaml): the role library that Mode 1 (init) reads to compose the team.
+
+Drop both into `~/.claude/commands/agent-team/` (or any directory name you prefer; the `name:` field in the frontmatter is authoritative for Claude Code's discovery). Then `/agent-team init` in any repo to set up its team.
+
+These are the source-of-truth files. Do whatever you want with them; if you find a sharp edge, ping me on [LinkedIn](https://www.linkedin.com/in/vtmocanu) and I'll fold the fix back into the source.
+
 ## Links
 
 - Official Claude Code agent teams docs: [code.claude.com/docs/en/agent-teams](https://code.claude.com/docs/en/agent-teams)
