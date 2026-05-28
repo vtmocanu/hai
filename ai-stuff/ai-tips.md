@@ -94,6 +94,8 @@ The goal isn't to micromanage — it's to maintain ownership. You're responsible
 4. **High autonomy, you review results**: AI ships the change, you review the diff. TUIs excel.
 
 The tool doesn't pick itself by tribe, it picks itself by *which mode you spend the most time in*. As you move down the list, you're acting less as an editor and more as a tech lead.
+
+**And once you run multiple agents in parallel** (from the opening of [Viktor's Agent Deck video](https://www.youtube.com/watch?v=dNmaFkOVIa8)), the tech-lead framing snaps into a full manager role: pre-work planning (what, how, when for each agent), in-flight supervision (watch, unblock, course-correct), and validation (review before it ships). Same shape as managing humans, just with more concurrency and shorter feedback loops.
 {{< /callout >}}
 
 ### Agentic Engineering

@@ -34,6 +34,12 @@ Official docs are short and worth reading once: [code.claude.com/docs/en/agent-t
 1. **A terminal dashboard** for monitoring and controlling multiple AI coding agent sessions in parallel. Single binary with embedded panes (no external multiplexer required), vim-style keyboard navigation, real-time status per session (active tool, working dir, last prompt), and focus-mode side panes that pair an agent with live test runs, log tails, or `kubectl` watches via per-project TOML config.
 2. **A way to define the team** the dashboard runs: pick roles, hand each one its scope, and Agent Deck launches and supervises them. Works with both Claude Code and OpenCode.
 
+{{< youtube dNmaFkOVIa8 >}}
+
+{{< callout type="info" >}}
+Viktor's video about Agent Deck for the curious. Already a bit dated: Agent Deck has since added auto-spinning-up and defining agents, working remotely on a VM, and more. This post is not about Agent Deck though, so I will not go deeper here.
+{{< /callout >}}
+
 I have taken Agent Deck for a spin, liked the direction, and am following the project as it matures. A few things stand out:
 
 - **Multi-client.** It supports Claude Code and OpenCode out of the box, which would matter the day I add a second agent client to the mix.
