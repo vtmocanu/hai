@@ -31,5 +31,5 @@ fj-queue --host git.example.com
 
 Needs an admin-scoped API token via `--token` or `$FORGEJO_TOKEN`.
 
-Source, docs, and the JSON schema live in the repo: [github.com/vtmocanu/fj-queue](https://github.com/vtmocanu/fj-queue).
+Source and docs live in the repo: [github.com/vtmocanu/fj-queue](https://github.com/vtmocanu/fj-queue).
 
