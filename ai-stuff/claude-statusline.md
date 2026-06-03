@@ -1,6 +1,6 @@
 # Custom Claude Code Status Line
 
-Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've been iterating on mine for a while; the current version is **v2.2.1** and now lives in a public repo: [codeberg.org/vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline).
+Claude Code has a fully customizable status line. You point it at a shell script, it pipes in session data as JSON, and your script renders whatever you want. I've been iterating on mine for a while; the current version is **v2.2.1** and now lives in a public repo: [github.com/vtmocanu/cc-statusline](https://github.com/vtmocanu/cc-statusline).
 
 The v2 layout uses two lines with diagonal corner cuts and width-synchronized lines. Each session gets a unique color from a 12-color palette (hashed from the session ID), so when I have multiple sessions open, I can tell them apart at a glance.
 
@@ -17,10 +17,10 @@ All meters are color-coded: green under 50%, gold 50-80%, coral 80%+.
 
 ## Install
 
-The statusline lives in a public repo on Codeberg: [vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline). Clone it and run the installer:
+The statusline lives in a public repo on GitHub: [vtmocanu/cc-statusline](https://github.com/vtmocanu/cc-statusline). Clone it and run the installer:
 
 ```bash
-git clone https://codeberg.org/vtmocanu/cc-statusline.git
+git clone https://github.com/vtmocanu/cc-statusline.git
 cd cc-statusline
 ./install.sh
 ```
@@ -91,7 +91,7 @@ The installer detects the previous install and reports the upgrade transition (`
 
 ## Source, issues, contributions
 
-Everything is on Codeberg: [vtmocanu/cc-statusline](https://codeberg.org/vtmocanu/cc-statusline). The repo has a CI pipeline (shellcheck + a JSON-fixture test harness), a `CHANGELOG.md`, and a `KNOWN_ISSUES.md` for limitations. Issues and pull requests welcome.
+Everything is on GitHub: [vtmocanu/cc-statusline](https://github.com/vtmocanu/cc-statusline). The repo has a CI pipeline (shellcheck + a JSON-fixture test harness), a `CHANGELOG.md`, and a `KNOWN_ISSUES.md` for limitations. Issues and pull requests welcome.
 
 {{< /tab >}}
 {{< tab name="Technical Deep Dive" icon="code" >}}
@@ -146,5 +146,5 @@ The v2 design is based on [lee-fuhr's statusline gist](https://gist.github.com/l
 
 ## Adapting It
 
-Each segment in `statusline.sh` is independent. Fork the repo, edit the bits you want, and run your own copy via `bash /path/to/your/fork/statusline.sh` in `settings.json`. If you build something interesting on top of it, [open an issue or PR](https://codeberg.org/vtmocanu/cc-statusline) — I'd love to see it.
+Each segment in `statusline.sh` is independent. Fork the repo, edit the bits you want, and run your own copy via `bash /path/to/your/fork/statusline.sh` in `settings.json`. If you build something interesting on top of it, [open an issue or PR](https://github.com/vtmocanu/cc-statusline) — I'd love to see it.
 
