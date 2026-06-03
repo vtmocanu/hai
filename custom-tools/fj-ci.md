@@ -14,7 +14,7 @@ That's done. kcl-ci is archived, and its native successor is `fj-ci`: same DRY g
 
 ## What fj-ci is
 
-`fj-ci` is a single repo on my Forgejo instance holding hand-written reusable workflows, one YAML file per workload: container build and release, Helm, OpenTofu, Packer, DNSControl, Ansible, Hugo deploy, semantic-release, ISO builds, and so on. Two dozen consumer-facing workflows in total.
+`fj-ci` is a single repo on my Forgejo instance holding hand-written **reusable workflows**, one YAML file per workload: container build and release, Helm, OpenTofu, Packer, DNSControl, Ansible, Hugo deploy, semantic-release, ISO builds, and so on. Two dozen consumer-facing workflows in total.
 
 Every one of them follows the same contract:
 
@@ -87,15 +87,21 @@ The wrapper owns the trigger semantics (`on:`, branch filters, `paths-ignore`), 
 
 Almost every design decision in fj-ci falls out of a single principle:
 
-> A reusable workflow is a pure function of its `inputs:` and `secrets:`. Trigger-event semantics live in the caller's `on:` block, nowhere else.
+> **The caller decides *when* a workflow runs. Inputs decide *what* it does. The library never asks *why* it was called.**
 
-No peeking at `github.event_name` inside the library, no consumer passing `${{ github.* }}` expressions across the call boundary, no caller-side `if:` deciding whether to expand. Inputs in, jobs out.
+In practice that's three bans, each paid for with a "production" bug:
+
+- The library never branches on the trigger event (`github.event_name`): under expansion Forgejo rewrites it to `workflow_call`, so the answer is always wrong.
+- The consumer never passes `${{ github.* }}` values as inputs: they evaluate to empty strings at the call boundary.
+- The consumer never gates the `uses:` job with an `if:`: it is silently ignored and the call fires anyway.
+
+What remains is clean: trigger filters (`on: push`, branches, paths) live in the wrapper, behavior knobs are typed `inputs:`, and when the library needs a fact about the run (like the `release` gate above) it reads only fields that provably survive the boundary: `github.ref` and the event payload, never the event name.
 
 I didn't start with this rule. I extracted it, one bug at a time.
 
 ## The bugs, TL;DR version
 
-The expansion boundary mangles more state than you'd expect. I hit each of these in production and root-caused it against the Forgejo source. The one-liners:
+The expansion boundary mangles more state than you'd expect. I hit each of these in "production" and root-caused it against the Forgejo source. The one-liners:
 
 - `github.event_name` is rewritten to `workflow_call` inside expanded jobs, so event-name gates mis-evaluate on every real trigger. Other `github.*` fields (`ref`, `base_ref`, the event payload) survive intact and are safe to gate on.
 - `${{ github.* }}` in a caller's `with:` evaluates to empty strings; `${{ secrets.* }}` there fails schema validation and the whole consumer workflow silently never runs.
@@ -110,9 +116,9 @@ Each became a lint rule or a documented pattern the day I found it. That's the p
 
 Four checks run on every push to fj-ci, and locally before every push:
 
-1. **actionlint** for workflow correctness.
-2. **zizmor** for security audit.
-3. **gitleaks**, because the repo is public and a leaked secret would be exposed instantly.
+1. **[actionlint](https://github.com/rhysd/actionlint)** for workflow correctness.
+2. **[zizmor](https://github.com/zizmorcore/zizmor)** for security audit.
+3. **[gitleaks](https://github.com/gitleaks/gitleaks)**, because the repo is public and a leaked secret would be exposed instantly.
 4. A custom guard script that encodes the bug list above: it rejects URL-form self-references, job-level `if: github.event_name` gates, and `${{ secrets.* }}` smuggled into `with:` blocks. It scans the documented consumer examples too, which is exactly the vector that once leaked a broken pattern into two consumer repos.
 
 The guard script also runs inside the release pipeline, after the release tooling rewrites files, so a corrupting rewrite aborts the release before the tag is cut.
@@ -145,5 +151,5 @@ Looking back at the [lessons list](/custom-tools/kcl-ci/#lessons-im-taking-with-
 - **Reviewable diffs** are no longer something to engineer for. The YAML in each repo *is* the source, so every diff is the real change.
 - **"Don't out-clever the platform"** turned out to be the headline. kcl-ci existed because Forgejo couldn't express DRY pipelines natively. The moment it could, the right amount of custom tooling dropped to roughly one lint script and a release config.
 
-And yes, the GitLab line from the last post still stands. GitLab got DRY pipelines right years ago. But with v15 expansion plus a disciplined library repo, Forgejo is the closest I've ever been to not missing it.
+And yes, the GitLab line from the last post still stands. **GitLab got DRY pipelines right years ago.** But with v15 expansion plus a disciplined library repo, Forgejo is getting close to closing that gap.
 
