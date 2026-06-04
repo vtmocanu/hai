@@ -729,6 +729,7 @@ Not convinced it's a real problem? Read [I take my laptop to the gym so Claude d
 
 ### Resources
 
+- **Must see:** [Beyond the basics with Claude Code](https://www.youtube.com/watch?v=tuY2ChJIx48). The mechanics that separate basic Claude Code use from real leverage: CLAUDE.md done well, wiring tools in with MCP, packaging team knowledge as skills, and using auto mode safely.
 - [How I Tamed Chaotic AI Coding with Simple Workflow Commands](https://www.youtube.com/watch?v=LUFJuj1yIik)
 - [Mastering Claude Code in 30 minutes](https://www.youtube.com/watch?v=6eBSHbLKuN0)
 
