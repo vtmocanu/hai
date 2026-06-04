@@ -119,7 +119,7 @@ Four checks run on every push to fj-ci, and locally before every push:
 1. **[actionlint](https://github.com/rhysd/actionlint)** for workflow correctness.
 2. **[zizmor](https://github.com/zizmorcore/zizmor)** for security audit.
 3. **[gitleaks](https://github.com/gitleaks/gitleaks)**, because the repo is public and a leaked secret would be exposed instantly.
-4. A custom guard script that encodes the bug list above: it rejects URL-form self-references, job-level `if: github.event_name` gates, and `${{ secrets.* }}` smuggled into `with:` blocks. It scans the documented consumer examples too, which is exactly the vector that once leaked a broken pattern into two consumer repos.
+4. A custom guard script that encodes the bug list above: it rejects URL-form self-references, job- and step-level `if: github.event_name` gates, `${{ secrets.* }}` smuggled into `with:` blocks, and curl-pipe-to-shell and runtime tool installs inside a reusable's run body. It scans the documented consumer examples too, which is exactly the vector that once leaked a broken pattern into two consumer repos.
 
 The guard script also runs inside the release pipeline, after the release tooling rewrites files, so a corrupting rewrite aborts the release before the tag is cut.
 
