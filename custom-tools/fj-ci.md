@@ -81,7 +81,7 @@ jobs:
     secrets: inherit
 ```
 
-The wrapper owns the trigger semantics (`on:`, branch filters, `paths-ignore`), the pin owns the version, and everything else lives centrally. In the run UI, the called workflow's jobs show up inline as if they were written in the consumer repo. That inline rendering is the whole reason this works; it's also why the library repo has to be public and on the same Forgejo instance. That v15 constraint I can live with.
+The wrapper owns the trigger semantics (`on:`, branch filters, `paths-ignore`), the pin owns the version, and everything else lives centrally. In the run UI, the called workflow's jobs show up inline as if they were written in the consumer repo. That inline rendering is the whole reason this works; it's also why **the library repo has to be public and on the same Forgejo instance**. That v15 constraint I can live with.
 
 ## The one rule that matters
 
@@ -127,7 +127,7 @@ The guard script also runs inside the release pipeline, after the release toolin
 
 kcl-ci taught me that [centralised version pinning with Renovate fan-out](/custom-tools/kcl-ci/#lessons-im-taking-with-me) was the single biggest win, so fj-ci doubles down on it:
 
-1. Every push to main waits for CI to go green (the same runners and queue I watch with [fj-queue](/custom-tools/fj-queue/)), then runs [semantic-release](https://semantic-release.gitbook.io/).
+1. Every push to main waits for CI to go green, then runs [semantic-release](https://semantic-release.gitbook.io/).
 2. Conventional commits decide the bump: `feat:` is minor, `fix:` is patch, breaking changes are major.
 3. The prepare step writes the changelog, atomically rewrites every internal `@vX.Y.Z` self-reference to the new version, and re-runs the guard script on the result.
 4. The `vX.Y.Z` tag is pushed, and Renovate opens (and auto-merges, for non-breaking bumps) the pin update in every consumer repo.
