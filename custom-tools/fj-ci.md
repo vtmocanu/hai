@@ -3,7 +3,7 @@
 <img src="/images/fj-ci.png" alt="A friendly cartoon robot slotting a glowing YAML card into a wall-mounted fj-ci workflow library panel that fans out light traces to a grid of repository tiles, with a pipeline graph showing called workflows rendering inline as sibling jobs, and the retired kcl-ci blueprint scroll displayed in a glass museum case" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
 
 {{< callout type="info" >}}
-**TL;DR.** When I [retired kcl-ci](/custom-tools/kcl-ci/), the plan was to replace the KCL code-generation layer with plain Forgejo reusable workflows, now that v15 expands them inline. That replacement is `fj-ci`: one repo with ~25 hand-written `workflow_call` workflows, consumed by 85+ repos through thin wrappers pinned to semver tags. Renovate fans out version bumps, semantic-release cuts tags automatically on every push to main, and a small lint quartet turns every expansion bug I hit into a rule. No codegen, no DSL, no committed generated YAML. This is the kcl-ci idea evolved, with the platform finally doing the heavy lifting.
+**TL;DR.** When I [retired kcl-ci](/custom-tools/kcl-ci/), the plan was to replace the KCL code-generation layer with plain Forgejo reusable workflows, now that v15 expands them inline. That replacement is `fj-ci`: one repo with ~25 hand-written `workflow_call` workflows, consumed by 85+ repos through thin wrappers pinned to semver tags. Renovate fans out version bumps, semantic-release cuts tags automatically on every push to main, and a small lint quartet turns every expansion bug I hit into a rule. No codegen, no DSL, no committed generated YAML: the kcl-ci idea evolved, with the platform finally doing the heavy lifting.
 {{< /callout >}}
 
 ## Where the story left off
@@ -22,7 +22,7 @@ Every one of them follows the same contract:
 - Required `secrets.*` reads documented in a header comment. Forgejo doesn't have typed `workflow_call` secrets yet, so the comment is the contract.
 - No top-level `runs-on:`, so v15 expansion renders the inner jobs as siblings in the caller's job graph.
 
-Here's the library side, condensed from the real container workflow (heavily simplified for clarity; the real one also runs lint and image vulnerability scans):
+Here's the library side, condensed from the real container workflow (simplified for clarity; the real one also runs lint and image vulnerability scans):
 
 ```yaml {filename=".forgejo/workflows/container.yml (fj-ci library)"}
 name: Container
@@ -65,7 +65,7 @@ jobs:
 
 Note the `release` job's `if:`. One workflow serves both regimes, building everywhere but releasing only on main, decided entirely inside the library. The caller never tells it what event fired; the library never asks.
 
-Consumers carry only a thin wrapper. The same container app's entire CI config is now roughly this (also simplified). **This is how I want every repo's workflow to look:**
+Consumers carry only a thin wrapper. The same container app's entire CI config is now roughly this. **This is how I want every repo's workflow to look:**
 
 ```yaml {filename=".forgejo/workflows/build.yml (consumer repo)"}
 name: build
@@ -134,7 +134,7 @@ kcl-ci taught me that [centralised version pinning with Renovate fan-out](/custo
 
 Manual tagging is retired. Cutting a release is now indistinguishable from merging a commit, and a version bump propagates to the whole fleet without me touching a single consumer.
 
-One refinement worth noting: consumer repos are configured so that a pure fj-ci pin bump does *not* cut a release of the consumer itself. Early on, every fj-ci patch release triggered a pointless wave of downstream releases. Now the pin bump merges silently and the consumer only releases on its own changes.
+One refinement: consumer repos are configured so that a pure fj-ci pin bump does *not* cut a release of the consumer itself. Early on, every fj-ci patch release triggered a pointless wave of downstream releases. Now the pin bump merges silently and the consumer only releases on its own changes.
 
 ## The migration, in numbers
 

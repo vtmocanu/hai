@@ -169,7 +169,7 @@ Three things lined up at the same time:
 2. **KCL's momentum has cooled.** It's still a [CNCF Sandbox project](https://www.cncf.io/projects/kcl/) and the last release ([v0.11.2](https://github.com/kcl-lang/kcl/releases) on 18 April 2025) wasn't that long ago, so "dead" overstates it. But the release cadence has clearly slowed, and overall project activity (contributors, stars, forks) appears to have cooled noticeably year over year. It's not the bet I'd make today.
 3. **Forgejo v15 makes the problem `kcl-ci` solves smaller.** With reusable workflow expansion, I can move shared logic into a few `.forgejo/workflows/*.yml` files in a central repo, reference them with `uses:`, and the UI keeps everything inline. The DRY win is now native.
 
-So the plan is: migrate the workflows that benefit most from native reusable workflows first (security scans, container build, semantic release), keep `kcl-ci` running for the long tail until the migration is done, then delete it.
+So the plan is: migrate the workflows that benefit most from native reusable workflows first (security scans, container build, semantic release), keep `kcl-ci` running for the long tail until the migration is done, then delete it. **Update:** that migration is done. The successor is [`fj-ci`](/custom-tools/fj-ci/), a library of hand-written reusable workflows with no codegen at all.
 
 ## Lessons I'm taking with me
 
