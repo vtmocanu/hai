@@ -134,11 +134,9 @@ Lesson: when removing template defines, expect a reload race window, and keep th
 
 ## The Result
 
-Push notifications are back to the compact format (same content as before, now carried by `message_text`):
+Push notifications are back to the compact format, now carried by `message_text` and even shorter without the FIRING word:
 
-<img src="/images/alertmanager-apple-watch.png" alt="Alert notification on Apple Watch showing emoji-prefixed compact text" style="max-width: 350px; width: 100%; height: auto;" />
-
-<img src="/images/alertmanager-macos-notification.png" alt="Alert notification on macOS showing the same compact text" style="max-width: 500px; width: 100%; height: auto;" />
+<img src="/images/alertmanager-ios-message-text.png" alt="iOS notification showing the emoji-only compact headline" style="max-width: 500px; width: 100%; height: auto;" />
 
 And the in-app message is leaner than the original version: plain headline, color sidebar, description, buttons, with no duplicated title or severity lines:
 
