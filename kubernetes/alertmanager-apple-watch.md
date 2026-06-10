@@ -140,6 +140,10 @@ Push notifications are back to the compact format, now carried by `message_text`
 
 <img src="/images/alertmanager-macos-message-text.png" alt="macOS Notification Centre showing the same emoji-only compact headline" style="max-width: 500px; width: 100%; height: auto;" />
 
+And where it all started, the Apple Watch, now showing real alerts that fit the screen: status emoji, alert name, namespace, at a glance:
+
+<img src="/images/alertmanager-apple-watch-message-text.png" alt="Apple Watch showing two stacked real-alert notifications with the emoji-only compact headline" style="max-width: 250px; width: 100%; height: auto;" />
+
 And the in-app message is leaner than the original version: plain headline, color sidebar, description, buttons, with no duplicated title or severity lines:
 
 <img src="/images/alertmanager-slack-inapp-dedup.png" alt="Real alert in Slack app with compact headline above a slim attachment containing the description and Query/Silence buttons" style="max-width: 600px; width: 100%; height: auto;" />
