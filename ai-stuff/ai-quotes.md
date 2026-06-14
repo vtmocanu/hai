@@ -2,6 +2,17 @@
 
 Things AI said in my sessions that made me laugh, stop, and blog. Newest at the top.
 
+#### Hand-maintaining YAML would be silly
+
+<div class="wrap-code">
+
+```text
+Me:     but you will create a helper local script for this, no?
+Claude: Yes — hand-maintaining contributions.yaml would be silly.
+```
+
+</div>
+
 #### Agent trying to put me to work
 
 <div class="wrap-code">
