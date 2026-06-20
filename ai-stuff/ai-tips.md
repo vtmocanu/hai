@@ -282,6 +282,32 @@ Each agent gets the full document plus a role-specific review brief. The DevOps 
 - Give each agent a specific review brief with questions tailored to their expertise, not just "review this."
 - After the reviews come back, synthesize the findings yourself and update the document. The agents find the gaps; you decide which ones matter.
 
+### Mine Your Whole History to Improve a Skill
+
+`/reflect` improves a skill from the session you just finished. But the richest material is everything you have ever done with that skill, not just the last hour. So go wider: spin up a workflow that reads your whole history in parallel and proposes edits.
+
+Point it at four things:
+
+1. **The skill itself**, for what it documents and where it has gone stale.
+2. **The work it produced** (my published articles), for conventions you follow but never wrote down.
+3. **Side artifacts** (my saved LinkedIn posts), for anything adjacent the skill should know.
+4. **Every past session**, mined for what you corrected or repeated. Those repeats are what the skill is missing.
+
+**Example prompt:**
+
+```
+spin up a workflow with agents to:
+- check my <name> skill
+- analyze my past sessions
+- analyze my published articles
+- analyze my saved LinkedIn posts
+goal: propose improvements to the skill
+```
+
+The prompt only states the goal. I never told it to run one agent per transcript, extract with shell tools, or add a verifier pass; the agent figured that out. The biggest win came from the sessions: a section I had hand-corrected the same way a dozen times collapsed into a few paragraphs of rules. The skill stops re-learning what you already taught it.
+
+**Why this beats `/reflect` alone:** one session is a sample, your history is the signal. A correction you make once might be a fluke; the same one across ten sessions is a missing rule. Your published work also shows what you actually do, often ahead of what the skill says.
+
 ### Your Rubber Duck Is Now Alive
 
 <img src="/images/rubber-duck.png" alt="Your rubber duck is now alive" style="max-width: 700px; width: 100%; height: auto;" />
