@@ -113,6 +113,14 @@ And the whole point of the exercise: it lands in Home Assistant as a plain local
 
 <img src="/images/growatt-home-assistant.png" alt="Home Assistant device page for the Growatt MOD 12KTL3-X showing the ESPHome integration and all sensor entities: AC output power, per-string PV, three-phase voltage/current/power, energy, and temperatures, with an activity log showing inverter status normal" style="width:100%; max-width:760px; height:auto;" />
 
+## What's next
+
+The same COM connector carries a second RS485 bus (pins 7/8) to the CHINT grid meter the inverter uses for export limiting. That meter knows what the inverter does not: my real house consumption and grid import/export. So the next step is a **second LilyGO on the meter bus**, reading the grid side directly.
+
+The catch is how to share the bus. The inverter is master and polls the meter constantly while it produces, so I can just listen in and decode the values for free. But at night and under heavy cloud the inverter sleeps and stops polling, the bus goes silent, and a passive snoop goes blind, exactly when I most want to know what the house is drawing.
+
+So Claude and I built a **polite, listen-before-talk master**. While the inverter is active the board stays silent and snoops. Once the bus has been quiet long enough, it decides the inverter has stopped, takes over as master, and polls the meter itself. The instant it hears the inverter wake back up, it yields and drops back to listening. A board that knows when it is safe to talk on someone else's control bus, never colliding with the inverter, getting live grid data around the clock from a meter I do not own. That is the part I like: genuinely smart, not just another poller. It is built and tested, though not yet trusted to run unattended.
+
 ## What I take away from this
 
 The division of labor turned out uneven, and not in the direction the hype would suggest. Claude did the careful, research-heavy, easy-to-get-wrong work: reading the 40-page manual, refusing to trust a single source for the pinout, and writing a strictly read-only config that could not do anything dangerous to the inverter. None of it was wrong.
