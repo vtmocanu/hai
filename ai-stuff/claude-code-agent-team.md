@@ -40,6 +40,12 @@ Official docs are short and worth reading once: [code.claude.com/docs/en/agent-t
 Viktor's video about Agent Deck for the curious. Already a bit dated: Agent Deck has since added auto-spinning-up and defining agents, working remotely on a VM, and more. This post is not about Agent Deck though, so I will not go deeper here.
 {{< /callout >}}
 
+{{< youtube ZIWWDDu02Ik >}}
+
+{{< callout type="info" >}}
+**Update (21 Jun 2026):** Viktor posted a fresh video, [_Why One AI Agent Is Never Enough_](https://www.youtube.com/watch?v=ZIWWDDu02Ik), walking through a multi-agent pipeline built on Agent Deck: an orchestrator coordinating a coder, a reviewer, an auditor, and a releaser, each on its own model, pushing back on each other until the work holds up. This is much closer to what I am doing with the team below, and it is a good part of where I got my inspiration.
+{{< /callout >}}
+
 I have taken Agent Deck for a spin, liked the direction, and am following the project as it matures. The things pulling me toward making it my daily runner, once I sit down to set it up properly:
 
 - **Sandboxing.** Each agent runs in an isolated environment so a misbehaving teammate cannot trash files on my laptop. Once five agents are actually writing code in parallel, this stops being a "nice to have" and starts being load-bearing.
