@@ -2,6 +2,17 @@
 
 Things AI said in my sessions that made me laugh, stop, and blog. Newest at the top.
 
+#### 97 opus agents to check my AC
+
+<div class="wrap-code">
+
+```text
+Me:     claude do some online research on how I can add my AC to homeassistant
+Claude: sure thing boss, spinning up a workflow with 97 opus agents to investigate
+```
+
+</div>
+
 #### Hand-maintaining YAML would be silly
 
 <div class="wrap-code">
