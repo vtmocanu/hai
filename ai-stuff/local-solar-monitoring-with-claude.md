@@ -43,7 +43,7 @@ flowchart LR
   LILY -- WiFi / ESPHome API --> HA[Home Assistant]
   PV -- USB-A dongle --> CLOUD[Growatt cloud]
   CLOUD --> SHINE[Shine app]
-  METER[CHINT meter] -- RS485 pins 7 and 8 --> PV
+  PV -- RS485 pins 7 and 8 --> METER[CHINT meter]
 ```
 
 ## The config
