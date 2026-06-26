@@ -121,6 +121,10 @@ The catch is how to share the bus. The inverter is master and polls the meter co
 
 So Claude and I built a **polite, listen-before-talk master**. While the inverter is active the board stays silent and snoops. Once the bus has been quiet long enough, it decides the inverter has stopped, takes over as master, and polls the meter itself. The instant it hears the inverter wake back up, it yields and drops back to listening. A board that knows when it is safe to talk on someone else's control bus, never colliding with the inverter, getting live grid data around the clock from a meter I do not own. That is the part I like: genuinely smart, not just another poller. It is built and tested, though not yet trusted to run unattended.
 
+{{< callout type="info" >}}
+**Update, 26 June 2026:** the plan above is now real. I added the second LilyGO, so two boards run side by side: one reading the inverter, one snooping the grid meter. I also moved both boards off phone chargers onto a single DIN-rail supply, a Qoltec industrial SMPS (220-240 V in, 5 V / 2.4 A / 12 W out, IP20, on the TS35 rail next to the breakers).
+{{< /callout >}}
+
 ## What I take away from this
 
 The division of labor turned out uneven, and not in the direction the hype would suggest. Claude did the careful, research-heavy, easy-to-get-wrong work: reading the 40-page manual, refusing to trust a single source for the pinout, and writing a strictly read-only config that could not do anything dangerous to the inverter. None of it was wrong.
