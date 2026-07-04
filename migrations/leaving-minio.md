@@ -90,6 +90,10 @@ RustFS is younger, in active development, and ships breaking changes inside the 
 
 I would not recommend this exact split to someone setting up a homelab from scratch in May 2026. Garage didn't stick for me, but it's probably the most mature option to reach for right now if you can afford multiple nodes; single-node was the wrong shape for what I needed. For a single-box setup, honestly I don't really know. Try both VersityGW and RustFS and see which one sticks with you, but be prepared to debug a bit if you run many things on S3.
 
+I am also keeping an eye on [Alarik](https://alarik.io/), another open-source S3-compatible object store.
+
+I am apparently not the only one who ended up here. feld's ["I just want simple S3"](https://blog.feld.me/posts/2026/04/i-just-want-simple-s3/) surveys the same field (MinIO dead, Garage too heavy, SeaweedFS too slow on their setup) and lands on VersityGW for its filesystem-backed simplicity and speed. And [Healthchecks.io moved to self-hosted object storage](https://blog.healthchecks.io/2026/04/healthchecks-io-now-uses-self-hosted-object-storage/) on VersityGW over Btrfs, after rejecting MinIO, SeaweedFS, and Garage as too operationally heavy for a solo operator. Same reasoning, same pick: an S3 gateway over plain files beats running a distributed storage system you don't need.
+
 The deeper-tech view (bucket layout, endpoints, what runs where) is in the **Technical Deep Dive** tab.
 
 {{< /tab >}}
