@@ -25,6 +25,7 @@ It is strictly read-only. No cancel, rerun, or delete, so it's safe to point at 
 
 ```bash
 brew tap vtmocanu/tap
+brew trust vtmocanu/tap    # Homebrew 6.0+ requires trusting third-party taps
 brew install fj-queue
 fj-queue --host git.example.com
 ```

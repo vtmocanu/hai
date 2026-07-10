@@ -24,10 +24,12 @@ All meters are color-coded: green under 50%, gold 50-80%, coral 80%+ (the cache 
 The statusline lives in a public repo on GitHub: [vtmocanu/cc-statusline](https://github.com/vtmocanu/cc-statusline). Since v2.8.0 the easiest way in is Homebrew:
 
 ```bash
-brew install vtmocanu/tap/cc-statusline
+brew tap vtmocanu/tap
+brew trust vtmocanu/tap    # Homebrew 6.0+ requires trusting third-party taps
+brew install cc-statusline
 ```
 
-That puts a `cc-statusline` command on your PATH, pulls in the dependencies, and prints the `settings.json` snippets to paste (re-read them anytime with `brew info cc-statusline`).
+That puts a `cc-statusline` command on your PATH, pulls in the dependencies, and prints the `settings.json` snippets to paste (re-read them anytime with `brew info cc-statusline`). On Homebrew older than 6.0, skip the `brew trust` line; if you prefer not to trust the whole tap, `brew trust --formula vtmocanu/tap/cc-statusline` scopes trust to just this formula.
 
 No Homebrew? The installer works everywhere `git` does:
 
