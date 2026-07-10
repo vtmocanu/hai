@@ -21,7 +21,15 @@ All meters are color-coded: green under 50%, gold 50-80%, coral 80%+ (the cache 
 
 ## Install
 
-The statusline lives in a public repo on GitHub: [vtmocanu/cc-statusline](https://github.com/vtmocanu/cc-statusline). Clone it and run the installer:
+The statusline lives in a public repo on GitHub: [vtmocanu/cc-statusline](https://github.com/vtmocanu/cc-statusline). Since v2.8.0 the easiest way in is Homebrew:
+
+```bash
+brew install vtmocanu/tap/cc-statusline
+```
+
+That puts a `cc-statusline` command on your PATH, pulls in the dependencies, and prints the `settings.json` snippets to paste (re-read them anytime with `brew info cc-statusline`).
+
+No Homebrew? The installer works everywhere `git` does:
 
 ```bash
 git clone https://github.com/vtmocanu/cc-statusline.git
@@ -29,29 +37,18 @@ cd cc-statusline
 ./install.sh
 ```
 
-The installer extracts the chosen ref via `git archive` (so it never mutates your working tree), copies the scripts into `~/.local/share/cc-statusline/`, and prints the JSON snippets to paste into `~/.claude/settings.json`.
-
-To pin a specific release:
-
-```bash
-./install.sh --version v2.3.0
-```
-
-To uninstall:
-
-```bash
-./install.sh --uninstall
-```
+It extracts the chosen ref via `git archive` (so it never mutates your working tree), copies the scripts into `~/.local/share/cc-statusline/`, and prints the same snippets. `./install.sh --version v2.8.0` pins a release, `./install.sh --uninstall` removes it.
 
 ## Configure Claude Code
 
-After running the installer, paste the snippets it prints into `~/.claude/settings.json`:
+Paste the snippets into `~/.claude/settings.json`. With the brew install:
 
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.local/share/cc-statusline/statusline.sh"
+    "command": "cc-statusline",
+    "refreshInterval": 60
   },
   "hooks": {
     "UserPromptSubmit": [
@@ -60,7 +57,7 @@ After running the installer, paste the snippets it prints into `~/.claude/settin
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/you/.local/share/cc-statusline/hooks/session-topic-capture.sh"
+            "command": "/opt/homebrew/opt/cc-statusline/libexec/hooks/session-topic-capture.sh"
           }
         ]
       }
@@ -69,21 +66,30 @@ After running the installer, paste the snippets it prints into `~/.claude/settin
 }
 ```
 
+(With `install.sh`, the command is `bash ~/.local/share/cc-statusline/statusline.sh` and the hook path lives under `~/.local/share/` instead.)
+
+`refreshInterval` is optional but worth having: Claude Code normally re-runs the statusline only on activity, so an idle session shows stale reset times and service health. With it set, the statusline also re-renders every 60 seconds.
+
 The `UserPromptSubmit` hook is **optional**: it's the bit that calls Claude Haiku to generate the per-session "Project: Focus" topic label. If you don't want that, just leave the hook out and the statusline will skip the topic block.
 
 Restart Claude Code. The topic appears after your first prompt (it runs async, so it shows on the second render).
 
 ## Requirements
 
-- macOS or Linux, `bash` 4+, `jq`, `perl`, `curl`
-- `gsed` on macOS (`brew install gnu-sed`), used by the optional session-topic hook
+- macOS or Linux, `bash`, `jq`, `perl`, `curl`, GNU `timeout` (coreutils; not stock on macOS)
 - A [Nerd Font](https://www.nerdfonts.com/) v3+ in your terminal for the powerline corners and icons
 - Claude Code v2.1.80+ for native rate-limit data
 - `kubectl` is optional (used to display the current context)
 
-The installer checks for these and tells you what's missing.
+The brew formula declares all of these; the installer checks for them and tells you what's missing.
 
 ## Updating
+
+```bash
+brew update && brew upgrade cc-statusline
+```
+
+Or with the installer:
 
 ```bash
 cd /path/to/cc-statusline
@@ -92,6 +98,16 @@ git pull
 ```
 
 The installer detects the previous install and reports the upgrade transition (`upgraded v2.2.1 -> v2.3.0`).
+
+## Hacking on it
+
+The brew wrapper has a built-in dev switch: point it at a working tree and the next render runs your clone instead of the brewed copy, no `settings.json` edits, even in already-running sessions.
+
+```bash
+mkdir -p ~/.config/cc-statusline
+echo ~/src/cc-statusline > ~/.config/cc-statusline/dev-dir   # enter dev mode
+rm ~/.config/cc-statusline/dev-dir                           # back to the brewed copy
+```
 
 ## Source, issues, contributions
 
