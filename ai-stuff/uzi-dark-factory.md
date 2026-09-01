@@ -6,14 +6,14 @@ A **dark factory** runs with the lights off: no human on the floor. Machines tak
 
 I built one for software. It is called **uzi** (Uzinele Întunecate, "dark factories"), and it is open source.
 
-You point it at a forge, label an issue `uzi`, and it plans the work, waits for your approval, writes the code under an implement-and-review loop, opens a pull request, and moves the card to human review. When a pipeline goes red, it diagnoses the failure and opens a fix. The lights are off the whole time. You show up for two decisions: approve the plan, and merge the PR.
+You point it at a forge, label an issue `uzi`, and it plans the work, waits for your approval, writes the code under an implement-and-review loop, opens a pull request, and moves the issue to human review. When a pipeline goes red, it diagnoses the failure and opens a fix. The lights are off the whole time. You show up for two decisions: approve the plan, and merge the PR.
 
-Not a *fully* dark factory, to be honest, and on purpose: uzi builds in the dark, but a human still decides whether and when to merge the PR, and (unless you opt into autopilot) signs off on the plan before a line is written. The lights are off for the work, not for the call to ship.
+Not a *fully* dark factory, and on purpose: those two decisions stay human, and (unless you opt into autopilot) nothing is written until you sign off on the plan. The lights are off for the work, not for the call to ship.
 
 Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forget to star it! ⭐
 
 {{< callout type="info" >}}
-**TL;DR:** Most AI coding still leaves you passing context, code, and errors back and forth by hand. uzi is an open-source "AI dark factory" that takes you out of that loop. Connect it to a GitLab, GitHub, or Forgejo project and it works the issues you label `uzi` end to end: it plans the change and waits for your approval, then runs an implement-and-review loop, opens a branch and pull request, and never touches `main`. It watches CI and opens a fix when a pipeline turns red. It runs from a web board or a headless CLI, and ships a catalog of standing schedules (bug triage, test improvement, docs hygiene, and a weekly "feature bingo" that pitches its own next feature). You approve the plan and merge the PR. It does the rest.
+**TL;DR:** Most AI coding still keeps you in the loop, passing context, code, and errors back and forth by hand. uzi is an open-source "AI dark factory" that takes you out of it: connect a GitLab, GitHub, or Forgejo project, label an issue `uzi`, and it plans the change, waits for your approval, runs an implement-and-review loop, and opens a pull request, never touching `main`. It watches CI and opens a fix when a pipeline turns red, and ships a catalogue of standing schedules (bug triage, test improvement, docs hygiene, and a weekly "feature bingo" that pitches its own next feature). You approve the plan and merge the PR; it does the rest.
 {{< /callout >}}
 
 {{< tabs >}}
@@ -21,18 +21,18 @@ Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forge
 {{< tab name="What it is" icon="book-open" >}}
 
 {{< callout type="info" >}}
-**☝️ Don't miss the other tabs**: what it is, install and configure, and the full feature list (feature bingo included).
+**☝️ This post has three tabs.** You are on **What it is**; **Install & configure** covers the Kubernetes and local setup, and **Features** the full list (feature bingo included).
 {{< /callout >}}
 
 ## The idea: issues in, PRs out
 
 Even with today's agents, "AI coding" keeps you in the driver's seat of a single session. You open a terminal, kick off the agent, watch it work, nudge it when it drifts, and start the next task yourself when it finishes. The agent runs the code and reads its own errors now, but you are still the one holding the whole thing, one session at a time, in front of a screen you have to stay attached to. You are the conveyor belt.
 
-uzi inverts that. The unit of work is an **issue**, not a message. You label an issue `uzi` on your forge (or assign it to uzi's bot account, if you would rather trigger it that way), and it treats it as an order to fulfil: read the issue, plan the change, build it, review it, and open a pull request against a branch. The forge is the source of truth the whole way through, so the work shows up where your team already looks: as issues, branches, and PRs. If the issue links a spec document, uzi picks it up automatically, but a full spec is not required to start.
+uzi inverts that. The unit of work is an **issue**, not a message. You label an issue `uzi` on your forge (or assign it to uzi's bot account, if you would rather trigger it that way), and it treats it as an order to fulfil: read the issue, plan the change, build it, review it, and open a pull request from a new branch. The forge is the source of truth the whole way through, so the work shows up where your team already looks: as issues, branches, and PRs. If the issue links a spec document, uzi picks it up automatically, but a full spec is not required to start.
 
 ## What it runs on
 
-The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kubernetes through a Helm chart, or locally with docker-compose. Workers run as separate containers that claim runs and do the actual agent work, so you can add capacity by starting more of them. It connects to a forge through a per-user bot account, and uses your own Anthropic token for the model calls. GitLab and GitHub are the paths I run day to day; Forgejo is supported too, but I have not tested it yet.
+The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kubernetes through a Helm chart, or locally with Docker Compose, with separate worker containers doing the agent work so you add capacity by starting more of them. It connects to a forge through a per-user bot account, and uses your own Anthropic token for the model calls. GitLab and GitHub are the paths I run day to day; Forgejo is supported too, but I have not tested it yet.
 
 Running the work off your own machine is also a **safety feature**. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
 
@@ -93,11 +93,11 @@ The two human touchpoints are deliberate. Everything between them is the factory
 
 This blog is usually reserved for what I build outside of work. uzi is the exception, and it has quickly become my favourite project. It started a couple of months ago as an AI research initiative at [Metaminds](https://www.metaminds.com/), and I have kept building it on both work and personal time since, burning a fair share of both token budgets to get this far. Metaminds takes open source seriously, so the green light to release it was easy, and I am grateful for it.
 
-And the fun part: **uzi builds uzi**. A growing share of it is written by itself. I file the issues, it plans, implements, and opens the PRs, so the factory is quietly assembling its own next version while I review. A good chunk of those 700 runs below are exactly that.
+And the fun part: **uzi builds uzi**. A growing share of it is written by itself. I file the issues, it plans, implements, and opens the PRs, so the factory is quietly assembling its own next version while I review. A good chunk of the runs it has shipped are exactly that.
 
-Treat it as **alpha**. Features land often, refactors happen often, and breaking changes are on the table. But it is not a toy: it is stable and it works well day to day, having already shipped **roughly 700 runs** and spent **over 5 billion tokens** getting here. The upside of catching it this early is that you can help shape where it goes, so try it, file issues and feature requests, send PRs, and tell me what works and what does not. It is a `helm install` away, or a `docker compose up` on your laptop: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi).
+Treat it as **alpha**. Features land often, refactors happen often, and breaking changes are on the table. But it is not a toy: it is stable and it works well day to day, having already completed **roughly 700 runs** and spent **over 5 billion tokens** getting here. The upside of catching it this early is that you can help shape where it goes, so try it, file issues and feature requests, send PRs, and tell me what works and what does not. It is a `helm install` away, or a `docker compose up` on your laptop: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi).
 
-One thing to set expectations on: uzi is very customizable, arguably more than you can take in on day one. That is on purpose, but the defaults are tuned to be right for roughly 90% of users, so you can leave nearly all of it alone to start. On the roadmap is a **lite mode**: a single toggle that keeps the knobs hidden behind opinionated defaults, which you flip off once uzi is familiar and you want to tune the parts that actually matter to you.
+One thing to set expectations on: uzi is very customisable, arguably more than you can take in on day one. That is on purpose, but the defaults are tuned to be right for roughly 90% of users, so you can leave nearly all of it alone to start. On the roadmap is a **lite mode**: a single toggle that keeps the knobs hidden behind opinionated defaults, which you flip off once uzi is familiar and you want to tune the parts that actually matter to you.
 
 It is **MIT licensed**, so fork it, change it, sell it, do whatever you want with it. The one thing I would love back is **a star**, and **an issue** whenever something breaks or a feature is missing.
 
@@ -106,7 +106,11 @@ It is **MIT licensed**, so fork it, change it, sell it, do whatever you want wit
 {{< tab name="Install & configure" icon="terminal" >}}
 
 {{< callout type="info" >}}
-**☝️ Don't miss the other tabs**: what it is, install and configure, and the full feature list (feature bingo included).
+**☝️ Three tabs in this post.** **What it is** is the overview and **Features** the full list (feature bingo included); you are on **Install & configure**.
+{{< /callout >}}
+
+{{< callout type="warning" >}}
+Heads up: uzi is **alpha**. It is stable and I run it daily, but features move fast and breaking changes happen.
 {{< /callout >}}
 
 ## Install on Kubernetes
@@ -124,7 +128,7 @@ Your `my-values.yaml` sets the secrets, your public host, and turns the bundled 
 
 ## Or run it locally
 
-To try it on a laptop, the same stack runs with docker-compose. Clone the repo and bring it up; a bundled script writes the three local secrets to `.env` on the first run (and never regenerates them), so there is nothing to set by hand:
+To try it on a laptop, the same stack runs with Docker Compose. Clone the repo and bring it up; a bundled script writes the three local secrets to `.env` on the first run (and never regenerates them), so there is nothing to set by hand:
 
 ```sh {filename="terminal"}
 ./scripts/init-env.sh   # generates JWT_SECRET, UZI_SECRET_KEY, POSTGRES_PASSWORD into .env, once
@@ -140,16 +144,16 @@ Either way, the first account to register becomes the admin.
 The board works against issues on your forge, through a bot account so uzi's actions are attributable and scoped:
 
 1. Create a bot account on your forge and give it an API-scoped token, then add it to the project you want uzi to work on.
-2. In uzi, go to **Settings, Forge**, pick the base URL, and paste the token.
+2. In uzi, go to **Settings → Forge**, pick the base URL, and paste the token.
 3. Under **Boards**, enable that project.
 4. Open its board from the sidebar. Your runnable issues show up as cards (flip the Issues toggle to see every other open issue); label one `uzi` to make it the factory's to run.
 
 ## Add your model token and a worker
 
-1. Under **Settings**, save your Anthropic token. Runs use your token, so cost and rate limits are yours to see and control.
+1. Under **Settings**, save your Anthropic token. Runs spend it on your own account, so cost and rate limits stay yours.
 2. Add a worker: the container that claims runs and does the agent work. How you start one depends on where uzi runs:
-   - **On Kubernetes**, turn on worker hosting in your Helm values, then provision one straight from **Settings, Workers**. The cluster runs the container for you, so there is no join token to copy and nothing to start by hand. Provision more to add capacity.
-   - **Locally**, generate a join token under **Settings, Workers**, set it as `UZI_WORKER_TOKEN` in `.env`, and start the bundled worker with `docker compose --profile agent up`. Start more agent containers to add capacity.
+   - **On Kubernetes**, turn on worker hosting in your Helm values, then provision one straight from **Settings → Workers**. The cluster runs the container for you, so there is no join token to copy and nothing to start by hand. Provision more to add capacity.
+   - **Locally**, generate a join token under **Settings → Workers**, set it as `UZI_WORKER_TOKEN` in `.env`, and start the bundled worker with `docker compose --profile agent up`. Start more agent containers to add capacity.
 
    Either way, the worker shows **online** on the dashboard.
 
@@ -157,7 +161,7 @@ That is the whole setup. Create or pick an issue, label it `uzi`, hit **Start ru
 
 ## Drive it from the terminal
 
-The CLI is the way I recommend driving uzi, especially headless or from another agent. Everything the web board does, the `uzi` CLI does without a browser tab: readable tables for humans, `--json` output with documented exit codes for agents, so it scripts cleanly:
+The CLI is the way I recommend driving uzi, ideally via your own agent through the skill it bundles. Everything the web board does, the `uzi` CLI does without a browser tab: readable tables for humans, `--json` output with documented exit codes for agents, so it scripts cleanly:
 
 ```sh {filename="terminal"}
 brew tap vtmocanu/tap
@@ -170,7 +174,7 @@ uzi run get <id>      # one run's state
 uzi run logs <id> -f  # follow the transcript live
 ```
 
-Installing the CLI is a good starting point even before your first run: it carries uzi's full docs offline (`uzi docs search`, `uzi docs show`), so it answers "how do I" and "what is" questions and helps you navigate uzi without a running server. It also installs a Claude Code skill, so an agent knows the command surface and can drive and explain uzi for you. An agent can run it fully headless with a bearer token in `UZI_TOKEN`: no browser, no cookie.
+Installing the CLI is a good starting point even before your first run: it carries uzi's full docs offline (`uzi docs search`, `uzi docs show`), so it answers "how do I" and "what is" questions and helps you navigate uzi without a running server. The `uzi skill install-hook` step above adds a Claude Code skill, so an agent knows the command surface and can drive and explain uzi for you. An agent can run it fully headless with a bearer token in `UZI_TOKEN`: no browser, no cookie.
 
 To watch the factory as a human, `uzi tui` opens a full-screen terminal dashboard: the runs that need you at the plan gate, the runs in flight, account rate-limit meters, and a live transcript when you open one.
 
@@ -181,13 +185,13 @@ To watch the factory as a human, `uzi tui` opens a full-screen terminal dashboar
 {{< tab name="Features" icon="cog" >}}
 
 {{< callout type="info" >}}
-**☝️ Don't miss the other tabs**: what it is, install and configure, and the full feature list (feature bingo included).
+**☝️ Three tabs in this post.** **What it is** is the overview and **Install & configure** covers setup; you are on **Features**.
 {{< /callout >}}
 
 ## How you drive it
 
 - **The board** is the front door: a per-repo kanban of your forge's issues, kept in two-way sync. The working columns *are* forge labels (Planned, In Progress, Human Review, Later), so moving a card relabels the issue, and each card carries its latest run, so the board doubles as a run tracker.
-- **The CLI** does everything the board does without a browser tab. **The way I recommend driving uzi is from your own agent, through the skill the CLI bundles** (see the Install tab).
+- **The CLI** does everything the board does without a browser tab, ideally driven **via your own agent** through the skill it bundles (see the Install tab).
 - **Chat** is a conversational surface, in the web app or a Slack DM, answered by an agent on your own worker that can read uzi's source and your runs, draft issues, and start, cancel, or steer runs. It always acts behind a confirmation and never has direct git or forge write access.
 - **Slack.** Beyond chat, uzi DMs you about your runs and lets you approve, reject, request changes, answer a clarifying question, or steer a live run without leaving Slack.
 
@@ -201,7 +205,7 @@ Prefer to let it run unattended? An **autopilot** mode skips the plan gate and t
 
 Work is not done just because an agent says so. The **lead** is the orchestrator: it plans the run, then delegates instead of doing everything itself. A **coder** writes the change; a **reviewer**, **auditor**, **tester**, and **fact-checker** validate it, fanning out in parallel and looping back to the coder until the work holds up. It is a role-based split that will look familiar from my [Claude Code agent team]({{< ref "ai-stuff/claude-code-agent-team" >}}) post.
 
-An optional **run judge** is off by default; your instance admin enables it globally first, and can enforce it for everyone. Once on, every finished run gets a retrospective: it reads the whole run trace and produces a verdict plus concrete recommendations. It is advice, not a gate, and it never changes code. A **judge menu** collects those recommendations across runs, deduped and ranked by how often each one recurs, so you can triage a whole class of them at once. Like everything else, it runs on your own Anthropic token.
+An optional **run judge** is off by default; your instance admin enables it globally, then each user opts in (or the admin enforces it for everyone). Once on, every finished run gets a retrospective: it reads the whole run trace and produces a verdict plus concrete recommendations. It is advice, not a gate, and it never changes code. A **judge menu** collects those recommendations across runs, deduped and ranked by how often each one recurs, so you can triage a whole class of them at once. Like everything else, it runs on your own Anthropic token.
 
 <img src="/images/uzi/run-judge.png" alt="A finished run's judge review: an Ideal verdict, a retrospective with strengths, token and cost stats, and a triage panel (this run had nothing to change)" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
 
@@ -233,7 +237,7 @@ Review comments are the least trustworthy input a factory ingests, so uzi treats
 
 ## Scheduled jobs
 
-uzi ships a catalog of standing automations you can enable per repo, so the factory keeps working on a cadence instead of only on demand. Pointed at its own repo, they add up to a self-improvement loop: uzi hunts its own bugs, strengthens its tests, keeps its docs honest, and even proposes its next feature. These are the defaults I run:
+uzi ships a catalogue of standing automations you can enable per repo, so the factory keeps working on a cadence instead of only on demand. Pointed at its own repo, they add up to a self-improvement loop: uzi hunts its own bugs, strengthens its tests, keeps its docs honest, and even proposes its next feature. These are the defaults I run:
 
 | Schedule | What it does | Cadence |
 |---|---|---|
@@ -249,7 +253,7 @@ Every scheduled job falls back to a plain report when it has nothing worth landi
 
 ### Feature bingo
 
-`feature-bingo` is my favourite, because it is the factory designing its own next machine. Once a week it reads the existing ideas in the repo, checks what already exists in the codebase so it does not repeat itself, and proposes exactly one concrete, genuinely useful new feature: the problem it solves, a sketch of how it would work, and roughly where it would live. It writes that to a single idea file and opens a pull request titled `bingo: <feature>`. If nothing worthwhile comes to mind that week, it makes no change and leaves a note explaining why.
+`feature-bingo` is my favourite, because it is the factory designing its own next machine. Once a week it reads the existing ideas in the repo, checks what already exists in the codebase so it does not repeat itself, and proposes exactly one concrete, genuinely useful new feature: the problem it solves, a sketch of how it would work, and where it would live. It writes that to a single idea file and opens a pull request titled `bingo: <feature>`. If nothing worthwhile comes to mind that week, it makes no change and leaves a note explaining why.
 
 It runs on a lighter, faster model than the heavy jobs, because brainstorming does not need the big hammer. And uzi runs it on itself, so a chunk of its own roadmap arrives as PRs I wake up to.
 
@@ -272,8 +276,8 @@ Runs spend your own Anthropic token, so the cost and the rate limits are yours t
 
 A hosted run is also usually **cheaper than doing the same work in a local agent session**, on the same model tier. The saving is structural, not a quieter model:
 
-- **The orchestration is plain Go, not a model.** Queueing, the plan gate, state transitions, waiting on a rate limit: all of it runs outside any model call and spends zero tokens. A parked run costs nothing while it waits, where a local session keeps one ever-growing context alive the whole time.
-- **Every agent starts lean.** Each one loads only its own role prompt, not the cloned repo's full `CLAUDE.md`, rules, and skills, and not again for every helper it spawns. A local session auto-loads all of that once for the orchestrator and cold, from scratch, for every subagent after it.
+- **The orchestration is plain Go, not a model.** Queueing, the plan gate, state transitions, waiting on a rate limit: all of it runs outside any model call and spends zero tokens. A parked run costs nothing while it waits, whereas a local session keeps one ever-growing context alive the whole time.
+- **Every agent starts lean.** Each one loads only its own role prompt, not the cloned repo's full `CLAUDE.md`, rules, and skills, and not again for every helper it spawns. A local session auto-loads all of that once for the orchestrator and again, from scratch, for every subagent after it.
 - **Subagents run in-process and hand back one result** instead of cold-starting a fresh session that re-reads the repo to get its bearings.
 
 Same intelligence and the same review roles, minus the redundant reloads and idle round-trips.
@@ -284,15 +288,15 @@ And every run is fully costed. Its stats panel gives the total tokens in and out
 
 ## Findings
 
-Not every problem a run trips over is the one it was sent to fix. When a worker spots a bug outside its task, it flags an **incidental finding** and keeps going. You review findings later and either file one as a real issue, on your own connection, or dismiss it. They are deduped by location, so the same bug spotted in three runs is one finding.
+Not every problem a run trips over is the one it was sent to fix. When a worker spots a bug outside its task, it flags an **incidental finding** and keeps going. You review findings later and either file one as a real issue, under your own forge account, or dismiss it. They are deduped by location, so the same bug spotted in three runs is one finding.
 
 ## Handoff: a lighter lane
 
-Not every task deserves an issue and a pull request. `uzi handoff` (alias `uzi task`) is a second, lighter mode: instead of filing an issue, you run it inside a local checkout, it pushes your working tree to a server-named branch, and a worker starts immediately with no plan gate. The worker commits its work back to that same branch; you `git fetch` the result, then remove the throwaway `uzi/task` branch with `uzi handoff rm` when you are done. No issue, no plan gate, no PR, and it is a run like any other so you watch and steer it on the same surfaces. Product-grade, reviewable work still goes through the full issue-and-PR flow; handoff is for the "take this, do it, I'll pull the result" dev-loop task you would otherwise orchestrate by hand.
+Not every task deserves an issue and a pull request. `uzi handoff` (alias `uzi task`) is a second, lighter mode: instead of filing an issue, you run it inside a local checkout, it pushes your working tree to a server-named branch, and a worker starts immediately with no plan gate. The worker commits its work back to that same branch; you `git fetch` the result, then remove the throwaway `uzi/task` branch with `uzi handoff rm` when you are done. No issue and no PR, and it is a run like any other so you watch and steer it on the same surfaces. Product-grade, reviewable work still goes through the full issue-and-PR flow; handoff is for the "take this, do it, I'll pull the result" dev-loop task you would otherwise orchestrate by hand.
 
 ## Agents and skills
 
-The roles the factory staffs a run with are **agent templates**: a dozen builtin ones (lead, reviewer, and others), each with its own model, tools, and prompt, that you can clone and customise. A repo can also bring its own agents in `.claude/agents/`, chosen at the plan gate. Agents pull in **skills**, named Markdown playbooks loaded on demand, so a role picks up a procedure only when it needs it.
+The roles the factory staffs a run with are **agent templates**: a dozen built-in ones (lead, reviewer, and others), each with its own model, tools, and prompt, that you can clone and customise. A repo can also bring its own agents in `.claude/agents/`, chosen at the plan gate. Agents pull in **skills**, named Markdown playbooks loaded on demand, so a role picks up a procedure only when it needs it.
 
 ## On your phone
 
