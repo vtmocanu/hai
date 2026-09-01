@@ -2,11 +2,13 @@
 
 <img src="/images/uzi-hero.png" alt="A dark factory floor: a lead robot orchestrating from a console while worker bots assemble glowing code crates on a conveyor belt, a locked main vault, green and red CI status lights, and a hard-hatted human approving at a panel, under a neon uzi sign" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
 
-A "dark factory" runs with the lights off: no human on the floor. Machines take the raw input, do the work, and hand back a finished part.
+A **dark factory** runs with the lights off: no human on the floor. Machines take the raw input, do the work, and hand back a finished part.
 
 I built one for software. It is called **uzi** (Uzinele Întunecate, "dark factories"), and it is open source.
 
 You point it at a forge, label an issue `uzi`, and it plans the work, waits for your approval, writes the code under an implement-and-review loop, opens a pull request, and moves the card to human review. When a pipeline goes red, it diagnoses the failure and opens a fix. The lights are off the whole time. You show up for two decisions: approve the plan, and merge the PR.
+
+Not a *fully* dark factory, to be honest, and on purpose: uzi builds in the dark, but a human still decides whether and when to merge the PR, and (unless you opt into autopilot) signs off on the plan before a line is written. The lights are off for the work, not for the call to ship.
 
 Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forget to star it! ⭐
 
