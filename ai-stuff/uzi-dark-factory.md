@@ -34,6 +34,8 @@ uzi inverts that. The unit of work is an **issue**, not a message. You label an 
 
 The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kubernetes through a Helm chart, or locally with docker-compose. Workers run as separate containers that claim runs and do the actual agent work, so you can add capacity by starting more of them. It connects to a forge through a per-user bot account, and uses your own Anthropic token for the model calls. GitLab and GitHub are the paths I run day to day; Forgejo is supported too, but I have not tested it yet.
 
+Running the work off your own machine is also a safety feature. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
+
 <img src="/images/uzi/dashboard.png" alt="The uzi dashboard: active runs, workers online, recent runs, and usage" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## The pipeline
@@ -255,6 +257,14 @@ Runs spend your own Anthropic token, so the cost and the rate limits are yours t
 
 - **Token load balancing.** Pool more than one token and set a worker to auto-select. For each run it picks whichever pooled token has the most rate-limit headroom, skips one that just hit a limit, and holds rather than quietly falling back to your default when the pool is dry. Every run records which credential it spent.
 - **Rate-limit wait.** If a run hits your 5-hour or 7-day cap mid-flight, uzi pauses it with a countdown instead of failing, then resumes on its own when the window resets, on the same branch, keeping even uncommitted edits, with no re-approval. On by default.
+
+A hosted run is also usually **cheaper than doing the same work in a local agent session**, on the same model tier. The saving is structural, not a quieter model:
+
+- **The orchestration is plain Go, not a model.** Queueing, the plan gate, state transitions, waiting on a rate limit: all of it runs outside any model call and spends zero tokens. A parked run costs nothing while it waits, where a local session keeps one ever-growing context alive the whole time.
+- **Every agent starts lean.** Each one loads only its own role prompt, not the cloned repo's full `CLAUDE.md`, rules, and skills, and not again for every helper it spawns. A local session auto-loads all of that once for the orchestrator and cold, from scratch, for every subagent after it.
+- **Subagents run in-process and hand back one result** instead of cold-starting a fresh session that re-reads the repo to get its bearings.
+
+Same intelligence and the same review roles, minus the redundant reloads and idle round-trips.
 
 And every run is fully costed. Its stats panel gives the total tokens in and out, how much came from cache, the wall-clock duration, and the dollar cost on your own Anthropic token, then breaks that down per phase (plan, and each implement iteration) and per agent by tokens, so you can see exactly where a run spent its budget.
 
