@@ -93,7 +93,7 @@ The two human touchpoints are deliberate. Everything between them is the factory
 
 This blog is usually reserved for what I build outside of work. uzi is the exception, and it has quickly become my favourite project. It started a couple of months ago as an AI research initiative at [Metaminds](https://www.metaminds.com/), and I have kept building it on both work and personal time since, burning a fair share of both token budgets to get this far. Metaminds takes open source seriously, so the green light to release it was easy, and I am grateful for it.
 
-And the fun part: uzi builds uzi. A growing share of it is written by itself. I file the issues, it plans, implements, and opens the PRs, so the factory is quietly assembling its own next version while I review. A good chunk of those 700 runs below are exactly that.
+And the fun part: **uzi builds uzi**. A growing share of it is written by itself. I file the issues, it plans, implements, and opens the PRs, so the factory is quietly assembling its own next version while I review. A good chunk of those 700 runs below are exactly that.
 
 Treat it as **alpha**. Features land often, refactors happen often, and breaking changes are on the table. But it is not a toy: it is stable and it works well day to day, having already shipped roughly 700 runs and spent over 5 billion tokens getting here. The upside of catching it this early is that you can help shape where it goes, so try it, file issues and feature requests, send PRs, and tell me what works and what does not. It is a `helm install` away, or a `docker compose up` on your laptop: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi).
 
