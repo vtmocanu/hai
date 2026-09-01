@@ -124,7 +124,7 @@ helm install uzi oci://ghcr.io/vtmocanu/uzi/uzi \
   --values my-values.yaml
 ```
 
-Your `my-values.yaml` sets the secrets, your public host, and turns the bundled Postgres on. The full value reference is in the docs. Then open your host and register.
+Your `my-values.yaml` sets the secrets, your public host, and turns the bundled Postgres on. The full value reference is in the docs. Then open your host and register. On a public host, claim your admin before anyone else can: the first account to register becomes the admin, so seed one with `UZI_SEED_EMAIL` / `UZI_SEED_PASSWORD` or register yours immediately and close signups with `UZI_REGISTRATION_ENABLED=false`.
 
 ## Or run it locally
 
