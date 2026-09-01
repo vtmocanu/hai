@@ -249,7 +249,7 @@ Workers are separate containers that claim runs and do the actual agent work, so
 
 ## Your model tokens
 
-Runs spend your own Anthropic token, so the cost and the rate limits are yours to see and control. Two features keep a busy factory from stalling on them:
+Runs spend your own Anthropic token, so the cost and the rate limits are yours to see and control. Today that means Anthropic only, a Claude subscription or an API key; support for OpenAI and other OpenAI-compatible models is on the roadmap. Two features keep a busy factory from stalling on your tokens:
 
 - **Token load balancing.** Pool more than one token and set a worker to auto-select. For each run it picks whichever pooled token has the most rate-limit headroom, skips one that just hit a limit, and holds rather than quietly falling back to your default when the pool is dry. Every run records which credential it spent.
 - **Rate-limit wait.** If a run hits your 5-hour or 7-day cap mid-flight, uzi pauses it with a countdown instead of failing, then resumes on its own when the window resets, on the same branch, keeping even uncommitted edits, with no re-approval. On by default.
@@ -300,7 +300,11 @@ The whole web UI is responsive too, so you can browse the factory, watch runs, a
 
 This blog is usually reserved for what I build outside of work. uzi is the exception, and it has quickly become my favourite project. It started a couple of months ago as an AI research initiative at [Metaminds](https://www.metaminds.com/), and I have kept building it on both work and personal time since, burning a fair share of both token budgets to get this far. Metaminds takes open source seriously, so the green light to release it was easy, and I am grateful for it.
 
+And the fun part: uzi builds uzi. A growing share of it is written by itself. I file the issues, it plans, implements, and opens the PRs, so the factory is quietly assembling its own next version while I review. A good chunk of those 700 runs below are exactly that.
+
 Treat it as alpha. Features land often, refactors happen often, and breaking changes are on the table. But it is not a toy: it is stable and it works well day to day, having already shipped roughly 700 runs and spent over 5 billion tokens getting here. The upside of catching it this early is that you can help shape where it goes, so try it, file issues and feature requests, send PRs, and tell me what works and what does not. It is a `helm install` away, or a `docker compose up` on your laptop: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi).
+
+One thing to set expectations on: uzi is very customizable, arguably more than you can take in on day one. That is on purpose, but the defaults are tuned to be right for roughly 90% of users, so you can leave nearly all of it alone to start. On the roadmap is a lite mode: a single toggle that keeps the knobs hidden behind opinionated defaults, which you flip off once uzi is familiar and you want to tune the parts that actually matter to you.
 
 It is **MIT licensed**, so fork it, change it, sell it, do whatever you want with it. The one thing I would love back is **a star**, and **an issue** whenever something breaks or a feature is missing.
 
