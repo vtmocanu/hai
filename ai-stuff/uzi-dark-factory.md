@@ -34,7 +34,7 @@ uzi inverts that. The unit of work is an **issue**, not a message. You label an 
 
 The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kubernetes through a Helm chart, or locally with docker-compose. Workers run as separate containers that claim runs and do the actual agent work, so you can add capacity by starting more of them. It connects to a forge through a per-user bot account, and uses your own Anthropic token for the model calls. GitLab and GitHub are the paths I run day to day; Forgejo is supported too, but I have not tested it yet.
 
-Running the work off your own machine is also a safety feature. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
+Running the work off your own machine is also a **safety feature**. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
 
 <img src="/images/uzi/dashboard.png" alt="The uzi dashboard: active runs, workers online, recent runs, and usage" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
 
