@@ -26,7 +26,7 @@ Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forge
 
 ## The idea: issues in, PRs out
 
-Most "AI coding" is a chat window. You paste context, it writes code, you copy it back, you run it, you paste the error, and around it goes. You are the conveyor belt.
+Even with today's agents, "AI coding" keeps you in the driver's seat of a single session. You open a terminal, kick off the agent, watch it work, nudge it when it drifts, and start the next task yourself when it finishes. The agent runs the code and reads its own errors now, but you are still the one holding the whole thing, one session at a time, in front of a screen you have to stay attached to. You are the conveyor belt.
 
 uzi inverts that. The unit of work is an **issue**, not a message. You label an issue `uzi` on your forge (or assign it to uzi's bot account, if you would rather trigger it that way), and it treats it as an order to fulfil: read the issue, plan the change, build it, review it, and open a pull request against a branch. The forge is the source of truth the whole way through, so the work shows up where your team already looks: as issues, branches, and PRs. If the issue links a spec document, uzi picks it up automatically, but a full spec is not required to start.
 
