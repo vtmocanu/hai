@@ -36,7 +36,7 @@ The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kuber
 
 Running the work off your own machine is also a **safety feature**. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
 
-<img src="/images/uzi/dashboard.png" alt="The uzi dashboard: active runs, workers online, recent runs, and usage" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/dashboard.png" alt="The uzi dashboard: active runs, workers online, recent runs, and usage" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## The pipeline
 
@@ -87,7 +87,7 @@ The two human touchpoints are deliberate. Everything between them is the factory
 2. **Implement and review.** On approval, the lead orchestrates the work: it dispatches a coder to implement, then fans out validators (reviewer, auditor, tester, fact-checker) to check the result, looping back to the coder until it holds up. You can watch each agent's output stream live, and send a follow-up message mid-run if it needs steering.
 3. **Branch and PR, never `main`.** On completion, uzi opens a branch and a pull request, links them from the run and the card, and moves the issue to human review. `main` is never touched, by design, even under an adversarial prompt.
 
-<img src="/images/uzi/board.png" alt="The uzi board: uzi-labeled issues as cards moving across columns" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/board.png" alt="The uzi board: uzi-labeled issues as cards moving across columns" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## Where it came from, and why it is open source
 
@@ -95,7 +95,7 @@ This blog is usually reserved for what I build outside of work. uzi is the excep
 
 And the fun part: **uzi builds uzi**. A growing share of it is written by itself. I file the issues, it plans, implements, and opens the PRs, so the factory is quietly assembling its own next version while I review. A good chunk of the runs it has shipped are exactly that.
 
-Treat it as **alpha**. Features land often, refactors happen often, and breaking changes are on the table. But it is not a toy: it is stable and it works well day to day, having already completed **roughly 700 runs** and spent **over 5 billion tokens** getting here. The upside of catching it this early is that you can help shape where it goes, so try it, file issues and feature requests, send PRs, and tell me what works and what does not. It is a `helm install` away, or a `docker compose up` on your laptop: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi).
+Treat it as **alpha**. Features land often, refactors happen often, and breaking changes are on the table. But it is not a toy: it is stable and it works well day to day, having already completed **over 1,000 runs** and spent **over 15 billion tokens** getting here. The upside of catching it this early is that you can help shape where it goes, so try it, file issues and feature requests, send PRs, and tell me what works and what does not. It is a `helm install` away, or a `docker compose up` on your laptop: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi).
 
 One thing to set expectations on: uzi is very customisable, arguably more than you can take in on day one. That is on purpose, but the defaults are tuned to be right for roughly 90% of users, so you can leave nearly all of it alone to start. On the roadmap is a **lite mode**: a single toggle that keeps the knobs hidden behind opinionated defaults, which you flip off once uzi is familiar and you want to tune the parts that actually matter to you.
 
@@ -178,7 +178,7 @@ Installing the CLI is a good starting point even before your first run: it carri
 
 To watch the factory as a human, `uzi tui` opens a full-screen terminal dashboard: the runs that need you at the plan gate, the runs in flight, account rate-limit meters, and a live transcript when you open one.
 
-<img src="/images/uzi/tui.png" alt="The uzi TUI floor view: runs that need you at the plan gate, runs in flight, and account rate-limit meters" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/tui.png" alt="The uzi TUI floor view: runs that need you at the plan gate, runs in flight, and account rate-limit meters" style="max-width: 900px; width: 100%; height: auto;" />
 
 {{< /tab >}}
 
@@ -207,23 +207,23 @@ Work is not done just because an agent says so. The **lead** is the orchestrator
 
 An optional **run judge** is off by default; your instance admin enables it globally, then each user opts in (or the admin enforces it for everyone). Once on, every finished run gets a retrospective: it reads the whole run trace and produces a verdict plus concrete recommendations. It is advice, not a gate, and it never changes code. A **judge menu** collects those recommendations across runs, deduped and ranked by how often each one recurs, so you can triage a whole class of them at once. Like everything else, it runs on your own Anthropic token.
 
-<img src="/images/uzi/run-judge.png" alt="A finished run's judge review: an Ideal verdict, a retrospective with strengths, token and cost stats, and a triage panel (this run had nothing to change)" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/run-judge.png" alt="A finished run's judge review: an Ideal verdict, a retrospective with strengths, token and cost stats, and a triage panel (this run had nothing to change)" style="max-width: 900px; width: 100%; height: auto;" />
 
-<img src="/images/uzi/run-plan-gate.png" alt="A run paused at the plan-approval gate, with the proposed plan in view" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/run-plan-gate.png" alt="A run paused at the plan-approval gate, with the proposed plan in view" style="max-width: 900px; width: 100%; height: auto;" />
 
 The lead works the approved plan one **milestone** at a time, committing each as its own reviewed slice and ticking it off as it lands, so even a long run shows honest progress instead of a spinner.
 
-<img src="/images/uzi/milestones.png" alt="A run's milestone checklist, two of five reported complete and struck through" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/milestones.png" alt="A run's milestone checklist, two of five reported complete and struck through" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## Watch it live
 
 Nothing about a run is a black box. A per-agent activity feed shows what each role is doing right now, grouped by agent, so you can see the lead orchestrating while the coder implements one milestone and the reviewer and auditor check the last.
 
-<img src="/images/uzi/activity.png" alt="The run activity feed grouped by agent: worker, reviewer, lead, fact-checker, architect, coder, and auditor, each with its current step and milestone" class="hero-image" style="max-width: 820px; width: 100%; height: auto;" />
+<img src="/images/uzi/activity.png" alt="The run activity feed grouped by agent: worker, reviewer, lead, fact-checker, architect, coder, and auditor, each with its current step and milestone" style="max-width: 820px; width: 100%; height: auto;" />
 
 Expand any entry and it streams that agent's own transcript, its reasoning and each tool call, as it happens. You can also send a follow-up mid-run to steer it.
 
-<img src="/images/uzi/lead-transcript.png" alt="An expanded agent transcript: the lead reading the linked spec and running commands, streamed live" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/lead-transcript.png" alt="An expanded agent transcript: the lead reading the linked spec and running commands, streamed live" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## CI auto-fix
 
@@ -257,7 +257,7 @@ Every scheduled job falls back to a plain report when it has nothing worth landi
 
 It runs on a lighter, faster model than the heavy jobs, because brainstorming does not need the big hammer. And uzi runs it on itself, so a chunk of its own roadmap arrives as PRs I wake up to.
 
-<img src="/images/uzi/schedules.png" alt="The schedules page, showing the standing automations including feature bingo" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/schedules.png" alt="The schedules page, showing the standing automations including feature bingo" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## The fleet: workers
 
@@ -284,7 +284,7 @@ Same intelligence and the same review roles, minus the redundant reloads and idl
 
 And every run is fully costed. Its stats panel gives the total tokens in and out, how much came from cache, the wall-clock duration, and the dollar cost on your own Anthropic token, then breaks that down per phase (plan, and each implement iteration) and per agent by tokens, so you can see exactly where a run spent its budget.
 
-<img src="/images/uzi/run-cost.png" alt="A run's cost and token stats: tokens in and out, cache hit rate, duration, dollar cost, and per-phase and per-agent breakdowns" class="hero-image" style="max-width: 900px; width: 100%; height: auto;" />
+<img src="/images/uzi/run-cost.png" alt="A run's cost and token stats: tokens in and out, cache hit rate, duration, dollar cost, and per-phase and per-agent breakdowns" style="max-width: 900px; width: 100%; height: auto;" />
 
 ## Findings
 
