@@ -101,6 +101,23 @@ One thing to set expectations on: uzi is very customisable, arguably more than y
 
 It is **MIT licensed**, so fork it, change it, sell it, do whatever you want with it. The one thing I would love back is **a star**, and **an issue** whenever something breaks or a feature is missing.
 
+## Not just me: the idea in the wild
+
+I did not invent the term. "Dark factory" comes from manufacturing: a plant that runs with the lights off because there are no humans on the floor. If you want to see the same idea at company scale, this talk from Tessl on their dark software factory (called Kikimora) is a good watch.
+
+{{< youtube u37qkpp5eB8 >}}
+
+{{< callout type="info" >}}
+Similar setup to mine, and the parallels are uncanny: an issue goes in, an autonomous agent solves it and opens a pull request, then babysits that PR through review until a human merges it. They even had their orchestrator improve itself over a weekend, and later triage its own issues, the same "the factory works on the factory" loop uzi runs on itself. And their hardest problem was not tooling but trust: can you sign your name to a PR you did not write? That is exactly why uzi keeps the plan gate and the merge in human hands.
+{{< /callout >}}
+
+And it is not just Tessl. A whole cluster of projects is converging on the same "issues in, reviewed pull requests out" idea, each from a different angle:
+
+- **[bottega](https://github.com/vdaubry/bottega)**, coding-agent orchestration for engineering teams, shipped as a spec plus a working reference implementation. This is the project that got me started.
+- **[Multica](https://multica.ai/)**, an open-source platform for running mixed teams of humans and AI coding agents as one workforce ("your next 10 hires won't be human").
+- **[Helix](https://helix.ml/)**, a control plane for fleets of coding agents in isolated sandboxes on your own infrastructure, with review gates and enterprise controls.
+- **[dot-agent-deck](https://github.com/vfarcic/dot-agent-deck)** by Viktor Farcic, a terminal dashboard for monitoring and steering several agent sessions at once.
+
 {{< /tab >}}
 
 {{< tab name="Install & configure" icon="terminal" >}}
