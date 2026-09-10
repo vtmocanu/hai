@@ -111,6 +111,8 @@ I did not invent the term. "Dark factory" comes from manufacturing: a plant that
 Similar setup to mine, and the parallels are uncanny: an issue goes in, an autonomous agent solves it and opens a pull request, then babysits that PR through review until a human merges it. They even had their orchestrator improve itself over a weekend, and later triage its own issues, the same "the factory works on the factory" loop uzi runs on itself. And their hardest problem was not tooling but trust: can you sign your name to a PR you did not write? That is exactly why uzi keeps the plan gate and the merge in human hands.
 {{< /callout >}}
 
+If you want to go deeper, there is also a longer, roughly one-hour talk: [Inside the Dark Factory: AI That Ships Code Solo](https://www.youtube.com/watch?v=APYUJoQkVUo).
+
 And it is not just Tessl. A whole cluster of projects is converging on the same "issues in, reviewed pull requests out" idea, each from a different angle:
 
 - **[bottega](https://github.com/vdaubry/bottega)**, coding-agent orchestration for engineering teams, shipped as a spec plus a working reference implementation. This is the project that got me started.
