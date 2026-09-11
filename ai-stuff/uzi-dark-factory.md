@@ -47,8 +47,17 @@ Running the work off your own machine is also a **safety feature**. Unattended i
 (function () {
   var f = document.getElementById('uzi-flow');
   if (!f) return;
+  function theme() { return document.documentElement.classList.contains('dark') ? 'dark' : 'light'; }
+  // Seed shared (same-origin) storage before the viewer initialises so it opens in the site's theme.
+  try { localStorage.setItem('archify-theme', theme()); } catch (e) {}
   function fit() { try { var h = f.contentWindow.document.documentElement.scrollHeight; if (h > 200) f.style.height = h + 'px'; } catch (e) {} }
-  f.addEventListener('load', function () { fit(); [300, 1000, 2500].forEach(function (d) { setTimeout(fit, d); }); });
+  function syncTheme() {
+    var t = theme();
+    try { localStorage.setItem('archify-theme', t); } catch (e) {}
+    try { f.contentWindow.document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  }
+  f.addEventListener('load', function () { syncTheme(); fit(); [200, 600, 1500].forEach(function (d) { setTimeout(function () { syncTheme(); fit(); }, d); }); });
+  new MutationObserver(syncTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(fit, 200); });
 })();
 </script>
