@@ -40,46 +40,18 @@ Running the work off your own machine is also a **safety feature**. Unattended i
 
 ## The pipeline
 
-```mermaid
-flowchart TB
-  A(["uzi-labeled issue"]) --> B(["Lead plans"])
-  B --> C{"Plan gate"}
-  C -- reject with reason --> B
-  C -- approve --> CO
-  subgraph loop ["Lead orchestrates specialist agents"]
-    direction LR
-    CO(["coder implements"]) --> R(["reviewer"])
-    CO --> AU(["auditor"])
-    CO --> TE(["tester"])
-    CO --> FC(["fact-checker"])
-    R --> VG{"validated?"}
-    AU --> VG
-    TE --> VG
-    FC --> VG
-    VG -- needs changes --> CO
-  end
-  VG -- looks good --> E(["Branch + Pull Request"])
-  E --> F{"Human review"}
-  E --> AR(["CodeRabbit and other<br/>AI reviewers"])
-  F -- merge --> G(["Done"])
-  F -- comments --> RW(["uzi reworks the PR"])
-  AR -- comments --> RW
-  RW -- agents fix, auto-approved --> CO
-  H(["Red pipeline"]) --> I(["Fix CI run"])
-  I --> C
-  %% de-emphasize the three "go back and retry" loops so the forward spine reads first
-  linkStyle 2,12,19 stroke:#9aa4b2,stroke-width:1.5px,stroke-dasharray:5 4
-  classDef input fill:#eef2f7,stroke:#94a3b8,stroke-width:1.5px,color:#1e293b
-  classDef gate fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#78350f
-  classDef agent fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#4c1d95
-  classDef review fill:#e0e7ff,stroke:#6366f1,stroke-width:1.5px,color:#312e81
-  classDef done fill:#dcfce7,stroke:#22c55e,stroke-width:2px,color:#14532d
-  class A,H input
-  class C,F gate
-  class B,CO,E,I agent
-  class R,AU,TE,FC,AR,RW,VG review
-  class G done
-```
+<iframe id="uzi-flow" src="/diagrams/uzi-how-it-works.html" title="How uzi ships an issue: from a uzi-labeled issue through the plan gate, the coder and parallel-reviewers loop, a pull request, CodeRabbit review, and human review to merge" loading="lazy" scrolling="no" style="width:100%; height:1200px; border:0; border-radius:8px; display:block;"></iframe>
+
+<p><sub>Interactive: pan, zoom, toggle light/dark, or open it <a href="/diagrams/uzi-how-it-works.html" target="_blank" rel="noopener">full screen</a>.</sub></p>
+<script>
+(function () {
+  var f = document.getElementById('uzi-flow');
+  if (!f) return;
+  function fit() { try { var h = f.contentWindow.document.documentElement.scrollHeight; if (h > 200) f.style.height = h + 'px'; } catch (e) {} }
+  f.addEventListener('load', function () { fit(); [300, 1000, 2500].forEach(function (d) { setTimeout(fit, d); }); });
+  var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(fit, 200); });
+})();
+</script>
 
 The two human touchpoints are deliberate. Everything between them is the factory floor.
 
