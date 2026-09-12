@@ -10,10 +10,6 @@ Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forge
 **TL;DR:** Most AI coding still keeps you in the loop, passing context, code, and errors back and forth by hand. uzi is an open-source "AI dark factory" that takes you out of it: connect a GitLab, GitHub, or Forgejo project, label an issue `uzi`, and it plans the change, waits for your approval, runs an implement-and-review loop, and opens a pull request, never touching `main`. It watches CI and opens a fix when a pipeline turns red, and ships a catalogue of standing schedules (bug triage, test improvement, docs hygiene, and a weekly "feature bingo" that pitches its own next feature). You approve the plan and merge the PR; it does the rest.
 {{< /callout >}}
 
-{{< callout type="warning" >}}
-Heads up: uzi is **alpha**. It is stable and I run it every day, but features land daily and breaking changes happen.
-{{< /callout >}}
-
 {{< tabs >}}
 
 {{< tab name="What it is" icon="book-open" >}}
