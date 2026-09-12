@@ -35,7 +35,7 @@ The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kuber
 Running the work off your own machine is also a **safety feature**. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
 
 {{< callout type="info" >}}
-uzi ships both a light and a dark theme, and every screenshot in this post matches your theme. Flip the light/dark toggle (top right), or your browser's theme, and they switch with it.
+uzi ships both a light and a dark theme, and every screenshot in this post matches your theme.
 {{< /callout >}}
 
 <img class="uzi-shot uzi-shot-light" src="/images/uzi/dashboard-light.png" alt="The uzi dashboard: active runs, workers online, recent runs, and usage" style="max-width: 900px; width: 100%; height: auto;" /><img class="uzi-shot uzi-shot-dark" src="/images/uzi/dashboard-dark.png" alt="The uzi dashboard: active runs, workers online, recent runs, and usage" style="max-width: 900px; width: 100%; height: auto;" />
