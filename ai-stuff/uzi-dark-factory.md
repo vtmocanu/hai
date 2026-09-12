@@ -267,7 +267,7 @@ Workers are separate containers that claim runs and do the actual agent work, so
 
 ## Your model tokens
 
-Runs spend your own Anthropic token, so the cost and the rate limits are yours to see and control. Today that means Anthropic only, a Claude subscription or an API key; support for OpenAI and other OpenAI-compatible models is on the roadmap. Two features keep a busy factory from stalling on your tokens:
+Runs spend your own Anthropic token, so the cost and the rate limits are yours to see and control. Today that means Anthropic only, on a Claude subscription or an API key; support for Codex and other OpenAI-compatible APIs is in progress. Two features keep a busy factory from stalling on your tokens:
 
 - **Token load balancing.** Pool more than one token and set a worker to auto-select. For each run it picks whichever pooled token has the most rate-limit headroom, skips one that just hit a limit, and holds rather than quietly falling back to your default when the pool is dry. Every run records which credential it spent.
 - **Rate-limit wait.** If a run hits your 5-hour or 7-day cap mid-flight, uzi pauses it with a countdown instead of failing, then resumes on its own when the window resets, on the same branch, keeping even uncommitted edits, with no re-approval. On by default.
