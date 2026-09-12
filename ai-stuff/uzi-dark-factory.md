@@ -112,7 +112,7 @@ And it is not just Tessl. A whole cluster of projects is converging on the same 
 {{< tab name="Install & configure" icon="terminal" >}}
 
 {{< callout type="info" >}}
-**☝️ Four tabs in this post.** **What it is** is the overview, **Features** the full list (feature bingo included), and **TUI & Mobile** shows the terminal and phone UIs; you are on **Install & configure**.
+**☝️ Four tabs.** You're on **Install & configure**; **What it is**, **Features**, and **TUI & Mobile** are in the strip above.
 {{< /callout >}}
 
 ## Install on Kubernetes
@@ -185,7 +185,7 @@ To watch the factory as a human, `uzi tui` opens a full-screen terminal dashboar
 {{< tab name="Features" icon="cog" >}}
 
 {{< callout type="info" >}}
-**☝️ Four tabs in this post.** **What it is** is the overview, **Install & configure** covers setup, and **TUI & Mobile** shows the terminal and phone UIs; you are on **Features**.
+**☝️ Four tabs.** You're on **Features**; **What it is**, **Install & configure**, and **TUI & Mobile** are in the strip above.
 {{< /callout >}}
 
 ## How you drive it
@@ -309,7 +309,7 @@ The whole web UI is responsive too, so you can browse the factory, watch runs, a
 {{< tab name="TUI & Mobile" icon="terminal" >}}
 
 {{< callout type="info" >}}
-**☝️ Four tabs in this post.** **What it is** is the overview, **Install & configure** covers setup, and **Features** the full list (feature bingo included); you are on **TUI & Mobile**, the same factory in the terminal and on a phone.
+**☝️ Four tabs.** You're on **TUI & Mobile**; **What it is**, **Install & configure**, and **Features** are in the strip above.
 {{< /callout >}}
 
 ## In your terminal
