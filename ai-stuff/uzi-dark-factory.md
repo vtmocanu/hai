@@ -2,13 +2,7 @@
 
 <img src="/images/uzi-hero.png" alt="A dark factory floor: a lead robot orchestrating from a console while worker bots assemble glowing code crates on a conveyor belt, a locked main vault, green and red CI status lights, and a hard-hatted human approving at a panel, under a neon uzi sign" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
 
-A **dark factory** runs with the lights off: no human on the floor. Machines take the raw input, do the work, and hand back a finished part.
-
-I built one for software. It is called **uzi** (Uzinele Întunecate, "dark factories"), and it is open source.
-
-You point it at a forge, label an issue `uzi`, and it plans the work, waits for your approval, writes the code under an implement-and-review loop, opens a pull request, and moves the issue to human review. When a pipeline goes red, it diagnoses the failure and opens a fix. The lights are off the whole time. You show up for two decisions: approve the plan, and merge the PR.
-
-Not a *fully* dark factory, and on purpose: those two decisions stay human, and (unless you opt into autopilot) nothing is written until you sign off on the plan. The lights are off for the work, not for the call to ship.
+A **dark factory** runs with the lights off: no human on the floor. Machines take the raw input, do the work, and hand back a finished part. I built one for software, called **uzi** (Uzinele Întunecate, "dark factories"), and it is open source.
 
 Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forget to star it! ⭐
 
@@ -21,8 +15,12 @@ Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forge
 {{< tab name="What it is" icon="book-open" >}}
 
 {{< callout type="info" >}}
-**☝️ This post has four tabs.** You are on **What it is**; **Install & configure** covers the Kubernetes and local setup, **Features** the full list (feature bingo included), and **TUI & Mobile** shows the same factory in the terminal and on a phone.
+**☝️ Four tabs.** You're on **What it is**; **Install & configure**, **Features**, and **TUI & Mobile** are in the strip above.
 {{< /callout >}}
+
+You point it at a forge, label an issue `uzi`, and it plans the work, waits for your approval, writes the code under an implement-and-review loop, opens a pull request, and moves the issue to human review. When a pipeline goes red, it diagnoses the failure and opens a fix. The lights are off the whole time. You show up for two decisions: approve the plan, and merge the PR.
+
+Not a *fully* dark factory, and on purpose: those two decisions stay human, and (unless you opt into autopilot) nothing is written until you sign off on the plan. The lights are off for the work, not for the call to ship.
 
 ## The idea: issues in, PRs out
 
