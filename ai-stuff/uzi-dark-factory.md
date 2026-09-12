@@ -344,7 +344,7 @@ The whole web UI is responsive, so you can browse the factory, watch runs, and a
 
 {{< /tabs >}}
 
-*Four tabs above: scroll back up and switch between **What it is**, **Install & configure** for the Kubernetes and local setup, **Features** for the plan gate, the judge, CI auto-fix, PR review rework, and the scheduled jobs (feature bingo included), and **TUI & Mobile** for the terminal dashboard and the phone UI.*
+*Four tabs above: **What it is**, **Install & configure**, **Features**, and **TUI & Mobile**. Scroll up to switch.*
 
 {{< callout type="warning" >}}
 **Use at your own risk.** uzi is alpha software that runs autonomous AI agents: they read your code, run commands inside their workers, and open pull requests on your forge using your own model tokens. Run it against repositories and infrastructure you own or are allowed to change. You stay in control by design, review the plan before you approve it and the diff before you merge it: uzi opens pull requests but never merges them and never touches `main`, so nothing lands without you deciding to merge it. It ships as is, with no warranty; you are responsible for what you approve, merge, and deploy.
