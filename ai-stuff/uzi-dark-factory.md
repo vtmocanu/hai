@@ -1,6 +1,6 @@
 # uzi: an AI dark factory
 
-<img src="/images/uzi-hero.png" alt="A dark, unmanned factory corridor: a matte-black uzi sign reading 'Specs in. Pull requests out.' beside a row of server racks and a conveyor of robotic arms assembling glowing amber code crates, a night skyline at the far end" class="hero-image" style="max-width: 700px; width: 100%; height: auto;" />
+<img src="/images/uzi-hero.png" alt="A dark factory corridor: a white-backlit uzi sign reading 'Specs in. Pull requests out.', a white humanoid robot labelled 'Lead' overseeing the floor with a tablet, and a conveyor of robotic arms assembling glowing amber code crates past a night skyline" class="hero-image" style="max-width: 100%; width: 100%; height: auto;" />
 
 A **dark factory** runs with the lights off: no human on the floor. Machines take the raw input, do the work, and hand back a finished part. I built one for software, called **uzi** (Uzinele Întunecate, "dark factories"), and it is open source.
 
