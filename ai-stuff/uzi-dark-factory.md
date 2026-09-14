@@ -102,6 +102,15 @@ And it is not just Tessl. A whole cluster of projects is converging on the same 
 - **[Multica](https://multica.ai/)**, an open-source platform for running mixed teams of humans and AI coding agents as one workforce ("your next 10 hires won't be human").
 - **[Helix](https://helix.ml/)**, a control plane for fleets of coding agents in isolated sandboxes on your own infrastructure, with review gates and enterprise controls.
 - **[dot-agent-deck](https://github.com/vfarcic/dot-agent-deck)** by Viktor Farcic, a terminal dashboard for monitoring and steering several agent sessions at once.
+- **[Symphony](https://github.com/openai/symphony)** by OpenAI, shipped as a spec with an Elixir reference implementation that spins up a supervised process per task and drives it to a pull request, escalating only a cheap "mergeable or rework" decision to the human.
+
+The most extreme version of the idea I have seen also comes from OpenAI. In this interview, Ryan Lopopolo walks through the "harness engineering" behind it: a team of about three engineers shipping on the order of a million lines of code and 1,500 pull requests, by treating the *harness* (the code and tooling wrapped around the model) as the real product.
+
+{{< youtube CeOXx-XTYek >}}
+
+{{< callout type="info" >}}
+Same "issues in, PRs out" shape as uzi, pushed much further. They have moved most human review to *post-merge*, treat the code as disposable ("if it's garbage, I can just throw it away"), and, as Lopopolo describes it, the rework state trashes the whole work tree and PR, then starts over rather than patching. uzi bets the other way on trust: a human approves the plan before any work starts and reviews the diff before it merges, and uzi never touches `main`. One idea, two very different calls on where the human sits.
+{{< /callout >}}
 
 {{< /tab >}}
 
