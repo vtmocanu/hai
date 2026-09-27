@@ -7,7 +7,7 @@ A **dark factory** runs with the lights off: no human on the floor. Machines tak
 Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forget to star it! ⭐
 
 {{< callout type="info" >}}
-**TL;DR:** Most AI coding still keeps you in the loop, passing context, code, and errors back and forth by hand. uzi is an open-source "AI dark factory" that takes you out of it: connect a GitLab, GitHub, or Forgejo project, label an issue `uzi`, and it plans the change, waits for your approval, runs an implement-and-review loop, and opens a pull request, never touching `main`. It watches CI and opens a fix when a pipeline turns red, and ships a catalogue of standing schedules (bug triage, test improvement, docs hygiene, and a weekly "feature bingo" that pitches its own next feature). You approve the plan and merge the PR; it does the rest.
+**TL;DR:** Most AI coding still keeps you in the loop, passing context, code, and errors back and forth by hand. uzi is an open-source "AI dark factory" that takes you out of it: connect a GitLab, GitHub, or Forgejo project, label an issue `uzi`, and it plans the change, waits for your approval, runs an implement-and-review loop, and opens a pull request, never touching `main`. It watches CI and opens a fix when a pipeline turns red, and ships a catalogue of standing schedules (bug triage, test improvement, docs hygiene, and a weekly "feature bingo" that pitches its own next feature). It runs on Claude, with experimental Codex support. You approve the plan and merge the PR; it does the rest.
 {{< /callout >}}
 
 {{< tabs >}}
@@ -30,7 +30,7 @@ uzi inverts that. The unit of work is an **issue**, not a message. You label an 
 
 ## What it runs on
 
-The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kubernetes through a Helm chart, or locally with Docker Compose, with separate worker containers doing the agent work so you add capacity by starting more of them. It connects to a forge through a per-user bot account, and uses your own Anthropic token for the model calls. GitLab and GitHub are the paths I run day to day; Forgejo is supported too, but I have not tested it yet.
+The stack is a Go API, a React single-page app, and PostgreSQL. It runs on Kubernetes through a Helm chart (OpenShift and OKD included), or locally with Docker Compose, with separate worker containers doing the agent work so you add capacity by starting more of them. It connects to a forge through a per-user bot account, and uses your own model account: Claude by default, or the experimental Codex runtime. GitLab and GitHub are the paths I run day to day; Forgejo is supported too, but I have not tested it yet.
 
 Running the work off your own machine is also a **safety feature**. Unattended is where an agent earns its keep, and it is also where it is most dangerous: point one at your laptop in auto mode and a single bad command can delete your home folder or push something it should not. A uzi worker runs in an isolated container that sees only the one repo checkout and the one run, so the worst a mistake can do is trash a throwaway branch, not your filesystem.
 
@@ -133,6 +133,8 @@ helm install uzi oci://ghcr.io/vtmocanu/uzi/uzi \
 
 Your `my-values.yaml` sets the secrets, your public host, and turns the bundled Postgres on. The full value reference is in the docs. Then open your host and register. On a public host, claim your admin before anyone else can: the first account to register becomes the admin, so seed one with `UZI_SEED_EMAIL` / `UZI_SEED_PASSWORD` or register yours immediately and close signups with `UZI_REGISTRATION_ENABLED=false`.
 
+On **OpenShift or OKD**, the chart (from v0.85.0) has opt-in knobs for the parts that differ from a plain cluster: a Gateway API `HTTPRoute` instead of the nginx Ingress, OpenShift-assigned pod IDs, the 5353 DNS port, OVN-Kubernetes egress, and SCC grants for the hosted workers. All of them are off by default; the [OpenShift and OKD guide](https://github.com/vtmocanu/uzi/blob/main/docs/openshift.md) has the values.
+
 ## Or run it locally
 
 To try it on a laptop, the same stack runs with Docker Compose. Clone the repo and bring it up; a bundled script writes the three local secrets to `.env` on the first run (and never regenerates them), so there is nothing to set by hand:
@@ -157,7 +159,7 @@ The board works against issues on your forge, through a bot account so uzi's act
 
 ## Add your model token and a worker
 
-1. Under **Settings**, save your Anthropic token. Runs spend it on your own account, so cost and rate limits stay yours.
+1. Under **Settings**, save your Anthropic token. Runs spend it on your own account, so cost and rate limits stay yours. To try the experimental Codex runtime, also add a dedicated Codex (ChatGPT subscription) login, or an OpenAI API key, under **Settings → OpenAI / Codex credentials**; the [Codex credentials guide](https://github.com/vtmocanu/uzi/blob/main/docs/codex-credentials.md) walks through it.
 2. Add a worker: the container that claims runs and does the agent work. How you start one depends on where uzi runs:
    - **On Kubernetes**, turn on worker hosting in your Helm values, then provision one straight from **Settings → Workers**. The cluster runs the container for you, so there is no join token to copy and nothing to start by hand. Provision more to add capacity.
    - **Locally**, generate a join token under **Settings → Workers**, set it as `UZI_WORKER_TOKEN` in `.env`, and start the bundled worker with `docker compose --profile agent up`. Start more agent containers to add capacity.
@@ -272,7 +274,11 @@ Workers are separate containers that claim runs and do the actual agent work, so
 
 ## Your model tokens
 
-Runs spend your own Anthropic token, so the cost and the rate limits are yours to see and control. Today that means Anthropic only, on a Claude subscription or an API key; support for Codex and other OpenAI-compatible APIs is in progress. Two features keep a busy factory from stalling on your tokens:
+Runs use your own model account, so the cost and the rate limits are yours to see and control. Claude is the default runtime, on a Claude subscription or an Anthropic API key.
+
+**Codex is the second runtime, and it is experimental.** You can point a run at Codex instead of Claude from the web, the CLI, the TUI, a schedule, or chat, and it goes through the same plan gate, implement-and-review loop, and branch-and-PR flow. Codex account rate-limit meters sit next to the Claude ones on the web, in `uzi rate-limits`, and in the TUI. It works, but it is not on par with Claude yet: a few edge cases, mostly around recovery and long runs, are still being ironed out, so Claude stays the safer choice for work you care about.
+
+Two features keep a busy factory from stalling on your Claude tokens:
 
 - **Token load balancing.** Pool more than one token and set a worker to auto-select. For each run it picks whichever pooled token has the most rate-limit headroom, skips one that just hit a limit, and holds rather than quietly falling back to your default when the pool is dry. Every run records which credential it spent.
 - **Rate-limit wait.** If a run hits your 5-hour or 7-day cap mid-flight, uzi pauses it with a countdown instead of failing, then resumes on its own when the window resets, on the same branch, keeping even uncommitted edits, with no re-approval. On by default.
@@ -285,7 +291,7 @@ A hosted run is also usually **cheaper than doing the same work in a local agent
 
 Same intelligence and the same review roles, minus the redundant reloads and idle round-trips.
 
-And every run is fully costed. Its stats panel gives the total tokens in and out, how much came from cache, the wall-clock duration, and the dollar cost on your own Anthropic token, then breaks that down per phase (plan, and each implement iteration) and per agent by tokens, so you can see exactly where a run spent its budget.
+And every run is fully costed. Its stats panel gives the total tokens in and out, how much came from cache, the wall-clock duration, and the dollar cost on your own model account, then breaks that down per phase (plan, and each implement iteration) and per agent by tokens, so you can see exactly where a run spent its budget.
 
 <img class="uzi-shot uzi-shot-light" src="/images/uzi/run-cost-light.png" alt="A run's cost and token stats: tokens in and out, cache hit rate, duration, dollar cost, and per-phase and per-agent breakdowns" style="max-width: 900px; width: 100%; height: auto;" /><img class="uzi-shot uzi-shot-dark" src="/images/uzi/run-cost-dark.png" alt="A run's cost and token stats: tokens in and out, cache hit rate, duration, dollar cost, and per-phase and per-agent breakdowns" style="max-width: 900px; width: 100%; height: auto;" />
 
