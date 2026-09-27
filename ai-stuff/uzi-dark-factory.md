@@ -133,7 +133,7 @@ helm install uzi oci://ghcr.io/vtmocanu/uzi/uzi \
 
 Your `my-values.yaml` sets the secrets, your public host, and turns the bundled Postgres on. The full value reference is in the docs. Then open your host and register. On a public host, claim your admin before anyone else can: the first account to register becomes the admin, so seed one with `UZI_SEED_EMAIL` / `UZI_SEED_PASSWORD` or register yours immediately and close signups with `UZI_REGISTRATION_ENABLED=false`.
 
-On **OpenShift or OKD**, the chart (from v0.85.0) has opt-in knobs for the parts that differ from a plain cluster: a Gateway API `HTTPRoute` instead of the nginx Ingress, OpenShift-assigned pod IDs, the 5353 DNS port, OVN-Kubernetes egress, and SCC grants for the hosted workers. All of them are off by default; the [OpenShift and OKD guide](https://github.com/vtmocanu/uzi/blob/main/docs/openshift.md) has the values.
+On **OpenShift or OKD**, the chart has opt-in knobs for the parts that differ from a plain cluster: a Gateway API `HTTPRoute` instead of the nginx Ingress, OpenShift-assigned pod IDs, the 5353 DNS port, OVN-Kubernetes egress, and SCC grants for the hosted workers. All of them are off by default; the [OpenShift and OKD guide](https://github.com/vtmocanu/uzi/blob/main/docs/openshift.md) has the values.
 
 ## Or run it locally
 
