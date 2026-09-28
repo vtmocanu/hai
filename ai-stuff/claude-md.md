@@ -98,6 +98,31 @@ If something feels wrong, fix it before presenting. Flag security risks explicit
 
 This catches issues before they reach me. I use this in [nanoclaw](https://nanoclaw.net/) as part of the agent's core instructions.
 
+### Simplest Design That Fully Works
+
+The self-review above asks "is this the simplest correct approach?", but only after the code is written. By then the expensive decision is already made, in the issue or the PRD, so this rule asks the question at design time.
+
+My global `CLAUDE.md` now has this, right under the best-practice rule:
+
+```markdown
+- **Prefer the simplest design that fully meets the requirement.** Start with the
+  smallest change that fixes the observed failure while preserving existing security,
+  data-integrity, and fail-closed guarantees. Add a subsystem, capability, privilege,
+  or infrastructure dependency only when you can explain why the smaller approach
+  fails. Weigh both likelihood and impact. Simple means fewer moving parts that are
+  easy to reason about, not fewer lines or a clever trick; name any invariant the
+  smaller design relies on. This is not permission to reduce scope or skip a
+  regression test. If a larger design remains a concrete need, park it with its
+  reason. Propose unrelated code simplifications to the user before doing them.
+```
+
+Two parts do most of the work:
+
+- **Name the invariant.** A small fix is often small because it leans on an assumption, so the agent has to write that assumption down where the next change can't quietly break it.
+- **Park, don't pile on.** A bigger design that is still a concrete need gets parked with its reason, not built "just in case".
+
+The same file also says "DO NOT CUT CORNERS", and the two sound like they fight. They don't. Cutting corners is quietly doing less than was asked; picking the smaller design is doing all of it with fewer moving parts, and saying so. Security, data integrity and regression tests never get simplified away.
+
 ### Per-Repo Instructions
 
 Each project's `CLAUDE.md` covers what matters for that repo. My Flux monorepo's is the largest — it includes:
