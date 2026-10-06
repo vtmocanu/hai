@@ -276,11 +276,13 @@ Workers are separate containers that claim runs and do the actual agent work, so
 
 Runs use your own model account, so the cost and the rate limits are yours to see and control. Claude is the default runtime, on a Claude subscription or an Anthropic API key.
 
+uzi is self-hosted and runs each vendor's official harness: the Claude Agent SDK (the real Claude Code binary) and Codex's app-server. Each person brings credentials they minted with the vendor's own tooling (`claude setup-token`, `codex login`) or an API key. Use only your own credentials and never share them. Supported is not the same as authorized: Anthropic's [Agent SDK docs](https://code.claude.com/docs/en/agent-sdk/overview) say third-party products may not offer claude.ai login or subscription rate limits without prior approval, which uzi does not have, and they don't say whether a self-hosted tool running your own token counts. An Anthropic API key sidesteps the question. The [Anthropic token guide](https://github.com/vtmocanu/uzi/blob/main/docs/anthropic-token.md#whose-credentials) has the details.
+
 **Codex is the second runtime, and it is experimental.** You can point a run at Codex instead of Claude from the web, the CLI, the TUI, a schedule, or chat, and it goes through the same plan gate, implement-and-review loop, and branch-and-PR flow. Codex account rate-limit meters sit next to the Claude ones on the web, in `uzi rate-limits`, and in the TUI. It works, but it is not on par with Claude yet: a few edge cases, mostly around recovery and long runs, are still being ironed out, so Claude stays the safer choice for work you care about.
 
 Two features keep a busy factory from stalling on your Claude tokens:
 
-- **Token load balancing.** Pool more than one token and set a worker to auto-select. For each run it picks whichever pooled token has the most rate-limit headroom, skips one that just hit a limit, and holds rather than quietly falling back to your default when the pool is dry. Every run records which credential it spent.
+- **Token load balancing.** Pool more than one of your own tokens (say, a subscription token and an API key) and set a worker to auto-select. For each run it picks whichever pooled token has the most rate-limit headroom, skips one that just hit a limit, and holds rather than quietly falling back to your default when the pool is dry. Every run records which credential it spent.
 - **Rate-limit wait.** If a run hits your 5-hour or 7-day cap mid-flight, uzi pauses it with a countdown instead of failing, then resumes on its own when the window resets, on the same branch, keeping even uncommitted edits, with no re-approval. On by default.
 
 A hosted run is also usually **cheaper than doing the same work in a local agent session**, on the same model tier. The saving is structural, not a quieter model:
@@ -358,6 +360,6 @@ The whole web UI is responsive, so you can browse the factory, watch runs, and a
 *Four tabs above: **What it is**, **Install & configure**, **Features**, and **TUI & Mobile**. Scroll up to switch.*
 
 {{< callout type="warning" >}}
-**Use at your own risk.** uzi is alpha software that runs autonomous AI agents: they read your code, run commands inside their workers, and open pull requests on your forge using your own model tokens. Run it against repositories and infrastructure you own or are allowed to change. You stay in control by design, review the plan before you approve it and the diff before you merge it: uzi opens pull requests but never merges them and never touches `main`, so nothing lands without you deciding to merge it. It ships as is, with no warranty; you are responsible for what you approve, merge, and deploy.
+**Use at your own risk.** uzi is alpha software that runs autonomous AI agents: they read your code, run commands inside their workers, and open pull requests on your forge using your own model tokens, under each vendor's terms. Run it against repositories and infrastructure you own or are allowed to change. You stay in control by design, review the plan before you approve it and the diff before you merge it: uzi opens pull requests but never merges them and never touches `main`, so nothing lands without you deciding to merge it. It ships as is, with no warranty; you are responsible for what you approve, merge, and deploy.
 {{< /callout >}}
 
