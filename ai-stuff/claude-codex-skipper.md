@@ -58,18 +58,28 @@ I keep the install, sign-in, add-a-model and re-patch steps in a small [clodex s
 
 ### Just started trying: claudish
 
-[claudish](https://github.com/MadAppGang/claudish) (MIT, from MadAppGang) comes at the same problem from the other side. It does not patch the Claude Code binary. It starts a local proxy and launches Claude Code pointed at it, so the whole session runs on whatever model you pick: your ChatGPT/Codex plan, OpenRouter, Gemini, or a local model.
+[claudish](https://github.com/MadAppGang/claudish) (MIT, from MadAppGang) comes at the same problem from the other side. It does not patch the Claude Code binary. It starts a local proxy and launches Claude Code pointed at it, so the main conversation runs on whatever model you pick: your ChatGPT/Codex plan, OpenRouter, Gemini, or a local model.
 
 ```bash
 brew tap MadAppGang/tap && brew install claudish       # or: npm install -g claudish
 claudish login codex                                   # browser sign-in with your ChatGPT plan, no API key
 claudish --probe cx@gpt-6.1-sol                        # check which credential will serve this model
-claudish --model cx@gpt-6.1-sol "review this branch"   # Claude Code, running on GPT
 ```
 
-Watch the billing. `cx@` uses your ChatGPT login when you have one, but without it falls back to `OPENAI_API_KEY`, billed per token; `oai@` normally means that key too. That is why I run `--probe` before a real session.
+My full `cc` command for GPT with auto-mode safety checks:
 
-Skip the README's advice to export a placeholder `ANTHROPIC_API_KEY`. Current claudish sets one itself for the Claude Code it launches. An exported one leaks into your plain `claude` runs: interactive Claude Code asks whether to use that custom key instead of your Claude login, and `claude -p` uses it without asking.
+```bash
+CLAUDE_CODE_MAX_CONTEXT_TOKENS=872000 \
+CLAUDE_CODE_AUTO_COMPACT_WINDOW=784800 \
+claudish \
+  --model cx@gpt-6.1-sol \
+  --no-auto-approve \
+  --classifier-provider anthropic \
+  --permission-mode auto
+```
+
+- `--no-auto-approve` prevents bypass; the [classifier](https://github.com/MadAppGang/claudish/blob/v14.1.0/docs/models/model-mapping.md#auto-mode-classifier-passthrough) can use my Claude subscription login when no `ANTHROPIC_API_KEY` is supplied.
+- Window sizes are specific to my setup; check your provider's metadata before copying them.
 
 Too early for a verdict. The appeal is no re-patching after every Claude Code update. The thing I use clodex for most is a GPT model as a subagent inside an otherwise-Claude session. claudish has a `--model-subagent` flag (one model for all subagents) and keeps your Claude login when a role maps to a Claude model, so that looks possible, but I have not tested it yet.
 
