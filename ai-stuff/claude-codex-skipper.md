@@ -56,6 +56,59 @@ when u trigger future agents trigger them on gpt-5.6-sol model pls
 
 I keep the install, sign-in, add-a-model and re-patch steps in a small [clodex skill](https://github.com/vtmocanu/skills/tree/main/skills/clodex) so `/clodex gpt-6.1-sol` does the whole dance for a new model.
 
+### Just started trying: claudish
+
+[claudish](https://github.com/MadAppGang/claudish) (MIT, from MadAppGang) comes at the same problem from the other side. It does not patch the Claude Code binary. It starts a local proxy and launches Claude Code pointed at it, so the whole session runs on whatever model you pick: your ChatGPT/Codex plan, OpenRouter, Gemini, or a local model.
+
+```bash
+brew tap MadAppGang/tap && brew install claudish       # or: npm install -g claudish
+claudish login codex                                   # browser sign-in with your ChatGPT plan, no API key
+claudish --probe cx@gpt-6.1-sol                        # check which credential will serve this model
+claudish --model cx@gpt-6.1-sol "review this branch"   # Claude Code, running on GPT
+```
+
+Watch the billing. `cx@` uses your ChatGPT login when you have one, but without it falls back to `OPENAI_API_KEY`, billed per token; `oai@` normally means that key too. That is why I run `--probe` before a real session.
+
+Skip the README's advice to export a placeholder `ANTHROPIC_API_KEY`. Current claudish sets one itself for the Claude Code it launches. An exported one leaks into your plain `claude` runs: interactive Claude Code asks whether to use that custom key instead of your Claude login, and `claude -p` uses it without asking.
+
+Too early for a verdict. The appeal is no re-patching after every Claude Code update. The thing I use clodex for most is a GPT model as a subagent inside an otherwise-Claude session. claudish has a `--model-subagent` flag (one model for all subagents) and keeps your Claude login when a role maps to a Claude model, so that looks possible, but I have not tested it yet.
+
+#### Free OpenRouter models, for a one-time $10
+
+claudish also talks to [OpenRouter](https://openrouter.ai/), which has a set of free models (IDs ending in `:free`). Free is not unlimited. Per the [OpenRouter limits docs](https://openrouter.ai/docs/api-reference/limits), free models are capped at 20 requests a minute, and at 50 a day until you have bought at least $10 of credits, then 1,000 a day. The threshold counts all-time purchases, not your current balance, so one $10 top-up unlocks it for good.
+
+My setup:
+
+1. Create an OpenRouter account and an API key.
+2. Buy $10 of credits once. Auto top-up was off by default for me; leave it off.
+3. Add a workspace budget so the $10 is also a hard ceiling. I set a **Lifetime** budget of $10, so OpenRouter blocks further requests once I have spent what I put in.
+
+   ![OpenRouter Budgets & data settings: a lifetime workspace budget of $10, current spend $0.00 of $10.00](/images/openrouter-workspace-budget.png)
+
+4. Give claudish the key, either as an env var or in the macOS Keychain:
+
+   ```bash
+   export OPENROUTER_API_KEY=sk-or-v1-...
+   claudish keychain set OPENROUTER_API_KEY   # alternative: prompts for the key, keeps it out of dotfiles
+   ```
+
+5. Pick a free model. There are three ways:
+
+   ```bash
+   claudish --free                                                      # interactive picker, free models only
+   claudish --model openrouter@openrouter/free                          # OpenRouter picks a free model per request
+   claudish --model openrouter@nvidia/nemotron-3-ultra-550b-a55b:free   # pin one model
+   ```
+
+   `openrouter/free` is the zero-effort option, but it can switch models between turns (my first two requests went to two different ones). For a steadier session, pin one. Claude Code only works with models that support tool calls, so filter for those:
+
+   ```bash
+   curl -s https://openrouter.ai/api/v1/models \
+     | jq -r '.data[] | select(.id|endswith(":free")) | select(.supported_parameters|index("tools")) | .id'
+   ```
+
+Two caveats. 1,000 a day is less than it sounds for an agent: every agent turn, so every tool call, is a request, and a busy Claude Code session burns through them fast and hits the per-minute cap first. And some providers may train on or retain prompts, so check the free-model training settings in [OpenRouter's privacy settings](https://openrouter.ai/settings/privacy) before pointing it at code you care about.
+
 ## Option 2: a real Codex buddy (session-peers)
 
 For anything longer than one review, I want a second **session**, not a subagent: a Codex CLI thread with its own context that can implement for an hour, rerun the gate, and still remember what we agreed. That is what [session-peers](https://github.com/vtmocanu/skills/tree/main/skills/session-peers) does. It lets Claude Code sessions and Codex threads on the same machine message each other, with a small "shim" per Codex thread that delivers incoming messages as its next turn and forwards its replies back.
