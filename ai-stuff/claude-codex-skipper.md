@@ -92,10 +92,9 @@ My setup:
    claudish keychain set OPENROUTER_API_KEY   # alternative: prompts for the key, keeps it out of dotfiles
    ```
 
-5. Pick a free model. There are three ways:
+5. Pick a free model. There are two ways (`--free` is in the help text, but its picker comes back empty in claudish 14.1.0):
 
    ```bash
-   claudish --free                                                      # interactive picker, free models only
    claudish --model openrouter@openrouter/free                          # OpenRouter picks a free model per request
    claudish --model openrouter@nvidia/nemotron-3-ultra-550b-a55b:free   # pin one model
    ```
