@@ -6,6 +6,8 @@ A **dark factory** runs with the lights off: no human on the floor. Machines tak
 
 Repo: [github.com/vtmocanu/uzi](https://github.com/vtmocanu/uzi) ← don't forget to star it! ⭐
 
+Questions, feedback, or just curious? [Join the uzi Slack community](https://join.slack.com/t/uzi-dark-factory/shared_invite/zt-4eppr0sf5-LTvGru83gPhpVGwFgllt8w).
+
 {{< callout type="info" >}}
 **TL;DR:** Most AI coding still keeps you in the loop, passing context, code, and errors back and forth by hand. uzi is an open-source "AI dark factory" that takes you out of it: connect a GitLab, GitHub, or Forgejo project, label an issue `uzi`, and it plans the change, waits for your approval, runs an implement-and-review loop, and opens a pull request, never touching `main`. It watches CI and opens a fix when a pipeline turns red, and ships a catalogue of standing schedules (bug triage, test improvement, docs hygiene, and a weekly "feature bingo" that pitches its own next feature). It runs on Claude, with experimental Codex support. You approve the plan and merge the PR; it does the rest.
 {{< /callout >}}
