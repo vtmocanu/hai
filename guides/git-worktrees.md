@@ -147,66 +147,60 @@ Defaults: branch = `feature/<dir-name>`, base = `main`. It always places the new
 
 Here are the actual alias definitions. Add them to your `~/.gitconfig` under `[alias]` (or use `git config --global alias.<name> '<body>'`):
 
-<details>
-<summary><strong><code>git clone-wt</code></strong> — the full shell body</summary>
+> [!NOTE]- `git clone-wt` — the full shell body
+> ```bash
+> !f() {
+>   set -e
+>   url="$1"
+>   dir="${2:-$(basename "$url" .git)}"
+>   if [ -e "$dir" ]; then
+>     echo "error: $dir already exists" >&2
+>     return 1
+>   fi
+>   mkdir -p "$dir"
+>   cd "$dir"
+>   git clone --bare "$url" .bare
+>   printf "gitdir: ./.bare\n" > .git
+>   git --git-dir=.bare config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+>   git --git-dir=.bare config core.repositoryformatversion 1
+>   git --git-dir=.bare config extensions.worktreeConfig true
+>   git --git-dir=.bare fetch origin
+>   default_branch=$(git --git-dir=.bare symbolic-ref --short HEAD)
+>   for ref in $(git --git-dir=.bare for-each-ref --format="%(refname:short)" refs/heads/); do
+>     if [ "$ref" != "$default_branch" ]; then
+>       git --git-dir=.bare branch -D "$ref" >/dev/null
+>     fi
+>   done
+>   git --git-dir=.bare worktree add "$default_branch" "$default_branch"
+>   echo ""
+>   echo "Layout ready at: $(pwd)"
+>   echo "  .bare/                (the bare repo)"
+>   echo "  .git                  (pointer file)"
+>   echo "  $default_branch/      (worktree for $default_branch)"
+>   echo ""
+>   echo "Start working:  cd $dir/$default_branch"
+> }; f
+> ```
+>
 
-```bash
-!f() {
-  set -e
-  url="$1"
-  dir="${2:-$(basename "$url" .git)}"
-  if [ -e "$dir" ]; then
-    echo "error: $dir already exists" >&2
-    return 1
-  fi
-  mkdir -p "$dir"
-  cd "$dir"
-  git clone --bare "$url" .bare
-  printf "gitdir: ./.bare\n" > .git
-  git --git-dir=.bare config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-  git --git-dir=.bare config core.repositoryformatversion 1
-  git --git-dir=.bare config extensions.worktreeConfig true
-  git --git-dir=.bare fetch origin
-  default_branch=$(git --git-dir=.bare symbolic-ref --short HEAD)
-  for ref in $(git --git-dir=.bare for-each-ref --format="%(refname:short)" refs/heads/); do
-    if [ "$ref" != "$default_branch" ]; then
-      git --git-dir=.bare branch -D "$ref" >/dev/null
-    fi
-  done
-  git --git-dir=.bare worktree add "$default_branch" "$default_branch"
-  echo ""
-  echo "Layout ready at: $(pwd)"
-  echo "  .bare/                (the bare repo)"
-  echo "  .git                  (pointer file)"
-  echo "  $default_branch/      (worktree for $default_branch)"
-  echo ""
-  echo "Start working:  cd $dir/$default_branch"
-}; f
-```
-
-</details>
-
-<details>
-<summary><strong><code>git new-wt</code></strong> — the full shell body</summary>
-
-```bash
-!f() {
-  set -e
-  name="$1"
-  branch="${2:-feature/$name}"
-  base="${3:-main}"
-  if [ -z "$name" ]; then
-    echo "usage: git new-wt <dir-name> [branch] [base-branch]" >&2
-    return 1
-  fi
-  git worktree add -b "$branch" "../$name" "$base"
-  echo ""
-  echo "Worktree created. Run this to start working:"
-  echo "  cd ../$name && claude"
-}; f
-```
-
-</details>
+> [!NOTE]- `git new-wt` — the full shell body
+> ```bash
+> !f() {
+>   set -e
+>   name="$1"
+>   branch="${2:-feature/$name}"
+>   base="${3:-main}"
+>   if [ -z "$name" ]; then
+>     echo "usage: git new-wt <dir-name> [branch] [base-branch]" >&2
+>     return 1
+>   fi
+>   git worktree add -b "$branch" "../$name" "$base"
+>   echo ""
+>   echo "Worktree created. Run this to start working:"
+>   echo "  cd ../$name && claude"
+> }; f
+> ```
+>
 
 {{< callout type="info" >}}
 If you'd rather not hand-roll aliases, there's also [worktree-manager](https://github.com/jarredkenny/worktree-manager) — a dedicated CLI for creating, listing, and cleaning up worktrees. I'm not using it myself, but it looks interesting and might be worth a try.

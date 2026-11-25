@@ -299,6 +299,8 @@ details title="Click to expand full prompt" closed="true"
 
 **Prefer this over raw HTML `<details>`** — the Hextra shortcode has better styling and visibility.
 
+Since Hextra 0.13 a foldable alert does the same in plain Markdown (and renders in Obsidian too): `> [!NOTE]- Title` starts collapsed, `> [!TIP]+ Title` starts expanded. Prefix every content line, code fences included, with `> `.
+
 ---
 
 ## Code Blocks

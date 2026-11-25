@@ -49,6 +49,6 @@ Start it locally, use it when you need it, close it when you're done.
 If you're like me and have dismissed most Kubernetes UIs as unnecessary overhead, give Radar a look. It stays out of the way, doesn't require cluster changes, and the topology visualization is genuinely helpful for understanding how resources connect — something that's hard to get from `kubectl get` output alone.
 
 {{< cards >}}
-  {{< card link="https://github.com/skyhook-io/radar" title="Radar on GitHub" subtitle="Local-first Kubernetes visibility tool" icon="github" >}}
+  {{< card link="https://github.com/skyhook-io/radar" title="Radar on GitHub" subtitle="Local-first Kubernetes visibility tool" icon="simple:github" >}}
 {{< /cards >}}
 

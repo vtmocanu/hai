@@ -10,9 +10,10 @@ I run [kube-prometheus-stack](https://github.com/prometheus-community/helm-chart
 
 But I don't always have Slack open. When an alert fires and I get a push notification on my Apple Watch or macOS, this is what I used to see:
 
-<img src="/images/alertmanager-macos-before.png" alt="Old macOS notification showing raw Prometheus labels and internal IPs" style="max-width: 500px; width: 100%; height: auto;" />
-
-<img src="/images/alertmanager-apple-watch-before.png" alt="Old Apple Watch notification showing raw Prometheus labels and internal IPs" style="max-width: 350px; width: 100%; height: auto;" />
+{{< gallery cols="2" >}}
+  {{< gallery-item src="/images/alertmanager-macos-before.png" caption="macOS, before" alt="Old macOS notification showing raw Prometheus labels and internal IPs" >}}
+  {{< gallery-item src="/images/alertmanager-apple-watch-before.png" caption="Apple Watch, before" alt="Old Apple Watch notification showing raw Prometheus labels and internal IPs" >}}
+{{< /gallery >}}
 
 A wall of raw Prometheus labels, internal IPs, pod names, and truncated URLs:
 
@@ -136,9 +137,10 @@ Lesson: when removing template defines, expect a reload race window, and keep th
 
 Push notifications are back to the compact format, now carried by `message_text` and even shorter without the FIRING word:
 
-<img src="/images/alertmanager-ios-message-text.png" alt="iOS notification showing the emoji-only compact headline" style="max-width: 500px; width: 100%; height: auto;" />
-
-<img src="/images/alertmanager-macos-message-text.png" alt="macOS Notification Centre showing the same emoji-only compact headline" style="max-width: 500px; width: 100%; height: auto;" />
+{{< gallery cols="2" >}}
+  {{< gallery-item src="/images/alertmanager-ios-message-text.png" caption="iOS" alt="iOS notification showing the emoji-only compact headline" >}}
+  {{< gallery-item src="/images/alertmanager-macos-message-text.png" caption="macOS" alt="macOS Notification Centre showing the same emoji-only compact headline" >}}
+{{< /gallery >}}
 
 And where it all started, the Apple Watch, now showing real alerts that fit the screen: status emoji, alert name, namespace, at a glance:
 
